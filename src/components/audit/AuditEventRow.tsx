@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { ChevronDown, ChevronLeft, Globe, Fingerprint, Network } from 'lucide-react';
+import { ChevronDown, ChevronLeft, Globe, Fingerprint, Network, CheckCircle2, XCircle } from 'lucide-react';
 import { AuditEvent } from '@/types/audit';
 import { ActorTypeBadge } from './ActorTypeBadge';
-import { OutcomeBadge } from './OutcomeBadge';
+import { TargetTypeBadge } from './TargetTypeBadge';
 import { cn } from '@/lib/utils';
 
 interface AuditEventRowProps {
@@ -21,7 +21,8 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
     <div
       className={cn(
         'border rounded-lg bg-card transition-all duration-200',
-        isExpanded && 'ring-1 ring-primary/20'
+        isExpanded && 'ring-1 ring-primary/20',
+        event.outcome === 'failure' && 'border-failure/30 bg-failure/5'
       )}
     >
       {/* Main row */}
@@ -53,14 +54,14 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
           <ActorTypeBadge type={event.actor_type} />
         </div>
 
-        {/* Actor ID */}
+        {/* Username & User ID */}
         <div className="col-span-2 min-w-0">
-          <div className="text-sm text-foreground truncate" dir="ltr">
-            {event.actor_id || '—'}
+          <div className="text-sm text-foreground truncate">
+            {event.actor_name || '—'}
           </div>
-          {event.actor_ip && (
+          {event.actor_id && (
             <div className="text-xs text-muted-foreground font-mono truncate" dir="ltr">
-              {event.actor_ip}
+              {event.actor_id}
             </div>
           )}
         </div>
@@ -78,15 +79,30 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
           </div>
         </div>
 
-        {/* Outcome */}
+        {/* Target Type */}
         <div className="col-span-2">
-          <OutcomeBadge outcome={event.outcome} />
+          <TargetTypeBadge type={event.target_type} />
         </div>
       </button>
 
       {/* Expanded details */}
       {isExpanded && (
         <div className="px-4 pb-4 pt-2 border-t space-y-4 animate-fade-in">
+          {/* Outcome indicator */}
+          <div className="flex items-center gap-2">
+            {event.outcome === 'success' ? (
+              <span className="inline-flex items-center gap-1.5 text-sm text-success">
+                <CheckCircle2 className="w-4 h-4" />
+                הצלחה
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 text-sm text-failure">
+                <XCircle className="w-4 h-4" />
+                כישלון
+              </span>
+            )}
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Metadata */}
             <div className="space-y-3">
@@ -103,6 +119,17 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
                     </dd>
                   </div>
                 </div>
+                {event.actor_ip && (
+                  <div className="flex items-start gap-2">
+                    <Globe className="w-4 h-4 text-muted-foreground mt-0.5" />
+                    <div>
+                      <dt className="text-muted-foreground">כתובת IP</dt>
+                      <dd className="font-mono text-xs text-foreground" dir="ltr">
+                        {event.actor_ip}
+                      </dd>
+                    </div>
+                  </div>
+                )}
                 {event.request_id && (
                   <div className="flex items-start gap-2">
                     <Network className="w-4 h-4 text-muted-foreground mt-0.5" />
@@ -115,14 +142,11 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
                   </div>
                 )}
                 {event.trace_id && (
-                  <div className="flex items-start gap-2">
-                    <Globe className="w-4 h-4 text-muted-foreground mt-0.5" />
-                    <div>
-                      <dt className="text-muted-foreground">מזהה מעקב</dt>
-                      <dd className="font-mono text-xs text-foreground" dir="ltr">
-                        {event.trace_id}
-                      </dd>
-                    </div>
+                  <div>
+                    <dt className="text-muted-foreground">מזהה מעקב</dt>
+                    <dd className="font-mono text-xs text-foreground" dir="ltr">
+                      {event.trace_id}
+                    </dd>
                   </div>
                 )}
               </dl>
@@ -139,12 +163,14 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
                     <dt className="text-muted-foreground">סוג</dt>
                     <dd className="text-foreground">{event.target_type || '—'}</dd>
                   </div>
-                  <div>
-                    <dt className="text-muted-foreground">מזהה</dt>
-                    <dd className="font-mono text-xs text-foreground" dir="ltr">
-                      {event.target_id || '—'}
-                    </dd>
-                  </div>
+                  {event.target_id && (
+                    <div>
+                      <dt className="text-muted-foreground">מזהה</dt>
+                      <dd className="font-mono text-xs text-foreground" dir="ltr">
+                        {event.target_id}
+                      </dd>
+                    </div>
+                  )}
                 </dl>
               </div>
             )}

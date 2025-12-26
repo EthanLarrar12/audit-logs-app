@@ -8,6 +8,7 @@ export function exportToExcel(events: AuditEvent[], filename?: string) {
     'מזהה אירוע': event.id,
     'תאריך ושעה': format(new Date(event.created_at), 'dd/MM/yyyy HH:mm:ss'),
     'סוג שחקן': translateActorType(event.actor_type),
+    'שם משתמש': event.actor_name || '—',
     'מזהה שחקן': event.actor_id || '—',
     'כתובת IP': event.actor_ip || '—',
     'פעולה': event.action,
