@@ -78,14 +78,14 @@ export function FilterBar({ filters, onFiltersChange, onReset }: FilterBarProps)
               Action
             </label>
             <Select
-              value={filters.action || ''}
-              onValueChange={(v) => updateFilter('action', v || null)}
+              value={filters.action || 'all'}
+              onValueChange={(v) => updateFilter('action', v === 'all' ? null : v)}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="All actions" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All actions</SelectItem>
+                <SelectItem value="all">All actions</SelectItem>
                 {actionTypes.map((action) => (
                   <SelectItem key={action} value={action}>
                     {action}
@@ -101,11 +101,11 @@ export function FilterBar({ filters, onFiltersChange, onReset }: FilterBarProps)
               Actor
             </label>
             <Select
-              value={filters.actor_type || ''}
+              value={filters.actor_type || 'all'}
               onValueChange={(v) =>
                 updateFilter(
                   'actor_type',
-                  (v as 'user' | 'system' | 'service') || null
+                  v === 'all' ? null : (v as 'user' | 'system' | 'service')
                 )
               }
             >
@@ -113,7 +113,7 @@ export function FilterBar({ filters, onFiltersChange, onReset }: FilterBarProps)
                 <SelectValue placeholder="All actors" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All actors</SelectItem>
+                <SelectItem value="all">All actors</SelectItem>
                 <SelectItem value="user">User</SelectItem>
                 <SelectItem value="system">System</SelectItem>
                 <SelectItem value="service">Service</SelectItem>
@@ -127,14 +127,14 @@ export function FilterBar({ filters, onFiltersChange, onReset }: FilterBarProps)
               Resource
             </label>
             <Select
-              value={filters.resource_type || ''}
-              onValueChange={(v) => updateFilter('resource_type', v || null)}
+              value={filters.resource_type || 'all'}
+              onValueChange={(v) => updateFilter('resource_type', v === 'all' ? null : v)}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="All resources" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All resources</SelectItem>
+                <SelectItem value="all">All resources</SelectItem>
                 {resourceTypes.map((type) => (
                   <SelectItem key={type} value={type}>
                     {type}
@@ -150,16 +150,16 @@ export function FilterBar({ filters, onFiltersChange, onReset }: FilterBarProps)
               Outcome
             </label>
             <Select
-              value={filters.outcome || ''}
+              value={filters.outcome || 'all'}
               onValueChange={(v) =>
-                updateFilter('outcome', (v as 'success' | 'failure') || null)
+                updateFilter('outcome', v === 'all' ? null : (v as 'success' | 'failure'))
               }
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="All outcomes" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All outcomes</SelectItem>
+                <SelectItem value="all">All outcomes</SelectItem>
                 <SelectItem value="success">Success</SelectItem>
                 <SelectItem value="failure">Failure</SelectItem>
               </SelectContent>
