@@ -29,17 +29,17 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full grid grid-cols-12 gap-4 px-4 py-3 items-center text-right hover:bg-table-row-hover transition-colors rounded-lg"
       >
-        {/* Expand icon + Timestamp */}
-        <div className="col-span-3 flex items-center gap-3">
-          <span className="text-muted-foreground">
+        {/* Timestamp */}
+        <div className="col-span-2 flex items-center gap-2">
+          <span className="text-muted-foreground shrink-0">
             {isExpanded ? (
               <ChevronDown className="w-4 h-4" />
             ) : (
               <ChevronLeft className="w-4 h-4" />
             )}
           </span>
-          <div>
-            <div className="text-sm font-medium text-foreground">
+          <div className="min-w-0">
+            <div className="text-sm font-medium text-foreground truncate">
               {formattedDate}
             </div>
             <div className="text-xs text-muted-foreground font-mono" dir="ltr">
@@ -49,37 +49,37 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
         </div>
 
         {/* Actor Type */}
-        <div className="col-span-1">
+        <div className="col-span-2">
           <ActorTypeBadge type={event.actor_type} />
         </div>
 
         {/* Actor ID */}
-        <div className="col-span-2">
+        <div className="col-span-2 min-w-0">
           <div className="text-sm text-foreground truncate" dir="ltr">
             {event.actor_id || '—'}
           </div>
           {event.actor_ip && (
-            <div className="text-xs text-muted-foreground font-mono" dir="ltr">
+            <div className="text-xs text-muted-foreground font-mono truncate" dir="ltr">
               {event.actor_ip}
             </div>
           )}
         </div>
 
         {/* Action */}
-        <div className="col-span-2">
-          <div className="text-sm font-medium text-primary" dir="ltr">{event.action}</div>
+        <div className="col-span-2 min-w-0">
+          <div className="text-sm font-medium text-primary truncate" dir="ltr">{event.action}</div>
         </div>
 
         {/* Resource */}
-        <div className="col-span-2">
-          <div className="text-sm text-foreground">{event.resource_type}</div>
+        <div className="col-span-2 min-w-0">
+          <div className="text-sm text-foreground truncate">{event.resource_type}</div>
           <div className="text-xs text-muted-foreground font-mono truncate" dir="ltr">
             {event.resource_id}
           </div>
         </div>
 
         {/* Outcome */}
-        <div className="col-span-2 flex justify-start">
+        <div className="col-span-2">
           <OutcomeBadge outcome={event.outcome} />
         </div>
       </button>
