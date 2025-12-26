@@ -4,6 +4,7 @@ export interface AuditEvent {
   created_at: string; // ISO8601
   actor_type: 'user' | 'system' | 'service';
   actor_id: string | null;
+  actor_name: string | null; // Display name for the actor
   actor_ip: string | null;
   actor_user_agent: string | null;
   action: string;
