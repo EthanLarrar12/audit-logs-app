@@ -36,12 +36,12 @@ export function AuditTable({
     <div className="space-y-2">
       {/* Table header */}
       <div className="grid grid-cols-12 gap-4 px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-        <div className="col-span-3 pl-7">Timestamp</div>
-        <div className="col-span-1">Actor</div>
-        <div className="col-span-2">Actor ID</div>
-        <div className="col-span-2">Action</div>
-        <div className="col-span-2">Resource</div>
-        <div className="col-span-2 text-right">Outcome</div>
+        <div className="col-span-3 pr-7">תאריך ושעה</div>
+        <div className="col-span-1">שחקן</div>
+        <div className="col-span-2">מזהה שחקן</div>
+        <div className="col-span-2">פעולה</div>
+        <div className="col-span-2">משאב</div>
+        <div className="col-span-2">תוצאה</div>
       </div>
 
       {/* Event rows */}

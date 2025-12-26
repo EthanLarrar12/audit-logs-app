@@ -24,7 +24,7 @@ export function OutcomeBadge({ outcome, className }: OutcomeBadgeProps) {
       ) : (
         <XCircle className="w-3 h-3" />
       )}
-      {isSuccess ? 'Success' : 'Failed'}
+      {isSuccess ? 'הצלחה' : 'כישלון'}
     </span>
   );
 }

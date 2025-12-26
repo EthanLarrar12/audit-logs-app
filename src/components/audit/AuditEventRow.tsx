@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { ChevronDown, ChevronRight, Globe, Fingerprint, Network } from 'lucide-react';
+import { he } from 'date-fns/locale';
+import { ChevronDown, ChevronLeft, Globe, Fingerprint, Network } from 'lucide-react';
 import { AuditEvent } from '@/types/audit';
 import { ActorTypeBadge } from './ActorTypeBadge';
 import { OutcomeBadge } from './OutcomeBadge';
@@ -13,7 +14,7 @@ interface AuditEventRowProps {
 export function AuditEventRow({ event }: AuditEventRowProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const formattedDate = format(new Date(event.created_at), 'MMM d, yyyy');
+  const formattedDate = format(new Date(event.created_at), 'd בMMM yyyy', { locale: he });
   const formattedTime = format(new Date(event.created_at), 'HH:mm:ss');
 
   return (
@@ -26,7 +27,7 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
       {/* Main row */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full grid grid-cols-12 gap-4 px-4 py-3 items-center text-left hover:bg-table-row-hover transition-colors rounded-lg"
+        className="w-full grid grid-cols-12 gap-4 px-4 py-3 items-center text-right hover:bg-table-row-hover transition-colors rounded-lg"
       >
         {/* Expand icon + Timestamp */}
         <div className="col-span-3 flex items-center gap-3">
@@ -34,14 +35,14 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
             {isExpanded ? (
               <ChevronDown className="w-4 h-4" />
             ) : (
-              <ChevronRight className="w-4 h-4" />
+              <ChevronLeft className="w-4 h-4" />
             )}
           </span>
           <div>
             <div className="text-sm font-medium text-foreground">
               {formattedDate}
             </div>
-            <div className="text-xs text-muted-foreground font-mono">
+            <div className="text-xs text-muted-foreground font-mono" dir="ltr">
               {formattedTime}
             </div>
           </div>
@@ -54,11 +55,11 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
 
         {/* Actor ID */}
         <div className="col-span-2">
-          <div className="text-sm text-foreground truncate">
+          <div className="text-sm text-foreground truncate" dir="ltr">
             {event.actor_id || '—'}
           </div>
           {event.actor_ip && (
-            <div className="text-xs text-muted-foreground font-mono">
+            <div className="text-xs text-muted-foreground font-mono" dir="ltr">
               {event.actor_ip}
             </div>
           )}
@@ -66,19 +67,19 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
 
         {/* Action */}
         <div className="col-span-2">
-          <div className="text-sm font-medium text-primary">{event.action}</div>
+          <div className="text-sm font-medium text-primary" dir="ltr">{event.action}</div>
         </div>
 
         {/* Resource */}
         <div className="col-span-2">
           <div className="text-sm text-foreground">{event.resource_type}</div>
-          <div className="text-xs text-muted-foreground font-mono truncate">
+          <div className="text-xs text-muted-foreground font-mono truncate" dir="ltr">
             {event.resource_id}
           </div>
         </div>
 
         {/* Outcome */}
-        <div className="col-span-2 flex justify-end">
+        <div className="col-span-2 flex justify-start">
           <OutcomeBadge outcome={event.outcome} />
         </div>
       </button>
@@ -90,14 +91,14 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
             {/* Metadata */}
             <div className="space-y-3">
               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Event Details
+                פרטי האירוע
               </h4>
               <dl className="space-y-2 text-sm">
                 <div className="flex items-start gap-2">
                   <Fingerprint className="w-4 h-4 text-muted-foreground mt-0.5" />
                   <div>
-                    <dt className="text-muted-foreground">Event ID</dt>
-                    <dd className="font-mono text-xs text-foreground break-all">
+                    <dt className="text-muted-foreground">מזהה אירוע</dt>
+                    <dd className="font-mono text-xs text-foreground break-all" dir="ltr">
                       {event.id}
                     </dd>
                   </div>
@@ -106,8 +107,8 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
                   <div className="flex items-start gap-2">
                     <Network className="w-4 h-4 text-muted-foreground mt-0.5" />
                     <div>
-                      <dt className="text-muted-foreground">Request ID</dt>
-                      <dd className="font-mono text-xs text-foreground">
+                      <dt className="text-muted-foreground">מזהה בקשה</dt>
+                      <dd className="font-mono text-xs text-foreground" dir="ltr">
                         {event.request_id}
                       </dd>
                     </div>
@@ -117,8 +118,8 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
                   <div className="flex items-start gap-2">
                     <Globe className="w-4 h-4 text-muted-foreground mt-0.5" />
                     <div>
-                      <dt className="text-muted-foreground">Trace ID</dt>
-                      <dd className="font-mono text-xs text-foreground">
+                      <dt className="text-muted-foreground">מזהה מעקב</dt>
+                      <dd className="font-mono text-xs text-foreground" dir="ltr">
                         {event.trace_id}
                       </dd>
                     </div>
@@ -131,16 +132,16 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
             {(event.target_type || event.target_id) && (
               <div className="space-y-3">
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Target
+                  יעד
                 </h4>
                 <dl className="space-y-1 text-sm">
                   <div>
-                    <dt className="text-muted-foreground">Type</dt>
+                    <dt className="text-muted-foreground">סוג</dt>
                     <dd className="text-foreground">{event.target_type || '—'}</dd>
                   </div>
                   <div>
-                    <dt className="text-muted-foreground">ID</dt>
-                    <dd className="font-mono text-xs text-foreground">
+                    <dt className="text-muted-foreground">מזהה</dt>
+                    <dd className="font-mono text-xs text-foreground" dir="ltr">
                       {event.target_id || '—'}
                     </dd>
                   </div>
@@ -152,9 +153,9 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
             {event.actor_user_agent && (
               <div className="space-y-3">
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  User Agent
+                  סוכן משתמש
                 </h4>
-                <p className="text-xs text-muted-foreground break-words">
+                <p className="text-xs text-muted-foreground break-words" dir="ltr">
                   {event.actor_user_agent}
                 </p>
               </div>
@@ -167,9 +168,9 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
               {event.before_state && (
                 <div className="space-y-2">
                   <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Before State
+                    מצב קודם
                   </h4>
-                  <pre className="text-xs bg-muted p-3 rounded-md overflow-auto max-h-32 scrollbar-thin">
+                  <pre className="text-xs bg-muted p-3 rounded-md overflow-auto max-h-32 scrollbar-thin" dir="ltr">
                     {JSON.stringify(event.before_state, null, 2)}
                   </pre>
                 </div>
@@ -177,9 +178,9 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
               {event.after_state && (
                 <div className="space-y-2">
                   <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    After State
+                    מצב נוכחי
                   </h4>
-                  <pre className="text-xs bg-muted p-3 rounded-md overflow-auto max-h-32 scrollbar-thin">
+                  <pre className="text-xs bg-muted p-3 rounded-md overflow-auto max-h-32 scrollbar-thin" dir="ltr">
                     {JSON.stringify(event.after_state, null, 2)}
                   </pre>
                 </div>
@@ -191,9 +192,9 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
           {event.context && (
             <div className="space-y-2">
               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Context
+                הקשר
               </h4>
-              <pre className="text-xs bg-muted p-3 rounded-md overflow-auto max-h-32 scrollbar-thin">
+              <pre className="text-xs bg-muted p-3 rounded-md overflow-auto max-h-32 scrollbar-thin" dir="ltr">
                 {JSON.stringify(event.context, null, 2)}
               </pre>
             </div>

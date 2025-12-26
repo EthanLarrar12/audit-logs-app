@@ -9,17 +9,17 @@ interface ActorTypeBadgeProps {
 const config = {
   user: {
     icon: User,
-    label: 'User',
+    label: 'משתמש',
     className: 'bg-badge-user/15 text-badge-user border-badge-user/30',
   },
   system: {
     icon: Server,
-    label: 'System',
+    label: 'מערכת',
     className: 'bg-badge-system/15 text-badge-system border-badge-system/30',
   },
   service: {
     icon: Cog,
-    label: 'Service',
+    label: 'שירות',
     className: 'bg-badge-service/15 text-badge-service border-badge-service/30',
   },
 };
