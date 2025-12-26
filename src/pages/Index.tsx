@@ -3,6 +3,9 @@ import { AuditLogHeader } from '@/components/audit/AuditLogHeader';
 import { FilterBar } from '@/components/audit/FilterBar';
 import { AuditTable } from '@/components/audit/AuditTable';
 import { Pagination } from '@/components/audit/Pagination';
+import { exportToExcel } from '@/lib/exportToExcel';
+import { mockAuditEvents } from '@/data/mockAuditData';
+import { toast } from '@/hooks/use-toast';
 
 const Index = () => {
   const {
@@ -18,6 +21,23 @@ const Index = () => {
 
   const hasActiveFilters = Object.values(filters).some((v) => v !== null);
 
+  const handleExport = () => {
+    try {
+      // TODO: Replace with filtered API data when backend is ready
+      exportToExcel(mockAuditEvents);
+      toast({
+        title: 'הייצוא הושלם',
+        description: 'קובץ האקסל הורד בהצלחה.',
+      });
+    } catch (error) {
+      toast({
+        title: 'שגיאה בייצוא',
+        description: 'לא ניתן היה לייצא את הנתונים. נסה שוב.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8 space-y-6">
@@ -25,6 +45,7 @@ const Index = () => {
         <AuditLogHeader
           totalEvents={pagination.total}
           onRefresh={refetch}
+          onExport={handleExport}
           isLoading={isLoading}
         />
 

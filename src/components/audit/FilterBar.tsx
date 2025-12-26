@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
+import { he } from 'date-fns/locale';
 import { Calendar as CalendarIcon, Filter, X, RotateCcw } from 'lucide-react';
 import { AuditFilters } from '@/types/audit';
 import { actionTypes, resourceTypes } from '@/data/mockAuditData';
@@ -48,9 +49,9 @@ export function FilterBar({ filters, onFiltersChange, onReset }: FilterBarProps)
           className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
         >
           <Filter className="w-4 h-4" />
-          Filters
+          מסננים
           {activeFilterCount > 0 && (
-            <span className="ml-1 px-2 py-0.5 text-xs font-medium bg-primary text-primary-foreground rounded-full">
+            <span className="mr-1 px-2 py-0.5 text-xs font-medium bg-primary text-primary-foreground rounded-full">
               {activeFilterCount}
             </span>
           )}
@@ -64,7 +65,7 @@ export function FilterBar({ filters, onFiltersChange, onReset }: FilterBarProps)
             className="text-muted-foreground hover:text-foreground gap-1.5"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            Reset
+            איפוס
           </Button>
         )}
       </div>
@@ -75,17 +76,17 @@ export function FilterBar({ filters, onFiltersChange, onReset }: FilterBarProps)
           {/* Action filter */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Action
+              פעולה
             </label>
             <Select
               value={filters.action || 'all'}
               onValueChange={(v) => updateFilter('action', v === 'all' ? null : v)}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="All actions" />
+                <SelectValue placeholder="כל הפעולות" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All actions</SelectItem>
+                <SelectItem value="all">כל הפעולות</SelectItem>
                 {actionTypes.map((action) => (
                   <SelectItem key={action} value={action}>
                     {action}
@@ -98,7 +99,7 @@ export function FilterBar({ filters, onFiltersChange, onReset }: FilterBarProps)
           {/* Actor Type filter */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Actor
+              שחקן
             </label>
             <Select
               value={filters.actor_type || 'all'}
@@ -110,13 +111,13 @@ export function FilterBar({ filters, onFiltersChange, onReset }: FilterBarProps)
               }
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="All actors" />
+                <SelectValue placeholder="כל השחקנים" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All actors</SelectItem>
-                <SelectItem value="user">User</SelectItem>
-                <SelectItem value="system">System</SelectItem>
-                <SelectItem value="service">Service</SelectItem>
+                <SelectItem value="all">כל השחקנים</SelectItem>
+                <SelectItem value="user">משתמש</SelectItem>
+                <SelectItem value="system">מערכת</SelectItem>
+                <SelectItem value="service">שירות</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -124,17 +125,17 @@ export function FilterBar({ filters, onFiltersChange, onReset }: FilterBarProps)
           {/* Resource Type filter */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Resource
+              משאב
             </label>
             <Select
               value={filters.resource_type || 'all'}
               onValueChange={(v) => updateFilter('resource_type', v === 'all' ? null : v)}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="All resources" />
+                <SelectValue placeholder="כל המשאבים" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All resources</SelectItem>
+                <SelectItem value="all">כל המשאבים</SelectItem>
                 {resourceTypes.map((type) => (
                   <SelectItem key={type} value={type}>
                     {type}
@@ -147,7 +148,7 @@ export function FilterBar({ filters, onFiltersChange, onReset }: FilterBarProps)
           {/* Outcome filter */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Outcome
+              תוצאה
             </label>
             <Select
               value={filters.outcome || 'all'}
@@ -156,12 +157,12 @@ export function FilterBar({ filters, onFiltersChange, onReset }: FilterBarProps)
               }
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="All outcomes" />
+                <SelectValue placeholder="כל התוצאות" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All outcomes</SelectItem>
-                <SelectItem value="success">Success</SelectItem>
-                <SelectItem value="failure">Failure</SelectItem>
+                <SelectItem value="all">כל התוצאות</SelectItem>
+                <SelectItem value="success">הצלחה</SelectItem>
+                <SelectItem value="failure">כישלון</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -169,24 +170,24 @@ export function FilterBar({ filters, onFiltersChange, onReset }: FilterBarProps)
           {/* Date From */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              From
+              מתאריך
             </label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   className={cn(
-                    'w-full justify-start text-left font-normal',
+                    'w-full justify-start text-right font-normal',
                     !filters.dateFrom && 'text-muted-foreground'
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  <CalendarIcon className="ml-2 h-4 w-4" />
                   {filters.dateFrom
-                    ? format(filters.dateFrom, 'MMM d, yyyy')
-                    : 'Start date'}
+                    ? format(filters.dateFrom, 'd בMMM yyyy', { locale: he })
+                    : 'תאריך התחלה'}
                   {filters.dateFrom && (
                     <X
-                      className="ml-auto h-4 w-4 hover:text-destructive"
+                      className="mr-auto h-4 w-4 hover:text-destructive"
                       onClick={(e) => {
                         e.stopPropagation();
                         updateFilter('dateFrom', null);
@@ -210,24 +211,24 @@ export function FilterBar({ filters, onFiltersChange, onReset }: FilterBarProps)
           {/* Date To */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              To
+              עד תאריך
             </label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   className={cn(
-                    'w-full justify-start text-left font-normal',
+                    'w-full justify-start text-right font-normal',
                     !filters.dateTo && 'text-muted-foreground'
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  <CalendarIcon className="ml-2 h-4 w-4" />
                   {filters.dateTo
-                    ? format(filters.dateTo, 'MMM d, yyyy')
-                    : 'End date'}
+                    ? format(filters.dateTo, 'd בMMM yyyy', { locale: he })
+                    : 'תאריך סיום'}
                   {filters.dateTo && (
                     <X
-                      className="ml-auto h-4 w-4 hover:text-destructive"
+                      className="mr-auto h-4 w-4 hover:text-destructive"
                       onClick={(e) => {
                         e.stopPropagation();
                         updateFilter('dateTo', null);

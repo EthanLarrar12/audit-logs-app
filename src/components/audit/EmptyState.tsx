@@ -15,24 +15,24 @@ export function EmptyState({ hasFilters, onResetFilters, onRefresh }: EmptyState
       </div>
       
       <h3 className="text-lg font-semibold text-foreground mb-2">
-        No audit events found
+        לא נמצאו אירועי ביקורת
       </h3>
       
       <p className="text-sm text-muted-foreground text-center max-w-md mb-6">
         {hasFilters
-          ? 'No events match your current filter criteria. Try adjusting your filters or clearing them to see all events.'
-          : 'There are no audit events recorded yet. Events will appear here as system activity occurs.'}
+          ? 'אין אירועים התואמים את הקריטריונים הנוכחיים. נסה לשנות את המסננים או לנקות אותם כדי לראות את כל האירועים.'
+          : 'עדיין לא נרשמו אירועי ביקורת. אירועים יופיעו כאן כאשר תהיה פעילות במערכת.'}
       </p>
 
       <div className="flex gap-3">
         {hasFilters && (
           <Button variant="outline" onClick={onResetFilters}>
-            Clear filters
+            נקה מסננים
           </Button>
         )}
         <Button onClick={onRefresh} className="gap-2">
           <RefreshCw className="w-4 h-4" />
-          Refresh
+          רענון
         </Button>
       </div>
     </div>

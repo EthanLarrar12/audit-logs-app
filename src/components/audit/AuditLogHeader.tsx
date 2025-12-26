@@ -4,15 +4,16 @@ import { Button } from '@/components/ui/button';
 interface AuditLogHeaderProps {
   totalEvents: number;
   onRefresh: () => void;
+  onExport: () => void;
   isLoading: boolean;
 }
 
-export function AuditLogHeader({ totalEvents, onRefresh, isLoading }: AuditLogHeaderProps) {
-  // TODO: Implement export functionality
-  const handleExport = () => {
-    console.log('TODO: Implement export to CSV/JSON');
-  };
-
+export function AuditLogHeader({
+  totalEvents,
+  onRefresh,
+  onExport,
+  isLoading,
+}: AuditLogHeaderProps) {
   return (
     <header className="space-y-1">
       <div className="flex items-center justify-between">
@@ -21,9 +22,9 @@ export function AuditLogHeader({ totalEvents, onRefresh, isLoading }: AuditLogHe
             <Shield className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Audit Log</h1>
+            <h1 className="text-2xl font-bold text-foreground">יומן ביקורת</h1>
             <p className="text-sm text-muted-foreground">
-              {totalEvents} events recorded
+              {totalEvents} אירועים נרשמו
             </p>
           </div>
         </div>
@@ -32,11 +33,11 @@ export function AuditLogHeader({ totalEvents, onRefresh, isLoading }: AuditLogHe
           <Button
             variant="outline"
             size="sm"
-            onClick={handleExport}
+            onClick={onExport}
             className="gap-2"
           >
             <Download className="w-4 h-4" />
-            Export
+            ייצוא לאקסל
           </Button>
           <Button
             variant="default"
@@ -46,7 +47,7 @@ export function AuditLogHeader({ totalEvents, onRefresh, isLoading }: AuditLogHe
             className="gap-2"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh
+            רענון
           </Button>
         </div>
       </div>

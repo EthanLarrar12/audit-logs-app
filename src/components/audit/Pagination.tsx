@@ -30,27 +30,23 @@ export function Pagination({ pagination, onPaginationChange }: PaginationProps) 
     onPaginationChange({ ...pagination, pageSize: newSize, page: 1 });
   };
 
-  // TODO: Integrate with API pagination
-  // This should update query params and trigger a new API call
-  // Example: GET /api/audit-events?page=2&pageSize=25
-
   if (total === 0) return null;
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
       {/* Results info */}
       <div className="text-sm text-muted-foreground">
-        Showing{' '}
-        <span className="font-medium text-foreground">{startItem}</span> to{' '}
-        <span className="font-medium text-foreground">{endItem}</span> of{' '}
-        <span className="font-medium text-foreground">{total}</span> results
+        מציג{' '}
+        <span className="font-medium text-foreground">{startItem}</span> עד{' '}
+        <span className="font-medium text-foreground">{endItem}</span> מתוך{' '}
+        <span className="font-medium text-foreground">{total}</span> תוצאות
       </div>
 
       {/* Controls */}
       <div className="flex items-center gap-4">
         {/* Page size selector */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Rows per page</span>
+          <span className="text-sm text-muted-foreground">שורות בעמוד</span>
           <Select
             value={pageSize.toString()}
             onValueChange={(v) => setPageSize(Number(v))}
@@ -69,30 +65,21 @@ export function Pagination({ pagination, onPaginationChange }: PaginationProps) 
 
         {/* Page info */}
         <div className="text-sm text-muted-foreground">
-          Page{' '}
-          <span className="font-medium text-foreground">{page}</span> of{' '}
+          עמוד{' '}
+          <span className="font-medium text-foreground">{page}</span> מתוך{' '}
           <span className="font-medium text-foreground">{totalPages}</span>
         </div>
 
-        {/* Navigation buttons */}
+        {/* Navigation buttons - reversed for RTL */}
         <div className="flex items-center gap-1">
           <Button
             variant="outline"
             size="icon"
             className="h-8 w-8"
-            onClick={() => goToPage(1)}
-            disabled={page === 1}
+            onClick={() => goToPage(totalPages)}
+            disabled={page === totalPages}
           >
-            <ChevronsLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => goToPage(page - 1)}
-            disabled={page === 1}
-          >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronsRight className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
@@ -107,10 +94,19 @@ export function Pagination({ pagination, onPaginationChange }: PaginationProps) 
             variant="outline"
             size="icon"
             className="h-8 w-8"
-            onClick={() => goToPage(totalPages)}
-            disabled={page === totalPages}
+            onClick={() => goToPage(page - 1)}
+            disabled={page === 1}
           >
-            <ChevronsRight className="h-4 w-4" />
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => goToPage(1)}
+            disabled={page === 1}
+          >
+            <ChevronsLeft className="h-4 w-4" />
           </Button>
         </div>
       </div>
