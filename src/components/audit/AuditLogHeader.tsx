@@ -1,5 +1,7 @@
 import { RefreshCw, Download, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { styles } from './AuditLogHeader.styles';
 
 interface AuditLogHeaderProps {
   totalEvents: number;
@@ -15,26 +17,26 @@ export function AuditLogHeader({
   isLoading,
 }: AuditLogHeaderProps) {
   return (
-    <header className="space-y-1">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Shield className="w-5 h-5 text-primary" />
+    <header className={styles.header}>
+      <div className={styles.topRow}>
+        <div className={styles.titleContainer}>
+          <div className={styles.iconWrapper}>
+            <Shield className={styles.icon} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">יומן ביקורת</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className={styles.title}>יומן ביקורת</h1>
+            <p className={styles.subtitle}>
               {totalEvents} אירועים נרשמו
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className={styles.actionsContainer}>
           <Button
             variant="outline"
             size="sm"
             onClick={onExport}
-            className="gap-2"
+            className={styles.buttonContent}
           >
             <Download className="w-4 h-4" />
             ייצוא לאקסל
@@ -44,9 +46,9 @@ export function AuditLogHeader({
             size="sm"
             onClick={onRefresh}
             disabled={isLoading}
-            className="gap-2"
+            className={styles.buttonContent}
           >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={cn(styles.refreshIcon, isLoading && styles.refreshIconSpin)} />
             רענון
           </Button>
         </div>

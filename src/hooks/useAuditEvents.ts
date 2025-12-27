@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { AuditEvent, AuditFilters, PaginationState } from '@/types/audit';
-import { mockAuditEvents } from '@/data/mockAuditData';
+import { fetchAuditEvents } from '@/lib/api';
 
 interface UseAuditEventsReturn {
   events: AuditEvent[];
@@ -15,6 +16,7 @@ interface UseAuditEventsReturn {
 }
 
 const initialFilters: AuditFilters = {
+  searchInput: null,
   action: null,
   actor_type: null,
   resource_type: null,
@@ -24,70 +26,50 @@ const initialFilters: AuditFilters = {
 };
 
 export function useAuditEvents(): UseAuditEventsReturn {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error] = useState<Error | null>(null);
   const [filters, setFilters] = useState<AuditFilters>(initialFilters);
   const [pagination, setPagination] = useState<PaginationState>({
     page: 1,
     pageSize: 10,
-    total: mockAuditEvents.length,
+    total: 0,
   });
 
-  // TODO: Replace with actual API call
-  // This should integrate with your backend service
-  // Example: GET /api/audit-events?action=...&actor_type=...&page=...
-  const filteredEvents = useMemo(() => {
-    let result = [...mockAuditEvents];
+  const { data, isLoading, isFetching, error, refetch } = useQuery({
+    queryKey: ['audit-events', pagination.page, pagination.pageSize, filters],
+    queryFn: () => fetchAuditEvents({
+      page: pagination.page,
+      pageSize: pagination.pageSize,
+      filters,
+    }),
+    placeholderData: (prev) => prev, // Keep previous data during fetch to avoid flicker
+  });
 
-    if (filters.action) {
-      result = result.filter((e) => e.action === filters.action);
-    }
-    if (filters.actor_type) {
-      result = result.filter((e) => e.actor_type === filters.actor_type);
-    }
-    if (filters.resource_type) {
-      result = result.filter((e) => e.resource_type === filters.resource_type);
-    }
-    if (filters.outcome) {
-      result = result.filter((e) => e.outcome === filters.outcome);
-    }
-    if (filters.dateFrom) {
-      result = result.filter(
-        (e) => new Date(e.created_at) >= filters.dateFrom!
-      );
-    }
-    if (filters.dateTo) {
-      result = result.filter((e) => new Date(e.created_at) <= filters.dateTo!);
-    }
+  // Custom setter for filters to reset pagination to page 1 on change
+  const handleSetFilters: React.Dispatch<React.SetStateAction<AuditFilters>> = useCallback((updater) => {
+    setFilters((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      // Only reset page if filters actually changed
+      if (JSON.stringify(prev) !== JSON.stringify(next)) {
+        setPagination((p) => ({ ...p, page: 1 }));
+      }
+      return next;
+    });
+  }, []);
 
-    return result;
-  }, [filters]);
-
-  // Paginated events
-  const events = useMemo(() => {
-    const start = (pagination.page - 1) * pagination.pageSize;
-    const end = start + pagination.pageSize;
-    return filteredEvents.slice(start, end);
-  }, [filteredEvents, pagination.page, pagination.pageSize]);
-
-  const resetFilters = () => {
+  const resetFilters = useCallback(() => {
     setFilters(initialFilters);
     setPagination((prev) => ({ ...prev, page: 1 }));
-  };
-
-  const refetch = () => {
-    // TODO: Implement actual API refetch
-    setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 500); // Simulate loading
-  };
+  }, []);
 
   return {
-    events,
-    isLoading,
-    error,
+    events: data?.items || [],
+    isLoading: isFetching,
+    error: error as Error | null,
     filters,
-    setFilters,
-    pagination: { ...pagination, total: filteredEvents.length },
+    setFilters: handleSetFilters,
+    pagination: {
+      ...pagination,
+      total: data?.total || 0,
+    },
     setPagination,
     resetFilters,
     refetch,

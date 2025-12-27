@@ -4,8 +4,8 @@ import { FilterBar } from '@/components/audit/FilterBar';
 import { AuditTable } from '@/components/audit/AuditTable';
 import { Pagination } from '@/components/audit/Pagination';
 import { exportToExcel } from '@/lib/exportToExcel';
-import { mockAuditEvents } from '@/data/mockAuditData';
 import { toast } from '@/hooks/use-toast';
+import { styles } from './Index.styles';
 
 const Index = () => {
   const {
@@ -23,8 +23,8 @@ const Index = () => {
 
   const handleExport = () => {
     try {
-      // TODO: Replace with filtered API data when backend is ready
-      exportToExcel(mockAuditEvents);
+      // TODO: Ideally fetch all filtered data for export, currently exporting visible page.
+      exportToExcel(events);
       toast({
         title: 'הייצוא הושלם',
         description: 'קובץ האקסל הורד בהצלחה.',
@@ -39,8 +39,8 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8 space-y-6">
+    <div className={styles.page}>
+      <div className={styles.container}>
         {/* Header */}
         <AuditLogHeader
           totalEvents={pagination.total}
@@ -54,10 +54,11 @@ const Index = () => {
           filters={filters}
           onFiltersChange={setFilters}
           onReset={resetFilters}
+          isLoading={isLoading}
         />
 
         {/* Audit table */}
-        <div className="bg-card border rounded-lg p-4">
+        <div className={styles.tableWrapper}>
           <AuditTable
             events={events}
             isLoading={isLoading}

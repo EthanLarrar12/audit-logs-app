@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { PaginationState } from '@/types/audit';
+import { styles } from './Pagination.styles';
 
 interface PaginationProps {
   pagination: PaginationState;
@@ -33,25 +34,25 @@ export function Pagination({ pagination, onPaginationChange }: PaginationProps) 
   if (total === 0) return null;
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
+    <div className={styles.container}>
       {/* Results info */}
-      <div className="text-sm text-muted-foreground">
+      <div className={styles.infoText}>
         מציג{' '}
-        <span className="font-medium text-foreground">{startItem}</span> עד{' '}
-        <span className="font-medium text-foreground">{endItem}</span> מתוך{' '}
-        <span className="font-medium text-foreground">{total}</span> תוצאות
+        <span className={styles.highlight}>{startItem}</span> עד{' '}
+        <span className={styles.highlight}>{endItem}</span> מתוך{' '}
+        <span className={styles.highlight}>{total}</span> תוצאות
       </div>
 
       {/* Controls */}
-      <div className="flex items-center gap-4">
+      <div className={styles.controls}>
         {/* Page size selector */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">שורות בעמוד</span>
+        <div className={styles.pageSizeSelector}>
+          <span className={styles.infoText}>שורות בעמוד</span>
           <Select
             value={pageSize.toString()}
             onValueChange={(v) => setPageSize(Number(v))}
           >
-            <SelectTrigger className="w-[70px] h-8">
+            <SelectTrigger className={styles.selectTrigger}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -64,18 +65,18 @@ export function Pagination({ pagination, onPaginationChange }: PaginationProps) 
         </div>
 
         {/* Page info */}
-        <div className="text-sm text-muted-foreground">
+        <div className={styles.infoText}>
           עמוד{' '}
-          <span className="font-medium text-foreground">{page}</span> מתוך{' '}
-          <span className="font-medium text-foreground">{totalPages}</span>
+          <span className={styles.highlight}>{page}</span> מתוך{' '}
+          <span className={styles.highlight}>{totalPages}</span>
         </div>
 
         {/* Navigation buttons - reversed for RTL */}
-        <div className="flex items-center gap-1">
+        <div className={styles.navigation}>
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8"
+            className={styles.navButton}
             onClick={() => goToPage(totalPages)}
             disabled={page === totalPages}
           >
@@ -84,7 +85,7 @@ export function Pagination({ pagination, onPaginationChange }: PaginationProps) 
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8"
+            className={styles.navButton}
             onClick={() => goToPage(page + 1)}
             disabled={page === totalPages}
           >
@@ -93,7 +94,7 @@ export function Pagination({ pagination, onPaginationChange }: PaginationProps) 
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8"
+            className={styles.navButton}
             onClick={() => goToPage(page - 1)}
             disabled={page === 1}
           >
@@ -102,7 +103,7 @@ export function Pagination({ pagination, onPaginationChange }: PaginationProps) 
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8"
+            className={styles.navButton}
             onClick={() => goToPage(1)}
             disabled={page === 1}
           >

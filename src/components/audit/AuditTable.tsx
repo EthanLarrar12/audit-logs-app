@@ -2,6 +2,7 @@ import { AuditEvent } from '@/types/audit';
 import { AuditEventRow } from './AuditEventRow';
 import { AuditTableSkeleton } from './AuditTableSkeleton';
 import { EmptyState } from './EmptyState';
+import { styles } from './AuditTable.styles';
 
 interface AuditTableProps {
   events: AuditEvent[];
@@ -33,19 +34,19 @@ export function AuditTable({
   }
 
   return (
-    <div className="space-y-2">
+    <div className={styles.container}>
       {/* Table header */}
-      <div className="grid grid-cols-12 gap-4 px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-        <div className="col-span-2">תאריך ושעה</div>
-        <div className="col-span-2">שחקן</div>
-        <div className="col-span-2">שם משתמש</div>
-        <div className="col-span-2">פעולה</div>
-        <div className="col-span-2">משאב</div>
-        <div className="col-span-2">יעד</div>
+      <div className={styles.header}>
+        <div className={styles.headerItem}>תאריך ושעה</div>
+        <div className={styles.headerItem}>שחקן</div>
+        <div className={styles.headerItem}>שם משתמש</div>
+        <div className={styles.headerItem}>פעולה</div>
+        <div className={styles.headerItem}>משאב</div>
+        <div className={styles.headerItem}>יעד</div>
       </div>
 
       {/* Event rows */}
-      <div className="space-y-2">
+      <div className={styles.rowsContainer}>
         {events.map((event) => (
           <AuditEventRow key={event.id} event={event} />
         ))}
