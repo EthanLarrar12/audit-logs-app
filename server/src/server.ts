@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import auditRouter from './routes/audit';
+import auditRouter from './routers/audit';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
