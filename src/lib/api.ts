@@ -36,9 +36,6 @@ export async function fetchAuditEvents({
         params.append('resourceType', filters.resource_type);
     }
 
-    if (filters.outcome) {
-        params.append('outcome', filters.outcome);
-    }
 
     if (filters.dateFrom) {
         params.append('from', filters.dateFrom.toISOString());
@@ -48,8 +45,8 @@ export async function fetchAuditEvents({
         params.append('to', filters.dateTo.toISOString());
     }
 
-    if (filters.actor_type) {
-        params.append('actorType', filters.actor_type);
+    if (filters.category) {
+        params.append('category', filters.category);
     }
 
     const response = await fetch(`${API_BASE_URL}/audit/events?${params.toString()}`, {

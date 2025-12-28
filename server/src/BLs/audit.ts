@@ -57,16 +57,9 @@ export class AuditService {
             );
         }
 
-        // Actor type filter (exact match)
-        if (params.actorType) {
-            filtered = filtered.filter((e) => e.actor_type === params.actorType);
-        }
-
-        // Target name filter (partial match)
-        if (params.targetName) {
-            filtered = filtered.filter((e) =>
-                e.target_name?.toLowerCase().includes(params.targetName!.toLowerCase())
-            );
+        // Category filter (exact match)
+        if (params.category) {
+            filtered = filtered.filter((e) => e.category === params.category);
         }
 
         // Action filter (exact match)
@@ -79,10 +72,6 @@ export class AuditService {
             filtered = filtered.filter((e) => e.resource_type === params.resourceType);
         }
 
-        // Outcome filter (exact match)
-        if (params.outcome) {
-            filtered = filtered.filter((e) => e.outcome === params.outcome);
-        }
 
         // Full-text search
         if (params.searchInput) {
@@ -125,10 +114,6 @@ export class AuditService {
                 case 'actor_username':
                     aVal = a.actor_username || '';
                     bVal = b.actor_username || '';
-                    break;
-                case 'target_name':
-                    aVal = a.target_name || '';
-                    bVal = b.target_name || '';
                     break;
                 default:
                     aVal = new Date(a.created_at).getTime();

@@ -37,12 +37,11 @@ export function AuditTable({
     <div className={styles.container}>
       {/* Table header */}
       <div className={styles.header}>
-        <div className={styles.headerItem}>תאריך ושעה</div>
-        <div className={styles.headerItem}>שחקן</div>
-        <div className={styles.headerItem}>שם משתמש</div>
-        <div className={styles.headerItem}>פעולה</div>
-        <div className={styles.headerItem}>משאב</div>
-        <div className={styles.headerItem}>יעד</div>
+        <div className={styles.headerItemTime}>תאריך ושעה</div>
+        <div className={styles.headerItemUser}>מי ביצע את הפעולה?</div>
+        <div className={styles.headerItemAction}>מה הפעולה?</div>
+        <div className={styles.headerItemTarget}>על מי/מה בוצע הפעולה?</div>
+        <div className={styles.headerItemResource}>מה התווסף/נמחק?</div>
       </div>
 
       {/* Event rows */}

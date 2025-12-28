@@ -3,7 +3,8 @@ import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Calendar as CalendarIcon, Filter, X, RotateCcw, Search, Loader2 } from 'lucide-react';
 import { AuditFilters } from '@/types/audit';
-import { actionTypes, resourceTypes } from '@/constants/filterOptions';
+import { AUDIT_CATEGORIES, resourceTypes, getSubcategoryName, getActionIcon } from '@/constants/filterOptions';
+import { CategoryBadge } from './CategoryBadge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -119,51 +120,93 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
 
           {/* Other filters grid */}
           <div className={styles.filtersGrid}>
-            {/* Action filter */}
+            {/* Category filter */}
             <div className={styles.filterGroup}>
               <label className={styles.label}>
-                פעולה
+                קטגוריה
               </label>
               <Select
-                value={filters.action || 'all'}
-                onValueChange={(v) => updateFilter('action', v === 'all' ? null : v)}
+                value={filters.category || 'all'}
+                onValueChange={(v) => {
+                  const newCategory = v === 'all' ? null : v;
+                  onFiltersChange({
+                    ...filters,
+                    category: newCategory,
+                    action: null // Reset subcategory when category changes
+                  });
+                }}
               >
                 <SelectTrigger className={styles.selectTrigger}>
-                  <SelectValue placeholder="כל הפעולות" />
+                  <div className="flex-1 flex justify-center overflow-hidden">
+                    {filters.category ? (
+                      <CategoryBadge category={filters.category} />
+                    ) : (
+                      <span className="text-muted-foreground">כל הקטגוריות</span>
+                    )}
+                  </div>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">כל הפעולות</SelectItem>
-                  {actionTypes.map((action) => (
-                    <SelectItem key={action} value={action}>
-                      {action}
+                  <SelectItem value="all">
+                    <div className="flex justify-center w-full text-muted-foreground">
+                      כל הקטגוריות
+                    </div>
+                  </SelectItem>
+                  {AUDIT_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      <div className="flex justify-center w-full">
+                        <CategoryBadge category={cat.id} />
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Actor Type filter */}
+            {/* Subcategory (Action) filter */}
             <div className={styles.filterGroup}>
               <label className={styles.label}>
-                שחקן
+                תת-קטגוריה
               </label>
               <Select
-                value={filters.actor_type || 'all'}
-                onValueChange={(v) =>
-                  updateFilter(
-                    'actor_type',
-                    v === 'all' ? null : (v as 'user' | 'system' | 'service')
-                  )
-                }
+                value={filters.action || 'all'}
+                onValueChange={(v) => updateFilter('action', v === 'all' ? null : v)}
+                disabled={!filters.category}
               >
                 <SelectTrigger className={styles.selectTrigger}>
-                  <SelectValue placeholder="כל השחקנים" />
+                  <div className="flex-1 flex justify-center overflow-hidden">
+                    {filters.action ? (
+                      <CategoryBadge
+                        category={filters.category!}
+                        label={getSubcategoryName(filters.action)}
+                        icon={getActionIcon(filters.action)}
+                      />
+                    ) : (
+                      <span className="text-muted-foreground">
+                        {!filters.category ? "בחר קטגוריה תחילה" : "כל התת-קטגוריות"}
+                      </span>
+                    )}
+                  </div>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">כל השחקנים</SelectItem>
-                  <SelectItem value="user">משתמש</SelectItem>
-                  <SelectItem value="system">מערכת</SelectItem>
-                  <SelectItem value="service">שירות</SelectItem>
+                  <SelectItem value="all">
+                    <div className="flex justify-center w-full text-muted-foreground">
+                      כל התת-קטגוריות
+                    </div>
+                  </SelectItem>
+                  {filters.category &&
+                    AUDIT_CATEGORIES.find(c => c.id === filters.category)
+                      ?.subcategories.map((sub) => (
+                        <SelectItem key={sub.id} value={sub.id}>
+                          <div className="flex justify-center w-full">
+                            <CategoryBadge
+                              category={filters.category!}
+                              label={sub.name}
+                              icon={getActionIcon(sub.id)}
+                            />
+                          </div>
+                        </SelectItem>
+                      ))
+                  }
                 </SelectContent>
               </Select>
             </div>
@@ -187,28 +230,6 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                       {type}
                     </SelectItem>
                   ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Outcome filter */}
-            <div className={styles.filterGroup}>
-              <label className={styles.label}>
-                תוצאה
-              </label>
-              <Select
-                value={filters.outcome || 'all'}
-                onValueChange={(v) =>
-                  updateFilter('outcome', v === 'all' ? null : (v as 'success' | 'failure'))
-                }
-              >
-                <SelectTrigger className={styles.selectTrigger}>
-                  <SelectValue placeholder="כל התוצאות" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">כל התוצאות</SelectItem>
-                  <SelectItem value="success">הצלחה</SelectItem>
-                  <SelectItem value="failure">כישלון</SelectItem>
                 </SelectContent>
               </Select>
             </div>

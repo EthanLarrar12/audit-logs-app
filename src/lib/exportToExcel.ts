@@ -10,15 +10,10 @@ export function exportToExcel(events: AuditEvent[], filename?: string) {
     'סוג שחקן': translateActorType(event.actor_type),
     'שם משתמש': event.actor_username || '—',
     'מזהה שחקן': event.actor_id || '—',
-    'כתובת IP': event.actor_ip || '—',
     'פעולה': event.action,
     'סוג משאב': event.resource_type,
     'מזהה משאב': event.resource_id,
-    'סוג יעד': event.target_type || '—',
-    'מזהה יעד': event.target_id || '—',
-    'תוצאה': event.outcome === 'success' ? 'הצלחה' : 'כישלון',
-    'מזהה בקשה': event.request_id || '—',
-    'מזהה מעקב': event.trace_id || '—',
+    'על מי/מה בוצע הפעולה?': event.target_name || '-',
     'מצב לפני': event.before_state ? JSON.stringify(event.before_state) : '—',
     'מצב אחרי': event.after_state ? JSON.stringify(event.after_state) : '—',
     'הקשר': event.context ? JSON.stringify(event.context) : '—',
@@ -34,15 +29,11 @@ export function exportToExcel(events: AuditEvent[], filename?: string) {
     { wch: 20 }, // תאריך ושעה
     { wch: 10 }, // סוג שחקן
     { wch: 20 }, // מזהה שחקן
-    { wch: 15 }, // כתובת IP
     { wch: 20 }, // פעולה
     { wch: 15 }, // סוג משאב
     { wch: 25 }, // מזהה משאב
     { wch: 12 }, // סוג יעד
     { wch: 20 }, // מזהה יעד
-    { wch: 10 }, // תוצאה
-    { wch: 15 }, // מזהה בקשה
-    { wch: 15 }, // מזהה מעקב
     { wch: 30 }, // מצב לפני
     { wch: 30 }, // מצב אחרי
     { wch: 30 }, // הקשר
