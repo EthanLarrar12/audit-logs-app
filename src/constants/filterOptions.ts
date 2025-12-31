@@ -34,6 +34,9 @@ export interface Category {
     filters?: Filter[];
 }
 
+const getAddUserFilter = (semanticName: string) => ({ name: `חפש את שם/מזהה ה${semanticName} שהתווסף`, searchField: "searchInput" })
+const getRemoveUserFilter = (semanticName: string) => ({ name: `חפש את שם/מזהה ה${semanticName} שנמחק`, searchField: "searchInput" })
+
 export const AUDIT_CATEGORIES: Category[] = [
     {
         id: 'User',
@@ -74,15 +77,15 @@ export const AUDIT_CATEGORIES: Category[] = [
             {
                 id: 'AddUserToShos',
                 name: 'הוספת משתמש לשו"ס',
-                filters: [{ name: "חפש משתמש שהתווסף", searchField: "searchInput" }]
+                filters: [getAddUserFilter("משתמש")]
             },
-            { id: 'RemoveUserFromShos', name: 'הסרת משתמש מהשו"ס' },
+            { id: 'RemoveUserFromShos', name: 'הסרת משתמש מהשו"ס', filters: [getRemoveUserFilter("משתמש")] },
             {
                 id: 'AddManagerToShos',
-                name: 'הוספת מנהל לשו"ס',
-                filters: [{ name: "חפש מנהל שהתווסף", searchField: "searchInput" }]
+                name: 'הוספת אחראי לשו"ס',
+                filters: [getAddUserFilter("אחראי")]
             },
-            { id: 'RemoveManagerFromShos', name: 'הסרת מנהל מהשו"ס' },
+            { id: 'RemoveManagerFromShos', name: 'הסרת אחראי מהשו"ס', filters: [getRemoveUserFilter("אחראי")] },
         ],
     },
     {
@@ -95,10 +98,10 @@ export const AUDIT_CATEGORIES: Category[] = [
             { id: 'DynamicTagCreation', name: 'יצירת תגית דינמית' },
             { id: 'DynamicTagEdit', name: 'עריכת תגית דינמית' },
             { id: 'DynamicTagDeletion', name: 'מחיקה תגית דינמית' },
-            { id: 'AddUserToDynamicTag', name: 'הוספת משתמש לתגית דינמית' },
-            { id: 'RemoveUserFromDynamicTag', name: 'הסרת משתמש מהתגית דינמית' },
-            { id: 'AddManagerToDynamicTag', name: 'הוספת מנהל לתגית דינמית' },
-            { id: 'RemoveManagerFromDynamicTag', name: 'הסרת מנהל מהתגית דינמית' },
+            { id: 'AddUserToDynamicTag', name: 'הוספת משתמש לתגית דינמית', filters: [getAddUserFilter("משתמש")] },
+            { id: 'RemoveUserFromDynamicTag', name: 'הסרת משתמש מהתגית דינמית', filters: [getRemoveUserFilter("משתמש")] },
+            { id: 'AddManagerToDynamicTag', name: 'הוספת מנהל לתגית דינמית', filters: [getAddUserFilter("מנהל")] },
+            { id: 'RemoveManagerFromDynamicTag', name: 'הסרת מנהל מהתגית דינמית', filters: [getRemoveUserFilter("מנהל")] },
         ],
     },
     {
@@ -117,10 +120,8 @@ export const AUDIT_CATEGORIES: Category[] = [
             { id: 'ProfileCreation', name: 'יצירת פרופיל' },
             { id: 'ProfileEdit', name: 'עריכת פרופיל' },
             { id: 'ProfileDeletion', name: 'מחיקה פרופיל' },
-            { id: 'AddUserToProfile', name: 'הוספת משתמש לפרופיל' },
-            { id: 'RemoveUserFromProfile', name: 'הסרת משתמש מהפרופיל' },
-            { id: 'AddManagerToProfile', name: 'הוספת מנהל לפרופיל' },
-            { id: 'RemoveManagerFromProfile', name: 'הסרת מנהל מהפרופיל' },
+            { id: 'AddUserToProfile', name: 'הוספת אחראי לפרופיל', filters: [getAddUserFilter("אחראי")] },
+            { id: 'RemoveUserFromProfile', name: 'הסרת אחראי מהפרופיל', filters: [getRemoveUserFilter("אחראי")] }
         ],
     },
     {
@@ -130,10 +131,10 @@ export const AUDIT_CATEGORIES: Category[] = [
             { id: 'DistributionGroupCreation', name: 'יצירת רשימת תפוצה' },
             { id: 'DistributionGroupEdit', name: 'עריכת רשימת תפוצה' },
             { id: 'DistributionGroupDeletion', name: 'מחיקה רשימת תפוצה' },
-            { id: 'AddUserToDistributionGroup', name: 'הוספת משתמש לרשימת תפוצה' },
-            { id: 'RemoveUserFromDistributionGroup', name: 'הסרת משתמש מהרשימת תפוצה' },
-            { id: 'AddManagerToDistributionGroup', name: 'הוספת מנהל לרשימת תפוצה' },
-            { id: 'RemoveManagerFromDistributionGroup', name: 'הסרת מנהל מהרשימת תפוצה' }
+            { id: 'AddUserToDistributionGroup', name: 'הוספת משתמש לרשימת תפוצה', filters: [getAddUserFilter("משתמש")] },
+            { id: 'RemoveUserFromDistributionGroup', name: 'הסרת משתמש מהרשימת תפוצה', filters: [getRemoveUserFilter("משתמש")] },
+            { id: 'AddManagerToDistributionGroup', name: 'הוספת מנהל לרשימת תפוצה', filters: [getAddUserFilter("מנהל")] },
+            { id: 'RemoveManagerFromDistributionGroup', name: 'הסרת מנהל מהרשימת תפוצה', filters: [getRemoveUserFilter("מנהל")] }
         ],
     },
 ];
