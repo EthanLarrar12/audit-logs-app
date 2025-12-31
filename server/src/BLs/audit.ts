@@ -67,10 +67,6 @@ export class AuditService {
             filtered = filtered.filter((e) => e.action === params.action);
         }
 
-        // Resource type filter (exact match)
-        if (params.resourceType) {
-            filtered = filtered.filter((e) => e.resource_type === params.resourceType);
-        }
 
 
         // Full-text search
@@ -82,7 +78,7 @@ export class AuditService {
                     e.actor_username?.toLowerCase().includes(searchLower) ||
                     e.target_name?.toLowerCase().includes(searchLower) ||
                     e.action.toLowerCase().includes(searchLower) ||
-                    e.resource_type.toLowerCase().includes(searchLower)
+                    e.resource_name.toLowerCase().includes(searchLower)
             );
         }
 

@@ -17,9 +17,9 @@ interface UseAuditEventsReturn {
 
 const initialFilters: AuditFilters = {
   searchInput: null,
+  actorUsername: null,
   category: null,
   action: null,
-  resource_type: null,
   dateFrom: null,
   dateTo: null,
 };

@@ -15,32 +15,32 @@ export const getActionIcon = (action: string) => {
     return undefined;
 };
 
-export const resourceTypes = [
-    'role',
-    'session',
-    'api_key',
-    'report',
-    'account',
-    'access_policy',
-    'database',
-    'alert',
-];
+
+export interface Filter {
+    name: string;
+    searchField: string;
+}
 
 export interface Subcategory {
     id: string;
     name: string;
+    filters?: Filter[];
 }
 
 export interface Category {
     id: string;
     name: string;
     subcategories: Subcategory[];
+    filters?: Filter[];
 }
 
 export const AUDIT_CATEGORIES: Category[] = [
     {
         id: 'User',
         name: 'משתמש',
+        filters: [
+            { name: "חפש את מזהה/שם המשתמש", searchField: "searchInput" },
+        ],
         subcategories: [
             { id: 'UserCreation', name: 'יצירת משתמש' },
             { id: 'UserDeletion', name: 'מחיקה משתמש' },
@@ -52,6 +52,9 @@ export const AUDIT_CATEGORIES: Category[] = [
     {
         id: 'Entity',
         name: 'ישות',
+        filters: [
+            { name: "חפש שם ישות", searchField: "searchInput" },
+        ],
         subcategories: [
             { id: 'EntityCreation', name: 'יצירת ישות' },
             { id: 'EntityEdit', name: 'עריכת ישות' },
@@ -61,19 +64,33 @@ export const AUDIT_CATEGORIES: Category[] = [
     {
         id: 'Shos',
         name: 'שו"ס',
+        filters: [
+            { name: "חפש מזהה שו\"ס", searchField: "searchInput" },
+        ],
         subcategories: [
             { id: 'ShosCreation', name: 'יצירת שו"ס' },
             { id: 'ShosEdit', name: 'עריכת שו"ס' },
             { id: 'ShosDeletion', name: 'מחיקה שו"ס' },
-            { id: 'AddUserToShos', name: 'הוספת משתמש לשו"ס' },
+            {
+                id: 'AddUserToShos',
+                name: 'הוספת משתמש לשו"ס',
+                filters: [{ name: "חפש משתמש שהתווסף", searchField: "searchInput" }]
+            },
             { id: 'RemoveUserFromShos', name: 'הסרת משתמש מהשו"ס' },
-            { id: 'AddManagerToShos', name: 'הוספת מנהל לשו"ס' },
+            {
+                id: 'AddManagerToShos',
+                name: 'הוספת מנהל לשו"ס',
+                filters: [{ name: "חפש מנהל שהתווסף", searchField: "searchInput" }]
+            },
             { id: 'RemoveManagerFromShos', name: 'הסרת מנהל מהשו"ס' },
         ],
     },
     {
         id: 'DynamicTag',
         name: 'תגיות דינמיות',
+        filters: [
+            { name: "חפש מזהה תגית", searchField: "searchInput" },
+        ],
         subcategories: [
             { id: 'DynamicTagCreation', name: 'יצירת תגית דינמית' },
             { id: 'DynamicTagEdit', name: 'עריכת תגית דינמית' },

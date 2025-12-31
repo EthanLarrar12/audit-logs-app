@@ -11,7 +11,7 @@ export function exportToExcel(events: AuditEvent[], filename?: string) {
     'שם משתמש': event.actor_username || '—',
     'מזהה שחקן': event.actor_id || '—',
     'פעולה': event.action,
-    'סוג משאב': event.resource_type,
+    'סוג משאב': event.resource_name,
     'מזהה משאב': event.resource_id,
     'על מי/מה בוצע הפעולה?': event.target_name || '-',
     'מצב לפני': event.before_state ? JSON.stringify(event.before_state) : '—',

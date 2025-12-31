@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Calendar as CalendarIcon, Filter, X, RotateCcw, Search, Loader2 } from 'lucide-react';
 import { AuditFilters } from '@/types/audit';
-import { AUDIT_CATEGORIES, resourceTypes, getSubcategoryName, getActionIcon } from '@/constants/filterOptions';
+import { AUDIT_CATEGORIES, getSubcategoryName, getActionIcon } from '@/constants/filterOptions';
 import { CategoryBadge } from './CategoryBadge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -32,23 +32,15 @@ interface FilterBarProps {
 
 export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: FilterBarProps) {
   const [isExpanded, setIsExpanded] = useState(true);
-  const [searchTerm, setSearchTerm] = useState(filters.searchInput || '');
-
-  // Debounce search input
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchTerm !== (filters.searchInput || '')) {
-        updateFilter('searchInput', searchTerm || null);
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
+  const [searchValues, setSearchValues] = useState<Record<string, string>>({});
 
   // Sync internal state with external filters (e.g. on reset)
   useEffect(() => {
-    setSearchTerm(filters.searchInput || '');
-  }, [filters.searchInput]);
+    setSearchValues({
+      searchInput: filters.searchInput || '',
+      actorUsername: filters.actorUsername || '',
+    });
+  }, [filters.searchInput, filters.actorUsername]);
 
   const hasActiveFilters = Object.values(filters).some((v) => v !== null);
 
@@ -59,7 +51,44 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
     onFiltersChange({ ...filters, [key]: value });
   };
 
+  const handleSearchChange = (field: string, value: string) => {
+    setSearchValues(prev => ({ ...prev, [field]: value }));
+    // Debounce is handled per field in a separate effect or single one
+  };
+
+  // Generic debounce for all search fields
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      let changed = false;
+      const updatedFilters = { ...filters };
+
+      Object.entries(searchValues).forEach(([field, value]) => {
+        if (filters[field] !== (value || null)) {
+          updatedFilters[field] = value || null;
+          changed = true;
+        }
+      });
+
+      if (changed) {
+        onFiltersChange(updatedFilters);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchValues]);
+
   const activeFilterCount = Object.values(filters).filter((v) => v !== null).length;
+
+  // Resolve filters to display
+  const currentCategory = filters.category ? AUDIT_CATEGORIES.find(c => c.id === filters.category) : null;
+  const currentSubcategory = (currentCategory && filters.action)
+    ? currentCategory.subcategories.find(s => s.id === filters.action)
+    : null;
+
+  const displayFilters = [
+    ...(currentCategory?.filters || []),
+    ...(currentSubcategory?.filters || [])
+  ];
 
   return (
     <div className={styles.container}>
@@ -94,29 +123,31 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
       {/* Filter controls */}
       {isExpanded && (
         <div className={styles.controlsContainer}>
-          {/* Search bar - full width restricted */}
-          <div className={styles.searchContainer}>
-            {isLoading ? (
-              <Loader2 className={styles.loader} />
-            ) : (
-              <Search className={styles.searchIcon} />
-            )}
-            <Input
-              type="text"
-              placeholder="חיפוש לפי שם משתמש או מזהה..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={styles.searchInput}
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm('')}
-                className={styles.clearSearchButton}
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
+          {/* Dynamic Search bars */}
+          {displayFilters.map((filterDef) => (
+            <div key={filterDef.searchField} className={styles.searchContainer}>
+              {isLoading ? (
+                <Loader2 className={styles.loader} />
+              ) : (
+                <Search className={styles.searchIcon} />
+              )}
+              <Input
+                type="text"
+                placeholder={filterDef.name}
+                value={searchValues[filterDef.searchField] || ''}
+                onChange={(e) => handleSearchChange(filterDef.searchField, e.target.value)}
+                className={styles.searchInput}
+              />
+              {searchValues[filterDef.searchField] && (
+                <button
+                  onClick={() => handleSearchChange(filterDef.searchField, '')}
+                  className={styles.clearSearchButton}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          ))}
 
           {/* Other filters grid */}
           <div className={styles.filtersGrid}>
@@ -129,10 +160,17 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                 value={filters.category || 'all'}
                 onValueChange={(v) => {
                   const newCategory = v === 'all' ? null : v;
+                  // Reset all dynamic filters when category changes
+                  const newFilters = { ...filters };
+                  Object.keys(newFilters).forEach(key => {
+                    if (!['category', 'action', 'dateFrom', 'dateTo'].includes(key)) {
+                      delete (newFilters as any)[key];
+                    }
+                  });
                   onFiltersChange({
-                    ...filters,
+                    ...newFilters,
                     category: newCategory,
-                    action: null // Reset subcategory when category changes
+                    action: null
                   });
                 }}
               >
@@ -211,28 +249,6 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
               </Select>
             </div>
 
-            {/* Resource Type filter */}
-            <div className={styles.filterGroup}>
-              <label className={styles.label}>
-                משאב
-              </label>
-              <Select
-                value={filters.resource_type || 'all'}
-                onValueChange={(v) => updateFilter('resource_type', v === 'all' ? null : v)}
-              >
-                <SelectTrigger className={styles.selectTrigger}>
-                  <SelectValue placeholder="כל המשאבים" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">כל המשאבים</SelectItem>
-                  {resourceTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
 
             {/* Date From */}
             <div className={styles.filterGroup}>

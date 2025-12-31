@@ -96,7 +96,7 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
             {event.resource_id}
           </div>
           <div className={styles.resourceType}>
-            {event.resource_type}
+            {event.resource_name}
           </div>
         </div>
       </button>

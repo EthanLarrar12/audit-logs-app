@@ -23,17 +23,17 @@ export async function fetchAuditEvents({
     params.append('sort', 'created_at');
     params.append('order', 'desc');
 
-    // Filters mapping
+    // Filters mapping (Fixed params according to API spec)
     if (filters.searchInput) {
         params.append('searchInput', filters.searchInput);
     }
 
-    if (filters.action) {
-        params.append('action', filters.action);
+    if (filters.actorUsername) {
+        params.append('actorUsername', filters.actorUsername);
     }
 
-    if (filters.resource_type) {
-        params.append('resourceType', filters.resource_type);
+    if (filters.action) {
+        params.append('action', filters.action);
     }
 
 

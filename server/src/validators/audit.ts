@@ -11,7 +11,6 @@ export const auditEventsQuerySchema = z.object({
     actorUsername: z.string().optional(),
     category: z.string().optional(),
     action: z.string().optional(),
-    resourceType: z.string().optional(),
     searchInput: z.string().optional(),
     sort: z.enum(['created_at', 'action', 'actor_username', 'target_name']).optional().default('created_at'),
     order: z.enum(['asc', 'desc']).optional().default('desc'),
