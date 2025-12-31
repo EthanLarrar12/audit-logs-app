@@ -1,5 +1,6 @@
 import { User, Server, Cog } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { styles } from './ActorTypeBadge.styles';
 
 interface ActorTypeBadgeProps {
   type: 'user' | 'system' | 'service';
@@ -10,32 +11,32 @@ const config = {
   user: {
     icon: User,
     label: 'משתמש',
-    className: 'bg-badge-user/15 text-badge-user border-badge-user/30',
+    styleKey: 'user' as const,
   },
   system: {
     icon: Server,
     label: 'מערכת',
-    className: 'bg-badge-system/15 text-badge-system border-badge-system/30',
+    styleKey: 'system' as const,
   },
   service: {
     icon: Cog,
     label: 'שירות',
-    className: 'bg-badge-service/15 text-badge-service border-badge-service/30',
+    styleKey: 'service' as const,
   },
 };
 
 export function ActorTypeBadge({ type, className }: ActorTypeBadgeProps) {
-  const { icon: Icon, label, className: badgeClass } = config[type];
+  const { icon: Icon, label, styleKey } = config[type];
 
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full border',
-        badgeClass,
+        styles.baseBadge,
+        styles[styleKey],
         className
       )}
     >
-      <Icon className="w-3 h-3" />
+      <Icon className={styles.icon} />
       {label}
     </span>
   );

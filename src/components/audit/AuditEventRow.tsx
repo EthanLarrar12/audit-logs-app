@@ -3,7 +3,6 @@ import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { ChevronDown, ChevronLeft, Fingerprint } from 'lucide-react';
 import { AuditEvent } from '@/types/audit';
-import { ActorTypeBadge } from './ActorTypeBadge';
 import { CategoryBadge } from './CategoryBadge';
 import { cn } from '@/lib/utils';
 import { getSubcategoryName, getActionIcon } from '@/constants/filterOptions';
@@ -36,9 +35,9 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
         <div className={styles.timestampCol}>
           <span className={styles.chevron}>
             {isExpanded ? (
-              <ChevronDown className="w-4 h-4" />
+              <ChevronDown className={styles.chevronIcon} />
             ) : (
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className={styles.chevronIcon} />
             )}
           </span>
           <div className="min-w-0">

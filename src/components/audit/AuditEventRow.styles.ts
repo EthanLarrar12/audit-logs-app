@@ -6,6 +6,7 @@ export const styles = makeStyles({
     mainRow: 'w-full grid grid-cols-12 gap-4 px-4 py-3 items-center text-right hover:bg-table-row-hover transition-colors rounded-lg',
     timestampCol: 'col-span-2 flex items-center gap-2',
     chevron: 'text-muted-foreground shrink-0',
+    chevronIcon: 'h-4 w-4',
     dateText: 'text-sm font-medium text-foreground truncate',
     timeText: 'text-xs text-muted-foreground font-mono',
     usernameCol: 'col-span-2 min-w-0',

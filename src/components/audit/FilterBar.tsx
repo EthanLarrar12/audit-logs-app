@@ -6,7 +6,7 @@ import { AuditFilters } from '@/types/audit';
 import { AUDIT_CATEGORIES, getSubcategoryName, getActionIcon } from '@/constants/filterOptions';
 import { CategoryBadge } from './CategoryBadge';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
 import {
   Popover,
   PopoverContent,
@@ -101,7 +101,7 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
           onClick={() => setIsExpanded(!isExpanded)}
           className={styles.expandButton}
         >
-          <Filter className="w-4 h-4" />
+          <Filter className={styles.filterIcon} />
           מסננים
           {activeFilterCount > 0 && (
             <span className={styles.activeFilterBadge}>
@@ -117,7 +117,7 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
             onClick={onReset}
             className={styles.resetButton}
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <RotateCcw className={styles.resetIcon} />
             איפוס
           </Button>
         )}
@@ -146,7 +146,7 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                   onClick={() => handleSearchChange(filterDef.searchField, '')}
                   className={styles.clearSearchButton}
                 >
-                  <X className="w-4 h-4" />
+                  <X className={styles.clearIcon} />
                 </button>
               )}
             </div>
@@ -178,23 +178,23 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                 }}
               >
                 <SelectTrigger className={styles.selectTrigger}>
-                  <div className="flex-1 flex justify-center overflow-hidden">
+                  <div className={styles.categoryWrapper}>
                     {filters.category ? (
                       <CategoryBadge category={filters.category} />
                     ) : (
-                      <span className="text-muted-foreground">כל הקטגוריות</span>
+                      <span className={styles.placeholderText}>כל הקטגוריות</span>
                     )}
                   </div>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">
-                    <div className="flex justify-center w-full text-muted-foreground">
+                    <div className={styles.flexCenterMuted}>
                       כל הקטגוריות
                     </div>
                   </SelectItem>
                   {AUDIT_CATEGORIES.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
-                      <div className="flex justify-center w-full">
+                      <div className={styles.flexCenter}>
                         <CategoryBadge category={cat.id} />
                       </div>
                     </SelectItem>
@@ -214,7 +214,7 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                 disabled={!filters.category}
               >
                 <SelectTrigger className={styles.selectTrigger}>
-                  <div className="flex-1 flex justify-center overflow-hidden">
+                  <div className={styles.categoryWrapper}>
                     {filters.action ? (
                       <CategoryBadge
                         category={filters.category!}
@@ -222,7 +222,7 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                         icon={getActionIcon(filters.action)}
                       />
                     ) : (
-                      <span className="text-muted-foreground">
+                      <span className={styles.placeholderText}>
                         {!filters.category ? "בחר קטגוריה תחילה" : "כל התת-קטגוריות"}
                       </span>
                     )}
@@ -230,7 +230,7 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">
-                    <div className="flex justify-center w-full text-muted-foreground">
+                    <div className={styles.flexCenterMuted}>
                       כל התת-קטגוריות
                     </div>
                   </SelectItem>
@@ -238,7 +238,7 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                     AUDIT_CATEGORIES.find(c => c.id === filters.category)
                       ?.subcategories.map((sub) => (
                         <SelectItem key={sub.id} value={sub.id}>
-                          <div className="flex justify-center w-full">
+                          <div className={styles.flexCenter}>
                             <CategoryBadge
                               category={filters.category!}
                               label={sub.name}
@@ -269,26 +269,31 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                   >
                     <CalendarIcon className={styles.dateButtonIcon} />
                     {filters.dateFrom
-                      ? format(filters.dateFrom, 'd בMMM yyyy', { locale: he })
+                      ? format(filters.dateFrom, 'dd/MM/yyyy HH:mm:ss', { locale: he })
                       : 'תאריך התחלה'}
                     {filters.dateFrom && (
-                      <X
+                      <div
+                        role="button"
                         className={styles.dateButtonClear}
                         onClick={(e) => {
                           e.stopPropagation();
+                          e.preventDefault();
                           updateFilter('dateFrom', null);
                         }}
-                      />
+                        onPointerDown={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                        }}
+                      >
+                        <X className={styles.clearIcon} />
+                      </div>
                     )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className={styles.calendarPopover} align="start">
-                  <Calendar
-                    mode="single"
-                    selected={filters.dateFrom || undefined}
-                    onSelect={(date) => updateFilter('dateFrom', date || null)}
-                    initialFocus
-                    className={styles.calendar}
+                  <DateTimePicker
+                    date={filters.dateFrom}
+                    setDate={(date) => updateFilter('dateFrom', date)}
                   />
                 </PopoverContent>
               </Popover>
@@ -310,26 +315,31 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                   >
                     <CalendarIcon className={styles.dateButtonIcon} />
                     {filters.dateTo
-                      ? format(filters.dateTo, 'd בMMM yyyy', { locale: he })
+                      ? format(filters.dateTo, 'dd/MM/yyyy HH:mm:ss', { locale: he })
                       : 'תאריך סיום'}
                     {filters.dateTo && (
-                      <X
+                      <div
+                        role="button"
                         className={styles.dateButtonClear}
                         onClick={(e) => {
                           e.stopPropagation();
+                          e.preventDefault();
                           updateFilter('dateTo', null);
                         }}
-                      />
+                        onPointerDown={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                        }}
+                      >
+                        <X className={styles.clearIcon} />
+                      </div>
                     )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className={styles.calendarPopover} align="start">
-                  <Calendar
-                    mode="single"
-                    selected={filters.dateTo || undefined}
-                    onSelect={(date) => updateFilter('dateTo', date || null)}
-                    initialFocus
-                    className={styles.calendar}
+                  <DateTimePicker
+                    date={filters.dateTo}
+                    setDate={(date) => updateFilter('dateTo', date)}
                   />
                 </PopoverContent>
               </Popover>

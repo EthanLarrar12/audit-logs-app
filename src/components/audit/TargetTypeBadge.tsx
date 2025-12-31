@@ -1,75 +1,77 @@
-import { 
-  Target, 
-  User as UserIcon, 
-  Database, 
-  Key, 
-  FileText, 
-  Shield, 
+import {
+  Target,
+  User as UserIcon,
+  Database,
+  Key,
+  FileText,
+  Shield,
   HardDrive,
   Clock,
-  Folder
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { styles } from './TargetTypeBadge.styles';
 
 interface TargetTypeBadgeProps {
   type: string | null;
   className?: string;
 }
 
-const targetConfig: Record<string, { icon: React.ElementType; label: string; className: string }> = {
+type StyleKey = keyof typeof styles;
+
+const targetConfig: Record<string, { icon: React.ElementType; label: string; styleKey: StyleKey }> = {
   user: {
     icon: UserIcon,
     label: 'משתמש',
-    className: 'bg-blue-500/15 text-blue-600 border-blue-500/30',
+    styleKey: 'user',
   },
   account: {
     icon: UserIcon,
     label: 'חשבון',
-    className: 'bg-indigo-500/15 text-indigo-600 border-indigo-500/30',
+    styleKey: 'account',
   },
   storage: {
     icon: HardDrive,
     label: 'אחסון',
-    className: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30',
+    styleKey: 'storage',
   },
   api_group: {
     icon: Key,
     label: 'קבוצת API',
-    className: 'bg-amber-500/15 text-amber-600 border-amber-500/30',
+    styleKey: 'api_group',
   },
   database: {
     icon: Database,
     label: 'מסד נתונים',
-    className: 'bg-purple-500/15 text-purple-600 border-purple-500/30',
+    styleKey: 'database',
   },
   report: {
     icon: FileText,
     label: 'דוח',
-    className: 'bg-cyan-500/15 text-cyan-600 border-cyan-500/30',
+    styleKey: 'report',
   },
   session: {
     icon: Clock,
     label: 'הפעלה',
-    className: 'bg-rose-500/15 text-rose-600 border-rose-500/30',
+    styleKey: 'session',
   },
   role: {
     icon: Shield,
     label: 'תפקיד',
-    className: 'bg-orange-500/15 text-orange-600 border-orange-500/30',
+    styleKey: 'role',
   },
 };
 
 const defaultConfig = {
   icon: Target,
   label: 'יעד',
-  className: 'bg-muted text-muted-foreground border-border',
+  styleKey: 'default' as StyleKey,
 };
 
 export function TargetTypeBadge({ type, className }: TargetTypeBadgeProps) {
   if (!type) {
     return (
       <span className={cn(
-        'inline-flex items-center px-2 py-0.5 text-xs text-muted-foreground',
+        styles.emptyBadge,
         className
       )}>
         —
@@ -83,12 +85,12 @@ export function TargetTypeBadge({ type, className }: TargetTypeBadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full border',
-        config.className,
+        styles.baseBadge,
+        styles[config.styleKey],
         className
       )}
     >
-      <Icon className="w-3 h-3" />
+      <Icon className={styles.icon} />
       {config.label}
     </span>
   );

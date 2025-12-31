@@ -22,4 +22,15 @@ export const styles = makeStyles({
     dateButtonClear: 'mr-auto h-4 w-4 hover:text-destructive',
     calendarPopover: 'w-auto p-0',
     calendar: 'pointer-events-auto',
+
+    // Icons
+    filterIcon: 'w-4 h-4',
+    resetIcon: 'w-3.5 h-3.5',
+    clearIcon: 'w-4 h-4',
+
+    // Helpers
+    flexCenter: 'flex justify-center w-full',
+    flexCenterMuted: 'flex justify-center w-full text-muted-foreground',
+    categoryWrapper: 'flex-1 flex justify-center overflow-hidden',
+    placeholderText: 'text-muted-foreground',
 });
