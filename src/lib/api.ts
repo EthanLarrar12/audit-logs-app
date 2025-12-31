@@ -27,6 +27,15 @@ export async function fetchAuditEvents({
     if (filters.searchInput) {
         params.append('searchInput', filters.searchInput);
     }
+    if (filters.actorSearch) {
+        params.append('actorSearch', filters.actorSearch);
+    }
+    if (filters.targetSearch) {
+        params.append('targetSearch', filters.targetSearch);
+    }
+    if (filters.resourceSearch) {
+        params.append('resourceSearch', filters.resourceSearch);
+    }
 
     if (filters.actorUsername) {
         params.append('actorUsername', filters.actorUsername);

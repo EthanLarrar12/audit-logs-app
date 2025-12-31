@@ -39,8 +39,11 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
     setSearchValues({
       searchInput: filters.searchInput || '',
       actorUsername: filters.actorUsername || '',
+      actorSearch: filters.actorSearch || '',
+      targetSearch: filters.targetSearch || '',
+      resourceSearch: filters.resourceSearch || '',
     });
-  }, [filters.searchInput, filters.actorUsername]);
+  }, [filters.searchInput, filters.actorUsername, filters.actorSearch, filters.targetSearch, filters.resourceSearch]);
 
   const hasActiveFilters = Object.values(filters).some((v) => v !== null);
 

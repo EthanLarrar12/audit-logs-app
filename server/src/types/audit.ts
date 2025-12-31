@@ -11,6 +11,9 @@ export interface AuditQueryParams {
     category?: string;
     action?: string;
     searchInput?: string;
+    actorSearch?: string;
+    targetSearch?: string;
+    resourceSearch?: string;
     sort?: 'created_at' | 'action' | 'actor_username' | 'target_name';
     order?: 'asc' | 'desc';
 }

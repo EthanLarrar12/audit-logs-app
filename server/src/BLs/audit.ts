@@ -67,7 +67,35 @@ export class AuditService {
             filtered = filtered.filter((e) => e.action === params.action);
         }
 
+        // Actor search (name OR ID)
+        if (params.actorSearch) {
+            const searchLower = params.actorSearch.toLowerCase();
+            filtered = filtered.filter(
+                (e) =>
+                    e.actor_username?.toLowerCase().includes(searchLower) ||
+                    e.actor_id?.toLowerCase().includes(searchLower)
+            );
+        }
 
+        // Target search (name OR ID)
+        if (params.targetSearch) {
+            const searchLower = params.targetSearch.toLowerCase();
+            filtered = filtered.filter(
+                (e) =>
+                    e.target_name?.toLowerCase().includes(searchLower) ||
+                    e.target_id?.toLowerCase().includes(searchLower)
+            );
+        }
+
+        // Resource search (name OR ID)
+        if (params.resourceSearch) {
+            const searchLower = params.resourceSearch.toLowerCase();
+            filtered = filtered.filter(
+                (e) =>
+                    e.resource_name.toLowerCase().includes(searchLower) ||
+                    e.resource_id.toLowerCase().includes(searchLower)
+            );
+        }
 
         // Full-text search
         if (params.searchInput) {
