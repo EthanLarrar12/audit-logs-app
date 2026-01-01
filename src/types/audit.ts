@@ -3,15 +3,15 @@ import { AuditEvent, AuditEventPage } from '../../shared/types/audit';
 export type { AuditEvent, AuditEventPage };
 
 export interface AuditFilters {
-  searchInput: string | null;
-  actorSearch: string | null;
-  targetSearch: string | null;
-  resourceSearch: string | null;
-  actorUsername: string | null;
-  category: string | null;
-  action: string | null;
-  dateFrom: Date | null;
-  dateTo: Date | null;
+  searchInput?: string;
+  actorSearch?: string;
+  targetSearch?: string;
+  resourceSearch?: string;
+  actorUsername?: string;
+  category?: string;
+  action?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
 }
 
 export interface PaginationState {

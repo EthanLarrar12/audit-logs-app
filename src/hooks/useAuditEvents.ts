@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { isNil, omitBy } from 'lodash';
 import { AuditEvent, AuditFilters, PaginationState } from '@/types/audit';
 import { fetchAuditEvents } from '@/lib/api';
 
@@ -15,17 +16,7 @@ interface UseAuditEventsReturn {
   refetch: () => void;
 }
 
-const initialFilters: AuditFilters = {
-  searchInput: null,
-  actorSearch: null,
-  targetSearch: null,
-  resourceSearch: null,
-  actorUsername: null,
-  category: null,
-  action: null,
-  dateFrom: null,
-  dateTo: null,
-};
+const initialFilters: AuditFilters = {} as AuditFilters;
 
 export function useAuditEvents(): UseAuditEventsReturn {
   const [filters, setFilters] = useState<AuditFilters>(initialFilters);
@@ -35,27 +26,32 @@ export function useAuditEvents(): UseAuditEventsReturn {
     total: 0,
   });
 
-  const { data, isLoading, isFetching, error, refetch } = useQuery({
-    queryKey: ['audit-events', pagination.page, pagination.pageSize, filters],
+  const activeFilters = omitBy(filters, isNil);
+
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['audit-events', pagination.page, pagination.pageSize, activeFilters],
     queryFn: () => fetchAuditEvents({
       page: pagination.page,
       pageSize: pagination.pageSize,
       filters,
     }),
-    placeholderData: (prev) => prev, // Keep previous data during fetch to avoid flicker
+    refetchOnWindowFocus: false,
+    placeholderData: keepPreviousData,
   });
 
-  // Custom setter for filters to reset pagination to page 1 on change
   const handleSetFilters: React.Dispatch<React.SetStateAction<AuditFilters>> = useCallback((updater) => {
-    setFilters((prev) => {
-      const next = typeof updater === 'function' ? updater(prev) : updater;
-      // Only reset page if filters actually changed
-      if (JSON.stringify(prev) !== JSON.stringify(next)) {
-        setPagination((p) => ({ ...p, page: 1 }));
-      }
-      return next;
-    });
-  }, []);
+    // Resolve the new value based on the CURRENT filters state
+    const nextFilters = typeof updater === 'function'
+      ? (updater as (prev: AuditFilters) => AuditFilters)(filters)
+      : updater;
+
+    // Only update if changed
+    if (JSON.stringify(filters) !== JSON.stringify(nextFilters)) {
+      setFilters(nextFilters);
+      // Reset pagination to page 1 when filters change
+      setPagination((prev) => ({ ...prev, page: 1 }));
+    }
+  }, [filters]);
 
   const resetFilters = useCallback(() => {
     setFilters(initialFilters);
@@ -64,7 +60,7 @@ export function useAuditEvents(): UseAuditEventsReturn {
 
   return {
     events: data?.items || [],
-    isLoading: isFetching,
+    isLoading,
     error: error as Error | null,
     filters,
     setFilters: handleSetFilters,
