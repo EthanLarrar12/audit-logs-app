@@ -4,20 +4,17 @@ const API_BASE_URL = 'http://localhost:3001';
 
 interface FetchAuditEventsParams {
     page: number;
-    pageSize: number;
     filters: AuditFilters;
 }
 
 export async function fetchAuditEvents({
     page,
-    pageSize,
     filters,
 }: FetchAuditEventsParams): Promise<AuditEventPage> {
     const params = new URLSearchParams();
 
     // Pagination
     params.append('page', page.toString());
-    params.append('pageSize', pageSize.toString());
 
     // Sorting (Defaulting to created_at desc as per spec default is desc, field created_at seems appropriate)
     params.append('sort', 'created_at');

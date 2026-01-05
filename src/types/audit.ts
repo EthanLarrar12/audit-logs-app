@@ -14,8 +14,3 @@ export interface AuditFilters {
   dateTo?: Date;
 }
 
-export interface PaginationState {
-  page: number;
-  pageSize: number;
-  total: number;
-}

@@ -9,4 +9,6 @@ export const styles = makeStyles({
     headerItemTarget: 'col-span-3 text-right',
     headerItemResource: 'col-span-2 text-right',
     rowsContainer: 'space-y-2',
+    sentinel: 'h-10 w-full flex items-center justify-center py-4',
+    loader: 'animate-spin text-muted-foreground w-6 h-6',
 });

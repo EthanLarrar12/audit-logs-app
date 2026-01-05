@@ -17,7 +17,5 @@ export interface AuditEvent {
 
 export interface AuditEventPage {
     page: number;
-    pageSize: number;
-    total: number;
     items: AuditEvent[];
 }

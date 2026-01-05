@@ -1,3 +1,4 @@
+import { PAGE_SIZE } from '../constants/pagination';
 import { mockAuditEvents } from '../data/mockData';
 import { AuditEvent, AuditEventPage, AuditQueryParams } from '../types/audit';
 
@@ -161,18 +162,14 @@ export class AuditService {
         events: AuditEvent[],
         params: AuditQueryParams
     ): AuditEventPage {
-        const total: number = events.length;
         const page: number = params.page || 1;
-        const pageSize: number = params.pageSize || 50;
 
-        const startIndex: number = (page - 1) * pageSize;
-        const endIndex: number = startIndex + pageSize;
+        const startIndex: number = (page - 1) * PAGE_SIZE;
+        const endIndex: number = startIndex + PAGE_SIZE;
         const paginatedEvents: AuditEvent[] = events.slice(startIndex, endIndex);
 
         return {
             page,
-            pageSize,
-            total,
             items: paginatedEvents,
         };
     }

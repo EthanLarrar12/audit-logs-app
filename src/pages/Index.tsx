@@ -11,11 +11,12 @@ const Index = () => {
   const {
     events,
     isLoading,
+    isFetchingNextPage,
     isSlowLoading,
     filters,
     setFilters,
-    pagination,
-    setPagination,
+    hasNextPage,
+    fetchNextPage,
     resetFilters,
     refetch,
   } = useAuditEvents();
@@ -44,7 +45,6 @@ const Index = () => {
       <div className={styles.container}>
         {/* Header */}
         <AuditLogHeader
-          totalEvents={pagination.total}
           onRefresh={refetch}
           onExport={handleExport}
           isLoading={isSlowLoading}
@@ -63,15 +63,12 @@ const Index = () => {
           <AuditTable
             events={events}
             isLoading={isLoading || isSlowLoading}
+            isFetchingNextPage={isFetchingNextPage}
+            hasNextPage={hasNextPage}
+            fetchNextPage={fetchNextPage}
             hasFilters={hasActiveFilters}
             onResetFilters={resetFilters}
             onRefresh={refetch}
-          />
-
-          {/* Pagination */}
-          <Pagination
-            pagination={pagination}
-            onPaginationChange={setPagination}
           />
         </div>
       </div>

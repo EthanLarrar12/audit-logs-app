@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react';
+import { Loader2 } from 'lucide-react';
 import { AuditEvent } from '@/types/audit';
 import { AuditEventRow } from './AuditEventRow';
 import { AuditTableSkeleton } from './AuditTableSkeleton';
@@ -7,6 +9,9 @@ import { styles } from './AuditTable.styles';
 interface AuditTableProps {
   events: AuditEvent[];
   isLoading: boolean;
+  isFetchingNextPage: boolean;
+  hasNextPage: boolean;
+  fetchNextPage: () => void;
   hasFilters: boolean;
   onResetFilters: () => void;
   onRefresh: () => void;
@@ -15,10 +20,32 @@ interface AuditTableProps {
 export function AuditTable({
   events,
   isLoading,
+  isFetchingNextPage,
+  hasNextPage,
+  fetchNextPage,
   hasFilters,
   onResetFilters,
   onRefresh,
 }: AuditTableProps) {
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
   if (isLoading) {
     return <AuditTableSkeleton rows={5} />;
   }
@@ -49,6 +76,11 @@ export function AuditTable({
         {events.map((event) => (
           <AuditEventRow key={event.id} event={event} />
         ))}
+
+        {/* Sentinel for infinite scroll */}
+        <div ref={observerTarget} className={styles.sentinel}>
+          {isFetchingNextPage && <Loader2 className={styles.loader} />}
+        </div>
       </div>
     </div>
   );

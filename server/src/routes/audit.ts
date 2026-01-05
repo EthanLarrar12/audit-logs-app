@@ -33,8 +33,6 @@ export const getAuditEvents: RequestHandler = (req, res): void => {
         console.error('Error in getAuditEvents:', error);
         res.status(500).json({
             page: 1,
-            pageSize: 50,
-            total: 0,
             items: [],
         } as AuditEventPage);
     }

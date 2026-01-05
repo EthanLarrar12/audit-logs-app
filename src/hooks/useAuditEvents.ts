@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { useState, useCallback, useMemo } from 'react';
+import { useInfiniteQuery, keepPreviousData } from '@tanstack/react-query';
 import { isNil, omitBy } from 'lodash';
-import { AuditEvent, AuditFilters, PaginationState } from '@/types/audit';
+import { AuditEvent, AuditFilters } from '@/types/audit';
 import { useDelayedLoading } from './useDelayedLoading';
 import { fetchAuditEvents } from '@/lib/api';
 
@@ -9,40 +9,53 @@ interface UseAuditEventsReturn {
   events: AuditEvent[];
   isLoading: boolean;
   isFetching: boolean;
+  isFetchingNextPage: boolean;
   isSlowLoading: boolean;
+  hasNextPage: boolean;
   error: Error | null;
   filters: AuditFilters;
   setFilters: React.Dispatch<React.SetStateAction<AuditFilters>>;
-  pagination: PaginationState;
-  setPagination: React.Dispatch<React.SetStateAction<PaginationState>>;
+  fetchNextPage: () => void;
   resetFilters: () => void;
   refetch: () => void;
 }
 
 const initialFilters: AuditFilters = {} as AuditFilters;
+const PAGE_SIZE = 10;
 
 export function useAuditEvents(): UseAuditEventsReturn {
   const [filters, setFilters] = useState<AuditFilters>(initialFilters);
-  const [pagination, setPagination] = useState<PaginationState>({
-    page: 1,
-    pageSize: 10,
-    total: 0,
-  });
 
   const activeFilters = omitBy(filters, isNil);
 
-  const { data, isLoading, isFetching, error, refetch } = useQuery({
-    queryKey: ['audit-events', pagination.page, pagination.pageSize, activeFilters],
-    queryFn: () => fetchAuditEvents({
-      page: pagination.page,
-      pageSize: pagination.pageSize,
+  const {
+    data,
+    isLoading,
+    isFetching,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    error,
+    refetch
+  } = useInfiniteQuery({
+    queryKey: ['audit-events', activeFilters],
+    queryFn: ({ pageParam = 1 }) => fetchAuditEvents({
+      page: pageParam as number,
       filters,
     }),
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.items.length === PAGE_SIZE ? allPages.length + 1 : undefined;
+    },
+    initialPageParam: 1,
     refetchOnWindowFocus: false,
     placeholderData: keepPreviousData,
   });
 
-  const isSlowLoading = useDelayedLoading(isFetching, 200);
+  const isSlowLoading = useDelayedLoading(isFetching && !isFetchingNextPage, 200);
+
+  const events = useMemo(() => {
+    return data?.pages.flatMap((page) => page.items) || [];
+  }, [data]);
 
   const handleSetFilters: React.Dispatch<React.SetStateAction<AuditFilters>> = useCallback((updater) => {
     // Resolve the new value based on the CURRENT filters state
@@ -53,29 +66,24 @@ export function useAuditEvents(): UseAuditEventsReturn {
     // Only update if changed
     if (JSON.stringify(filters) !== JSON.stringify(nextFilters)) {
       setFilters(nextFilters);
-      // Reset pagination to page 1 when filters change
-      setPagination((prev) => ({ ...prev, page: 1 }));
     }
   }, [filters]);
 
   const resetFilters = useCallback(() => {
     setFilters(initialFilters);
-    setPagination((prev) => ({ ...prev, page: 1 }));
   }, []);
 
   return {
-    events: data?.items || [],
+    events,
     isLoading,
     isFetching,
+    isFetchingNextPage,
     isSlowLoading,
+    hasNextPage: !!hasNextPage,
     error: error as Error | null,
     filters,
     setFilters: handleSetFilters,
-    pagination: {
-      ...pagination,
-      total: data?.total || 0,
-    },
-    setPagination,
+    fetchNextPage,
     resetFilters,
     refetch,
   };

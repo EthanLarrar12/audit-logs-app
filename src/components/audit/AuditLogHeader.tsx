@@ -4,14 +4,12 @@ import { cn } from '@/lib/utils';
 import { styles } from './AuditLogHeader.styles';
 
 interface AuditLogHeaderProps {
-  totalEvents: number;
   onRefresh: () => void;
   onExport: () => void;
   isLoading: boolean;
 }
 
 export function AuditLogHeader({
-  totalEvents,
   onRefresh,
   onExport,
   isLoading,
@@ -25,9 +23,6 @@ export function AuditLogHeader({
           </div>
           <div>
             <h1 className={styles.title}>יומן ביקורת</h1>
-            <p className={styles.subtitle}>
-              {totalEvents} אירועים נרשמו
-            </p>
           </div>
         </div>
 

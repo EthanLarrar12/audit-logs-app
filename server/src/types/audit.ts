@@ -4,7 +4,6 @@ export type { AuditEvent, AuditEventPage };
 
 export interface AuditQueryParams {
     page?: number;
-    pageSize?: number;
     from?: string;
     to?: string;
     actorUsername?: string;
