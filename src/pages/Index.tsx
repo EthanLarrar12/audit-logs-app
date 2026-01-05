@@ -11,6 +11,7 @@ const Index = () => {
   const {
     events,
     isLoading,
+    isSlowLoading,
     filters,
     setFilters,
     pagination,
@@ -46,7 +47,7 @@ const Index = () => {
           totalEvents={pagination.total}
           onRefresh={refetch}
           onExport={handleExport}
-          isLoading={isLoading}
+          isLoading={isSlowLoading}
         />
 
         {/* Filter bar */}
@@ -54,14 +55,14 @@ const Index = () => {
           filters={filters}
           onFiltersChange={setFilters}
           onReset={resetFilters}
-          isLoading={isLoading}
+          isLoading={isSlowLoading}
         />
 
         {/* Audit table */}
         <div className={styles.tableWrapper}>
           <AuditTable
             events={events}
-            isLoading={isLoading}
+            isLoading={isLoading || isSlowLoading}
             hasFilters={hasActiveFilters}
             onResetFilters={resetFilters}
             onRefresh={refetch}

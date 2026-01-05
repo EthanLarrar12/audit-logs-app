@@ -2,11 +2,14 @@ import { useState, useCallback } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { isNil, omitBy } from 'lodash';
 import { AuditEvent, AuditFilters, PaginationState } from '@/types/audit';
+import { useDelayedLoading } from './useDelayedLoading';
 import { fetchAuditEvents } from '@/lib/api';
 
 interface UseAuditEventsReturn {
   events: AuditEvent[];
   isLoading: boolean;
+  isFetching: boolean;
+  isSlowLoading: boolean;
   error: Error | null;
   filters: AuditFilters;
   setFilters: React.Dispatch<React.SetStateAction<AuditFilters>>;
@@ -28,7 +31,7 @@ export function useAuditEvents(): UseAuditEventsReturn {
 
   const activeFilters = omitBy(filters, isNil);
 
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, isFetching, error, refetch } = useQuery({
     queryKey: ['audit-events', pagination.page, pagination.pageSize, activeFilters],
     queryFn: () => fetchAuditEvents({
       page: pagination.page,
@@ -38,6 +41,8 @@ export function useAuditEvents(): UseAuditEventsReturn {
     refetchOnWindowFocus: false,
     placeholderData: keepPreviousData,
   });
+
+  const isSlowLoading = useDelayedLoading(isFetching, 200);
 
   const handleSetFilters: React.Dispatch<React.SetStateAction<AuditFilters>> = useCallback((updater) => {
     // Resolve the new value based on the CURRENT filters state
@@ -61,6 +66,8 @@ export function useAuditEvents(): UseAuditEventsReturn {
   return {
     events: data?.items || [],
     isLoading,
+    isFetching,
+    isSlowLoading,
     error: error as Error | null,
     filters,
     setFilters: handleSetFilters,
