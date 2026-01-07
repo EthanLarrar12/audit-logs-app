@@ -2,7 +2,6 @@ import { useAuditEvents } from '@/hooks/useAuditEvents';
 import { AuditLogHeader } from '@/components/audit/AuditLogHeader';
 import { FilterBar } from '@/components/audit/FilterBar';
 import { AuditTable } from '@/components/audit/AuditTable';
-import { Pagination } from '@/components/audit/Pagination';
 import { exportToExcel } from '@/lib/exportToExcel';
 import { toast } from '@/hooks/use-toast';
 import { styles } from './Index.styles';

@@ -1,5 +1,11 @@
+import { theme, Theme } from './theme';
+
 /**
  * A simple utility to organize Tailwind CSS classes.
- * Returns the object passed to it, providing a typed structure for Styles.
+ * Can be a style object or a function that receives the theme.
  */
-export const makeStyles = <T extends Record<string, string>>(styles: T): T => styles;
+export const makeStyles = <T extends Record<string, string>>(
+    styles: T | ((t: Theme) => T)
+): T => {
+    return typeof styles === 'function' ? styles(theme) : styles;
+};

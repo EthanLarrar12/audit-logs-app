@@ -1,9 +1,9 @@
 import { makeStyles } from '@/lib/makeStyles';
 
-export const styles = makeStyles({
+export const styles = makeStyles((t) => ({
     container: 'w-full space-y-3',
-    headerRow: 'grid grid-cols-7 gap-4 px-4 py-3 bg-table-header rounded-lg',
-    row: 'grid grid-cols-7 gap-4 px-4 py-4 bg-card rounded-lg border animate-pulse-subtle',
+    headerRow: `grid grid-cols-7 gap-4 px-4 py-3 bg-table-header rounded-lg`,
+    row: `grid grid-cols-7 gap-4 px-4 py-4 ${t.colors.bgCard} rounded-lg ${t.colors.border} border animate-pulse-subtle`,
     cellGroup: 'space-y-2',
 
     // Skeletons
@@ -21,4 +21,4 @@ export const styles = makeStyles({
     skelTextMedium: 'h-4 w-28',
     skelTextTiny: 'h-3 w-16',
     skelIcon: 'h-8 w-8 rounded',
-});
+}));

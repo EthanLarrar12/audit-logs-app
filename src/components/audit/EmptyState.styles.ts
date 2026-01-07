@@ -1,12 +1,12 @@
 import { makeStyles } from '@/lib/makeStyles';
 
-export const styles = makeStyles({
+export const styles = makeStyles((t) => ({
     container: 'flex flex-col items-center justify-center py-16 px-4',
-    iconWrapper: 'w-16 h-16 rounded-full bg-secondary flex items-center justify-center mb-4',
-    icon: 'w-8 h-8 text-primary',
-    title: 'text-lg font-semibold text-foreground mb-2',
-    description: 'text-sm text-muted-foreground text-center max-w-md mb-6',
+    iconWrapper: `w-16 h-16 rounded-full ${t.colors.bgSecondary} flex items-center justify-center mb-4`,
+    icon: `w-8 h-8 ${t.colors.textBrand}`,
+    title: `${t.typography.lg} ${t.typography.semibold} ${t.colors.textPrimary} mb-2`,
+    description: `${t.typography.sm} ${t.colors.textSecondary} text-center max-w-md mb-6`,
     actionsMap: 'flex gap-3',
     refreshButtonContent: 'gap-2',
     refreshIcon: 'w-4 h-4',
-});
+}));

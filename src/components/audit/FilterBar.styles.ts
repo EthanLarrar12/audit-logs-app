@@ -1,23 +1,23 @@
 import { makeStyles } from '@/lib/makeStyles';
 
-export const styles = makeStyles({
-    container: 'bg-card border rounded-lg p-4 space-y-4',
+export const styles = makeStyles((t) => ({
+    container: `${t.colors.bgCard} ${t.colors.border} rounded-lg p-4 space-y-4 border`,
     header: 'flex items-center justify-between',
-    expandButton: 'flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors',
-    activeFilterBadge: 'mr-1 px-2 py-0.5 text-xs font-medium bg-primary text-primary-foreground rounded-full',
-    resetButton: 'text-muted-foreground hover:text-foreground gap-1.5',
+    expandButton: `flex items-center gap-2 ${t.typography.sm} ${t.typography.medium} ${t.colors.textPrimary} hover:${t.colors.textBrand} ${t.colors.transition}`,
+    activeFilterBadge: `mr-1 px-2 py-0.5 ${t.typography.xs} ${t.typography.medium} ${t.colors.bgBrand} ${t.colors.textInverse} rounded-full`,
+    resetButton: `${t.colors.textSecondary} hover:${t.colors.textPrimary} gap-1.5`,
     controlsContainer: 'space-y-4 animate-fade-in',
     searchContainer: 'relative max-w-md',
-    loader: 'absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-primary animate-spin pointer-events-none',
-    searchIcon: 'absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none',
+    loader: `absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${t.colors.textBrand} animate-spin pointer-events-none`,
+    searchIcon: `absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${t.colors.textSecondary} pointer-events-none`,
     searchInput: 'pr-10',
-    clearSearchButton: 'absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground',
+    clearSearchButton: `absolute left-3 top-1/2 transform -translate-y-1/2 ${t.colors.textSecondary} hover:${t.colors.textPrimary}`,
     filtersGrid: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4',
     filterGroup: 'space-y-1.5',
-    label: 'text-xs font-medium text-muted-foreground uppercase tracking-wider',
+    label: `${t.typography.xs} ${t.typography.medium} ${t.colors.textSecondary} uppercase tracking-wider`,
     selectTrigger: 'w-full',
-    dateButton: 'w-full justify-start text-right font-normal',
-    dateButtonEmpty: 'text-muted-foreground',
+    dateButton: `w-full justify-start text-right ${t.typography.normal}`,
+    dateButtonEmpty: t.colors.textSecondary,
     dateButtonIcon: 'ml-2 h-4 w-4',
     dateButtonClear: 'mr-auto h-4 w-4 hover:text-destructive',
     calendarPopover: 'w-auto p-0',
@@ -30,7 +30,7 @@ export const styles = makeStyles({
 
     // Helpers
     flexCenter: 'flex justify-center w-full',
-    flexCenterMuted: 'flex justify-center w-full text-muted-foreground',
+    flexCenterMuted: `flex justify-center w-full ${t.colors.textSecondary}`,
     categoryWrapper: 'flex-1 flex justify-center overflow-hidden',
-    placeholderText: 'text-muted-foreground',
-});
+    placeholderText: t.colors.textSecondary,
+}));
