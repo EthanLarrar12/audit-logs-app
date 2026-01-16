@@ -1,176 +1,254 @@
-import { PAGE_SIZE } from '../constants/pagination';
-import { mockAuditEvents } from '../data/mockData';
+import { withPostGraphileContext } from 'postgraphile';
+import { graphql } from 'graphql';
+import { pgPool } from '../server';
 import { AuditEvent, AuditEventPage, AuditQueryParams } from '../types/audit';
+
+// Define the shape of the GraphQL response for safety
+interface GraphQLResponse {
+    data: {
+        allRecords: {
+            totalCount: number;
+            nodes: any[];
+        };
+        recordById?: any;
+    };
+    errors?: any[];
+}
 
 /**
  * Business logic layer for audit events
- * Handles data access, filtering, sorting, and pagination
+ * Handles data access via PostGraphile ORM pattern
  */
 export class AuditService {
     /**
      * Get paginated and filtered audit events
      */
-    static getEvents(params: AuditQueryParams): AuditEventPage {
-        let filteredEvents: AuditEvent[] = [...mockAuditEvents];
+    static async getEvents(params: AuditQueryParams): Promise<AuditEventPage> {
+        // 1. Construct Filter Object
+        const filter: any = {};
+        const andFilters: any[] = [];
 
-        // Apply filters
-        filteredEvents = this.applyFilters(filteredEvents, params);
+        if (params.from) {
+            andFilters.push({ updatedTime: { greaterThanOrEqualTo: new Date(params.from).getTime() } });
+        }
+        if (params.to) {
+            andFilters.push({ updatedTime: { lessThanOrEqualTo: new Date(params.to).getTime() } });
+        }
+        if (params.actorUsername) {
+            andFilters.push({ executor: { includesInsensitive: params.actorUsername } });
+        }
+        if (params.category) {
+            andFilters.push({ targetType: { equalTo: params.category } });
+        }
+        if (params.action) {
+            andFilters.push({ midurAction: { equalTo: params.action } });
+        }
 
-        // Apply sorting
-        filteredEvents = this.applySorting(filteredEvents, params);
+        // Search Inputs (OR logic)
+        if (params.actorSearch) {
+            andFilters.push({
+                or: [
+                    { executor: { includesInsensitive: params.actorSearch } }
+                ]
+            });
+        }
 
-        // Apply pagination
-        return this.applyPagination(filteredEvents, params);
+        if (params.targetSearch) {
+            andFilters.push({
+                or: [
+                    { target: { includesInsensitive: params.targetSearch } }
+                ]
+            });
+        }
+
+        if (params.resourceSearch) {
+            andFilters.push({ resource: { includesInsensitive: params.resourceSearch } });
+        }
+
+        if (params.searchInput) {
+            const term = params.searchInput;
+            andFilters.push({
+                or: [
+                    { actionId: { includesInsensitive: term } },
+                    { executor: { includesInsensitive: term } },
+                    { target: { includesInsensitive: term } },
+                    { resource: { includesInsensitive: term } }
+                ]
+            });
+        }
+
+        if (andFilters.length > 0) {
+            filter.and = andFilters;
+        }
+
+        // 2. Pagination & Sorting
+        const first = 10; // Default page size
+        const offset = ((params.page || 1) - 1) * first;
+
+        let orderBy = 'UPDATED_TIME_DESC'; // Default sort
+        if (params.sort) {
+            const direction = params.order === 'asc' ? 'ASC' : 'DESC';
+            switch (params.sort) {
+                case 'created_at': orderBy = `UPDATED_TIME_${direction}`; break;
+                case 'action': orderBy = `MIDUR_ACTION_${direction}`; break;
+                case 'actor_username': orderBy = `EXECUTOR_${direction}`; break;
+                case 'target_name': orderBy = `TARGET_${direction}`; break;
+                default: orderBy = `UPDATED_TIME_${direction}`;
+            }
+        }
+
+        // 3. GraphQL Query
+        const query = `
+            query AuditEvents($filter: RecordFilter, $first: Int!, $offset: Int!, $orderBy: [RecordsOrderBy!]) {
+                allRecords(
+                    filter: $filter
+                    first: $first
+                    offset: $offset
+                    orderBy: $orderBy
+                ) {
+                    totalCount
+                    nodes {
+                        id
+                        actionId
+                        updatedAt: updatedTime
+                        category: targetType
+                        actorType: targetType
+                        actorId: executor
+                        actorUsername: executor
+                        action: midurAction
+                        resourceName: resource
+                        resourceId: resource
+                        targetId: target
+                        targetName: target
+                        recordDatumByActionId {
+                          changes
+                        }
+                    }
+                }
+            }
+        `;
+
+        const variables = {
+            filter,
+            first,
+            offset,
+            orderBy: [orderBy]
+        };
+
+        const result = await withPostGraphileContext(
+            { pgPool },
+            async (context: any) => {
+                return await graphql(
+                    await context.getGraphQLSchema(),
+                    query,
+                    null,
+                    context,
+                    variables
+                ) as GraphQLResponse;
+            }
+        );
+
+        if (result.errors) {
+            throw new Error(`GraphQL Errors: ${result.errors.map(e => e.message).join(', ')}`);
+        }
+
+        if (!result.data) {
+            throw new Error('No data returned from GraphQL');
+        }
+
+        const { totalCount, nodes } = result.data.allRecords;
+
+        // 4. Map to AuditEvent interface
+        const items: AuditEvent[] = nodes.map((node: any) => {
+            const changes = node.recordDatumByActionId?.changes;
+
+            return {
+                id: node.id,
+                created_at: new Date(parseInt(node.updatedAt)).toISOString(),
+                category: node.category,
+                actor_type: 'user',
+                actor_id: node.actorId,
+                actor_username: node.actorUsername,
+                action: node.action,
+                resource_name: node.resourceName || '',
+                resource_id: node.resourceId || '',
+                target_id: node.targetId,
+                target_name: node.targetName,
+                before_state: changes?.before || null,
+                after_state: changes?.after || null,
+                context: null
+            };
+        });
+
+        const pageResult: AuditEventPage = {
+            page: params.page || 1,
+            items
+        };
+        return pageResult;
     }
 
     /**
      * Get single audit event by ID
      */
-    static getEventById(id: string): AuditEvent | null {
-        const event = mockAuditEvents.find((e) => e.id === id);
-        return event || null;
-    }
+    static async getEventById(id: string): Promise<AuditEvent | null> {
+        const result = await withPostGraphileContext(
+            { pgPool },
+            async (context: any) => {
+                const query = `
+                    query EventById($id: UUID!) {
+                        recordById(id: $id) {
+                            id
+                            actionId
+                            updatedAt: updatedTime
+                            category: targetType
+                            actorId: executor
+                            actorUsername: executor
+                            action: midurAction
+                            resource: resource
+                            target: target
+                            recordDatumByActionId {
+                                changes
+                            }
+                        }
+                    }
+                `;
 
-    /**
-     * Apply all filters to the event list
-     */
-    private static applyFilters(
-        events: AuditEvent[],
-        params: AuditQueryParams
-    ): AuditEvent[] {
-        let filtered = events;
-
-        // Date range filter
-        if (params.from) {
-            const fromDate = new Date(params.from);
-            filtered = filtered.filter((e) => new Date(e.created_at) >= fromDate);
-        }
-
-        if (params.to) {
-            const toDate = new Date(params.to);
-            filtered = filtered.filter((e) => new Date(e.created_at) <= toDate);
-        }
-
-        // Actor username filter (partial match)
-        if (params.actorUsername) {
-            filtered = filtered.filter((e) =>
-                e.actor_username?.toLowerCase().includes(params.actorUsername!.toLowerCase())
-            );
-        }
-
-        // Category filter (exact match)
-        if (params.category) {
-            filtered = filtered.filter((e) => e.category === params.category);
-        }
-
-        // Action filter (exact match)
-        if (params.action) {
-            filtered = filtered.filter((e) => e.action === params.action);
-        }
-
-        // Actor search (name OR ID)
-        if (params.actorSearch) {
-            const searchLower = params.actorSearch.toLowerCase();
-            filtered = filtered.filter(
-                (e) =>
-                    e.actor_username?.toLowerCase().includes(searchLower) ||
-                    e.actor_id?.toLowerCase().includes(searchLower)
-            );
-        }
-
-        // Target search (name OR ID)
-        if (params.targetSearch) {
-            const searchLower = params.targetSearch.toLowerCase();
-            filtered = filtered.filter(
-                (e) =>
-                    e.target_name?.toLowerCase().includes(searchLower) ||
-                    e.target_id?.toLowerCase().includes(searchLower)
-            );
-        }
-
-        // Resource search (name OR ID)
-        if (params.resourceSearch) {
-            const searchLower = params.resourceSearch.toLowerCase();
-            filtered = filtered.filter(
-                (e) =>
-                    e.resource_name.toLowerCase().includes(searchLower) ||
-                    e.resource_id.toLowerCase().includes(searchLower)
-            );
-        }
-
-        // Full-text search
-        if (params.searchInput) {
-            const searchLower = params.searchInput.toLowerCase();
-            filtered = filtered.filter(
-                (e) =>
-                    e.id.toLowerCase().includes(searchLower) ||
-                    e.actor_username?.toLowerCase().includes(searchLower) ||
-                    e.target_name?.toLowerCase().includes(searchLower) ||
-                    e.action.toLowerCase().includes(searchLower) ||
-                    e.resource_name.toLowerCase().includes(searchLower)
-            );
-        }
-
-        return filtered;
-    }
-
-    /**
-     * Apply sorting to the event list
-     */
-    private static applySorting(
-        events: AuditEvent[],
-        params: AuditQueryParams
-    ): AuditEvent[] {
-        const sorted = [...events];
-
-        sorted.sort((a, b) => {
-            let aVal: string | number;
-            let bVal: string | number;
-
-            switch (params.sort) {
-                case 'created_at':
-                    aVal = new Date(a.created_at).getTime();
-                    bVal = new Date(b.created_at).getTime();
-                    break;
-                case 'action':
-                    aVal = a.action;
-                    bVal = b.action;
-                    break;
-                case 'actor_username':
-                    aVal = a.actor_username || '';
-                    bVal = b.actor_username || '';
-                    break;
-                default:
-                    aVal = new Date(a.created_at).getTime();
-                    bVal = new Date(b.created_at).getTime();
+                return await graphql(
+                    await context.getGraphQLSchema(),
+                    query,
+                    null,
+                    context,
+                    { id }
+                ) as GraphQLResponse;
             }
+        );
 
-            if (params.order === 'asc') {
-                return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
-            } else {
-                return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
-            }
-        });
+        if (result.errors) {
+            console.error("GraphQL Error", result.errors);
+            return null;
+        }
 
-        return sorted;
-    }
+        const node = result.data?.recordById;
+        if (!node) return null;
 
-    /**
-     * Apply pagination and return paginated response
-     */
-    private static applyPagination(
-        events: AuditEvent[],
-        params: AuditQueryParams
-    ): AuditEventPage {
-        const page: number = params.page || 1;
+        const changes = node.recordDatumByActionId?.changes;
 
-        const startIndex: number = (page - 1) * PAGE_SIZE;
-        const endIndex: number = startIndex + PAGE_SIZE;
-        const paginatedEvents: AuditEvent[] = events.slice(startIndex, endIndex);
-
-        return {
-            page,
-            items: paginatedEvents,
+        const event: AuditEvent = {
+            id: node.id,
+            created_at: new Date(parseInt(node.updatedAt)).toISOString(),
+            category: node.category,
+            actor_type: 'user',
+            actor_id: node.actorId,
+            actor_username: node.actorUsername,
+            action: node.action,
+            resource_name: node.resource || '',
+            resource_id: node.resource || '',
+            target_id: node.target,
+            target_name: node.target,
+            before_state: changes?.before || null,
+            after_state: changes?.after || null,
+            context: null
         };
+        return event;
     }
 }

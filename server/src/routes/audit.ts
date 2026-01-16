@@ -19,13 +19,13 @@ type AuditEventByIdRequest = Request<AuditEventIdParam, AuditEvent | { error: st
  * Get paginated list of audit events with optional filters
  * Query params are validated by Zod middleware
  */
-export const getAuditEvents: RequestHandler = (req, res): void => {
+export const getAuditEvents: RequestHandler = async (req, res): Promise<void> => {
     try {
         // Query params are already validated and typed by middleware
         const params = req.query as unknown as AuditEventsQuery;
 
         // Call business logic layer
-        const result: AuditEventPage = AuditService.getEvents(params);
+        const result: AuditEventPage = await AuditService.getEvents(params);
 
         // Return successful response
         res.status(200).json(result);
@@ -42,13 +42,13 @@ export const getAuditEvents: RequestHandler = (req, res): void => {
  * Get single audit event by ID
  * ID param is validated by Zod middleware
  */
-export const getAuditEventById: RequestHandler = (req, res): void => {
+export const getAuditEventById: RequestHandler = async (req, res): Promise<void> => {
     try {
         // ID is already validated by middleware
         const { id } = req.params as unknown as AuditEventIdParam;
 
         // Call business logic layer
-        const event: AuditEvent | null = AuditService.getEventById(id);
+        const event: AuditEvent | null = await AuditService.getEventById(id);
 
         if (!event) {
             res.status(404).json({ error: 'Event not found' });
