@@ -4,6 +4,7 @@ import { postgraphile, makePluginHook } from 'postgraphile';
 import PostGraphileConnectionFilterPlugin from 'postgraphile-plugin-connection-filter';
 import { Pool } from 'pg';
 import auditRouter from './routers/audit';
+import { buildGraphQLSchema } from './GQL/schema';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -47,10 +48,23 @@ app.get('/health', (req: express.Request, res: express.Response<{ status: string
     res.json({ status: 'ok', message: 'Audit Logs API is running' });
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📋 API available at http://localhost:${PORT}/audit/events`);
-    console.log(`Create GraphQL API available at http://localhost:${PORT}/graphql`);
-    console.log(`Create GraphiQL available at http://localhost:${PORT}/graphiql`);
-});
+// Initialize and start server
+async function startServer() {
+    try {
+        // Build GraphQL schema first
+        await buildGraphQLSchema(pgPool);
+
+        // Start server
+        app.listen(PORT, () => {
+            console.log(`🚀 Server running on http://localhost:${PORT}`);
+            console.log(`📋 API available at http://localhost:${PORT}/audit/events`);
+            console.log(`Create GraphQL API available at http://localhost:${PORT}/graphql`);
+            console.log(`Create GraphiQL available at http://localhost:${PORT}/graphiql`);
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
+}
+
+startServer();

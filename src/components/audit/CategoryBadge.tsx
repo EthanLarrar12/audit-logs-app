@@ -28,32 +28,32 @@ interface CategoryBadgeProps {
 type StyleKey = keyof typeof styles;
 
 const badgeConfig: Record<string, { icon: React.ElementType; styleKey: StyleKey; label?: string }> = {
-    // Categories (PascalCase)
-    User: {
+    // Categories (SCREAMING_SNAKE_CASE)
+    USER: {
         icon: UserIcon,
         styleKey: 'User',
     },
-    Entity: {
+    ENTITY: {
         icon: Box,
         styleKey: 'Entity',
     },
-    Shos: {
+    SHOS: {
         icon: ShieldAlert,
         styleKey: 'Shos',
     },
-    DynamicTag: {
+    DYNAMIC_TAG: {
         icon: Tags,
         styleKey: 'DynamicTag',
     },
-    EndSystem: {
+    END_SYSTEM: {
         icon: Monitor,
         styleKey: 'EndSystem',
     },
-    Profile: {
+    PROFILE: {
         icon: UserCircle,
         styleKey: 'Profile',
     },
-    DistributionGroup: {
+    DISTRIBUTION_GROUP: {
         icon: Users,
         styleKey: 'DistributionGroup',
     },

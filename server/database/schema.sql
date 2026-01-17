@@ -2,16 +2,16 @@ CREATE SCHEMA IF NOT EXISTS history;
 
 -- Create the enum types
 CREATE TYPE history.mirage_actions AS ENUM (
-    'UserCreation', 'UserDeletion', 'UserSync', 'AddValueToUser', 'RemoveValueFromUser',
-    'EntityCreation', 'EntityEdit', 'EntityDeletion',
-    'ShosCreation', 'ShosEdit', 'ShosDeletion', 'AddUserToShos', 'RemoveUserFromShos', 'AddManagerToShos', 'RemoveManagerFromShos',
-    'DynamicTagCreation', 'DynamicTagEdit', 'DynamicTagDeletion', 'AddUserToDynamicTag', 'RemoveUserFromDynamicTag', 'AddManagerToDynamicTag', 'RemoveManagerFromDynamicTag',
-    'EndSystemCreation', 'EndSystemEdit', 'EndSystemDeletion',
-    'ProfileCreation', 'ProfileEdit', 'ProfileDeletion', 'AddUserToProfile', 'RemoveUserFromProfile',
-    'DistributionGroupCreation', 'DistributionGroupEdit', 'DistributionGroupDeletion', 'AddUserToDistributionGroup', 'RemoveUserFromDistributionGroup', 'AddManagerToDistributionGroup', 'RemoveManagerFromDistributionGroup'
+    'USER_CREATION', 'USER_DELETION', 'USER_SYNC', 'ADD_VALUE_TO_USER', 'REMOVE_VALUE_FROM_USER',
+    'ENTITY_CREATION', 'ENTITY_EDIT', 'ENTITY_DELETION',
+    'SHOS_CREATION', 'SHOS_EDIT', 'SHOS_DELETION', 'ADD_USER_TO_SHOS', 'REMOVE_USER_FROM_SHOS', 'ADD_MANAGER_TO_SHOS', 'REMOVE_MANAGER_FROM_SHOS',
+    'DYNAMIC_TAG_CREATION', 'DYNAMIC_TAG_EDIT', 'DYNAMIC_TAG_DELETION', 'ADD_USER_TO_DYNAMIC_TAG', 'REMOVE_USER_FROM_DYNAMIC_TAG', 'ADD_MANAGER_TO_DYNAMIC_TAG', 'REMOVE_MANAGER_FROM_DYNAMIC_TAG',
+    'END_SYSTEM_CREATION', 'END_SYSTEM_EDIT', 'END_SYSTEM_DELETION',
+    'PROFILE_CREATION', 'PROFILE_EDIT', 'PROFILE_DELETION', 'ADD_USER_TO_PROFILE', 'REMOVE_USER_FROM_PROFILE',
+    'DISTRIBUTION_GROUP_CREATION', 'DISTRIBUTION_GROUP_EDIT', 'DISTRIBUTION_GROUP_DELETION', 'ADD_USER_TO_DISTRIBUTION_GROUP', 'REMOVE_USER_FROM_DISTRIBUTION_GROUP', 'ADD_MANAGER_TO_DISTRIBUTION_GROUP', 'REMOVE_MANAGER_FROM_DISTRIBUTION_GROUP'
 );
 
-CREATE TYPE history.mirage_object_types AS ENUM ('User', 'Entity', 'Shos', 'DynamicTag', 'EndSystem', 'Profile', 'DistributionGroup');
+CREATE TYPE history.mirage_object_types AS ENUM ('USER', 'ENTITY', 'SHOS', 'DYNAMIC_TAG', 'END_SYSTEM', 'PROFILE', 'DISTRIBUTION_GROUP');
 
 CREATE TABLE history.record_data(
     action_id TEXT PRIMARY KEY,

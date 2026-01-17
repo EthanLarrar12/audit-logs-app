@@ -62,120 +62,120 @@ const getRemoveUserFilter = (semanticName: string) => ({ name: `חפש את שם
 
 export const AUDIT_CATEGORIES: Category[] = [
     {
-        id: 'User',
+        id: 'USER',
         name: 'משתמש',
         filters: [
             ACTOR_FILTER,
             { name: "חפש את מזהה/שם המשתמש שבוצע עליו את הפעולה", searchField: "targetSearch" },
         ],
         subcategories: [
-            { id: 'UserCreation', name: 'יצירת משתמש', type: ActionType.CREATE },
-            { id: 'UserDeletion', name: 'מחיקה משתמש', type: ActionType.DELETE },
-            { id: 'UserSync', name: 'סינכרון משתמש', type: ActionType.SYNC },
-            { id: 'AddValueToUser', name: 'הוספת תכונה למשתמש', type: ActionType.ADD_VALUE },
-            { id: 'RemoveValueFromUser', name: 'הסרת תכונה מהמשתמש', type: ActionType.REMOVE_VALUE },
+            { id: 'USER_CREATION', name: 'יצירת משתמש', type: ActionType.CREATE },
+            { id: 'USER_DELETION', name: 'מחיקה משתמש', type: ActionType.DELETE },
+            { id: 'USER_SYNC', name: 'סינכרון משתמש', type: ActionType.SYNC },
+            { id: 'ADD_VALUE_TO_USER', name: 'הוספת תכונה למשתמש', type: ActionType.ADD_VALUE },
+            { id: 'REMOVE_VALUE_FROM_USER', name: 'הסרת תכונה מהמשתמש', type: ActionType.REMOVE_VALUE },
         ],
     },
     {
-        id: 'Entity',
+        id: 'ENTITY',
         name: 'ישות',
         filters: [
             ACTOR_FILTER,
             { name: "חפש שם ישות", searchField: "targetSearch" },
         ],
         subcategories: [
-            { id: 'EntityCreation', name: 'יצירת ישות', type: ActionType.CREATE },
-            { id: 'EntityEdit', name: 'עריכת ישות', type: ActionType.EDIT },
-            { id: 'EntityDeletion', name: 'מחיקה ישות', type: ActionType.DELETE },
+            { id: 'ENTITY_CREATION', name: 'יצירת ישות', type: ActionType.CREATE },
+            { id: 'ENTITY_EDIT', name: 'עריכת ישות', type: ActionType.EDIT },
+            { id: 'ENTITY_DELETION', name: 'מחיקה ישות', type: ActionType.DELETE },
         ],
     },
     {
-        id: 'Shos',
+        id: 'SHOS',
         name: 'שו"ס',
         filters: [
             ACTOR_FILTER,
             { name: "חפש את מזהה/שם השו\"ס", searchField: "targetSearch" },
         ],
         subcategories: [
-            { id: 'ShosCreation', name: 'יצירת שו"ס', type: ActionType.CREATE },
-            { id: 'ShosEdit', name: 'עריכת שו"ס', type: ActionType.EDIT },
-            { id: 'ShosDeletion', name: 'מחיקה שו"ס', type: ActionType.DELETE },
+            { id: 'SHOS_CREATION', name: 'יצירת שו"ס', type: ActionType.CREATE },
+            { id: 'SHOS_EDIT', name: 'עריכת שו"ס', type: ActionType.EDIT },
+            { id: 'SHOS_DELETION', name: 'מחיקה שו"ס', type: ActionType.DELETE },
             {
-                id: 'AddUserToShos',
+                id: 'ADD_USER_TO_SHOS',
                 name: 'הוספת משתמש לשו"ס',
                 type: ActionType.ADD_USER,
                 filters: [getAddUserFilter("משתמש")]
             },
-            { id: 'RemoveUserFromShos', name: 'הסרת משתמש מהשו"ס', type: ActionType.REMOVE_USER, filters: [getRemoveUserFilter("משתמש")] },
+            { id: 'REMOVE_USER_FROM_SHOS', name: 'הסרת משתמש מהשו"ס', type: ActionType.REMOVE_USER, filters: [getRemoveUserFilter("משתמש")] },
             {
-                id: 'AddManagerToShos',
+                id: 'ADD_MANAGER_TO_SHOS',
                 name: 'הוספת אחראי לשו"ס',
                 type: ActionType.ADD_MANAGER,
                 filters: [getAddUserFilter("אחראי")]
             },
-            { id: 'RemoveManagerFromShos', name: 'הסרת אחראי מהשו"ס', type: ActionType.REMOVE_MANAGER, filters: [getRemoveUserFilter("אחראי")] },
+            { id: 'REMOVE_MANAGER_FROM_SHOS', name: 'הסרת אחראי מהשו"ס', type: ActionType.REMOVE_MANAGER, filters: [getRemoveUserFilter("אחראי")] },
         ],
     },
     {
-        id: 'DynamicTag',
+        id: 'DYNAMIC_TAG',
         name: 'תגיות דינמיות',
         filters: [
             ACTOR_FILTER,
             { name: "חפש את מזהה/שם התגית", searchField: "targetSearch" },
         ],
         subcategories: [
-            { id: 'DynamicTagCreation', name: 'יצירת תגית דינמית', type: ActionType.CREATE },
-            { id: 'DynamicTagEdit', name: 'עריכת תגית דינמית', type: ActionType.EDIT },
-            { id: 'DynamicTagDeletion', name: 'מחיקה תגית דינמית', type: ActionType.DELETE },
-            { id: 'AddUserToDynamicTag', name: 'הוספת משתמש לתגית דינמית', type: ActionType.ADD_USER, filters: [getAddUserFilter("משתמש")] },
-            { id: 'RemoveUserFromDynamicTag', name: 'הסרת משתמש מהתגית דינמית', type: ActionType.REMOVE_USER, filters: [getRemoveUserFilter("משתמש")] },
-            { id: 'AddManagerToDynamicTag', name: 'הוספת מנהל לתגית דינמית', type: ActionType.ADD_MANAGER, filters: [getAddUserFilter("מנהל")] },
-            { id: 'RemoveManagerFromDynamicTag', name: 'הסרת מנהל מהתגית דינמית', type: ActionType.REMOVE_MANAGER, filters: [getRemoveUserFilter("מנהל")] },
+            { id: 'DYNAMIC_TAG_CREATION', name: 'יצירת תגית דינמית', type: ActionType.CREATE },
+            { id: 'DYNAMIC_TAG_EDIT', name: 'עריכת תגית דינמית', type: ActionType.EDIT },
+            { id: 'DYNAMIC_TAG_DELETION', name: 'מחיקה תגית דינמית', type: ActionType.DELETE },
+            { id: 'ADD_USER_TO_DYNAMIC_TAG', name: 'הוספת משתמש לתגית דינמית', type: ActionType.ADD_USER, filters: [getAddUserFilter("משתמש")] },
+            { id: 'REMOVE_USER_FROM_DYNAMIC_TAG', name: 'הסרת משתמש מהתגית דינמית', type: ActionType.REMOVE_USER, filters: [getRemoveUserFilter("משתמש")] },
+            { id: 'ADD_MANAGER_TO_DYNAMIC_TAG', name: 'הוספת מנהל לתגית דינמית', type: ActionType.ADD_MANAGER, filters: [getAddUserFilter("מנהל")] },
+            { id: 'REMOVE_MANAGER_FROM_DYNAMIC_TAG', name: 'הסרת מנהל מהתגית דינמית', type: ActionType.REMOVE_MANAGER, filters: [getRemoveUserFilter("מנהל")] },
         ],
     },
     {
-        id: 'EndSystem',
+        id: 'END_SYSTEM',
         name: 'מערכת קצה',
         filters: [
             ACTOR_FILTER,
             { name: "חפש את מזהה/שם מערכת הקצה", searchField: "targetSearch" },
         ],
         subcategories: [
-            { id: 'EndSystemCreation', name: 'יצירת מערכת קצה', type: ActionType.CREATE },
-            { id: 'EndSystemEdit', name: 'עריכת מערכת קצה', type: ActionType.EDIT },
-            { id: 'EndSystemDeletion', name: 'מחיקה מערכת קצה', type: ActionType.DELETE },
+            { id: 'END_SYSTEM_CREATION', name: 'יצירת מערכת קצה', type: ActionType.CREATE },
+            { id: 'END_SYSTEM_EDIT', name: 'עריכת מערכת קצה', type: ActionType.EDIT },
+            { id: 'END_SYSTEM_DELETION', name: 'מחיקה מערכת קצה', type: ActionType.DELETE },
         ],
     },
     {
-        id: 'Profile',
+        id: 'PROFILE',
         name: 'פרופיל',
         filters: [
             ACTOR_FILTER,
             { name: "חפש את מזהה/שם הפרופיל", searchField: "targetSearch" },
         ],
         subcategories: [
-            { id: 'ProfileCreation', name: 'יצירת פרופיל', type: ActionType.CREATE },
-            { id: 'ProfileEdit', name: 'עריכת פרופיל', type: ActionType.EDIT },
-            { id: 'ProfileDeletion', name: 'מחיקה פרופיל', type: ActionType.DELETE },
-            { id: 'AddUserToProfile', name: 'הוספת אחראי לפרופיל', type: ActionType.ADD_MANAGER, filters: [getAddUserFilter("אחראי")] },
-            { id: 'RemoveUserFromProfile', name: 'הסרת אחראי מהפרופיל', type: ActionType.REMOVE_MANAGER, filters: [getRemoveUserFilter("אחראי")] }
+            { id: 'PROFILE_CREATION', name: 'יצירת פרופיל', type: ActionType.CREATE },
+            { id: 'PROFILE_EDIT', name: 'עריכת פרופיל', type: ActionType.EDIT },
+            { id: 'PROFILE_DELETION', name: 'מחיקה פרופיל', type: ActionType.DELETE },
+            { id: 'ADD_USER_TO_PROFILE', name: 'הוספת אחראי לפרופיל', type: ActionType.ADD_MANAGER, filters: [getAddUserFilter("אחראי")] },
+            { id: 'REMOVE_USER_FROM_PROFILE', name: 'הסרת אחראי מהפרופיל', type: ActionType.REMOVE_MANAGER, filters: [getRemoveUserFilter("אחראי")] }
         ],
     },
     {
-        id: 'DistributionGroup',
+        id: 'DISTRIBUTION_GROUP',
         name: 'רשימת תפוצה',
         filters: [
             ACTOR_FILTER,
             { name: "חפש את מזהה/שם רשימת התפוצה", searchField: "targetSearch" },
         ],
         subcategories: [
-            { id: 'DistributionGroupCreation', name: 'יצירת רשימת תפוצה', type: ActionType.CREATE },
-            { id: 'DistributionGroupEdit', name: 'עריכת רשימת תפוצה', type: ActionType.EDIT },
-            { id: 'DistributionGroupDeletion', name: 'מחיקה רשימת תפוצה', type: ActionType.DELETE },
-            { id: 'AddUserToDistributionGroup', name: 'הוספת משתמש לרשימת תפוצה', type: ActionType.ADD_USER, filters: [getAddUserFilter("משתמש")] },
-            { id: 'RemoveUserFromDistributionGroup', name: 'הסרת משתמש מהרשימת תפוצה', type: ActionType.REMOVE_USER, filters: [getRemoveUserFilter("משתמש")] },
-            { id: 'AddManagerToDistributionGroup', name: 'הוספת מנהל לרשימת תפוצה', type: ActionType.ADD_MANAGER, filters: [getAddUserFilter("מנהל")] },
-            { id: 'RemoveManagerFromDistributionGroup', name: 'הסרת מנהל מהרשימת תפוצה', type: ActionType.REMOVE_MANAGER, filters: [getRemoveUserFilter("מנהל")] }
+            { id: 'DISTRIBUTION_GROUP_CREATION', name: 'יצירת רשימת תפוצה', type: ActionType.CREATE },
+            { id: 'DISTRIBUTION_GROUP_EDIT', name: 'עריכת רשימת תפוצה', type: ActionType.EDIT },
+            { id: 'DISTRIBUTION_GROUP_DELETION', name: 'מחיקה רשימת תפוצה', type: ActionType.DELETE },
+            { id: 'ADD_USER_TO_DISTRIBUTION_GROUP', name: 'הוספת משתמש לרשימת תפוצה', type: ActionType.ADD_USER, filters: [getAddUserFilter("משתמש")] },
+            { id: 'REMOVE_USER_FROM_DISTRIBUTION_GROUP', name: 'הסרת משתמש מהרשימת תפוצה', type: ActionType.REMOVE_USER, filters: [getRemoveUserFilter("משתמש")] },
+            { id: 'ADD_MANAGER_TO_DISTRIBUTION_GROUP', name: 'הוספת מנהל לרשימת תפוצה', type: ActionType.ADD_MANAGER, filters: [getAddUserFilter("מנהל")] },
+            { id: 'REMOVE_MANAGER_FROM_DISTRIBUTION_GROUP', name: 'הסרת מנהל מהרשימת תפוצה', type: ActionType.REMOVE_MANAGER, filters: [getRemoveUserFilter("מנהל")] }
         ],
     },
 ];

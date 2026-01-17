@@ -2,22 +2,13 @@ import { withPostGraphileContext } from 'postgraphile';
 import { graphql } from 'graphql';
 import { pgPool } from '../server';
 import { AuditEvent, AuditEventPage, AuditQueryParams } from '../types/audit';
-
-// Define the shape of the GraphQL response for safety
-interface GraphQLResponse {
-    data: {
-        allRecords: {
-            totalCount: number;
-            nodes: any[];
-        };
-        recordById?: any;
-    };
-    errors?: any[];
-}
+import { getGraphQLSchema } from '../GQL/schema';
+import { GET_AUDIT_EVENTS_QUERY, GET_AUDIT_EVENT_BY_ID_QUERY } from '../GQL/queries';
+import { parseAuditEventsResponse, parseAuditEventByIdResponse } from '../parsers/auditParser';
 
 /**
  * Business logic layer for audit events
- * Handles data access via PostGraphile ORM pattern
+ * Handles data access via PostGraphile GraphQL
  */
 export class AuditService {
     /**
@@ -97,158 +88,55 @@ export class AuditService {
             }
         }
 
-        // 3. GraphQL Query
-        const query = `
-            query AuditEvents($filter: RecordFilter, $first: Int!, $offset: Int!, $orderBy: [RecordsOrderBy!]) {
-                allRecords(
-                    filter: $filter
-                    first: $first
-                    offset: $offset
-                    orderBy: $orderBy
-                ) {
-                    totalCount
-                    nodes {
-                        id
-                        actionId
-                        updatedAt: updatedTime
-                        category: targetType
-                        actorType: targetType
-                        actorId: executor
-                        actorUsername: executor
-                        action: midurAction
-                        resourceName: resource
-                        resourceId: resource
-                        targetId: target
-                        targetName: target
-                        recordDatumByActionId {
-                          changes
-                        }
-                    }
-                }
-            }
-        `;
-
-        const variables = {
-            filter,
+        // 3. Execute GraphQL Query
+        const variables: any = {
             first,
             offset,
             orderBy: [orderBy]
         };
 
+        // Only include filter if it has conditions
+        if (andFilters.length > 0) {
+            variables.filter = filter;
+        }
+
+        const schema = getGraphQLSchema();
+
         const result = await withPostGraphileContext(
             { pgPool },
             async (context: any) => {
-                return await graphql(
-                    await context.getGraphQLSchema(),
-                    query,
-                    null,
-                    context,
-                    variables
-                ) as GraphQLResponse;
+                return await graphql({
+                    schema,
+                    source: GET_AUDIT_EVENTS_QUERY,
+                    contextValue: context,
+                    variableValues: variables
+                });
             }
         );
 
-        if (result.errors) {
-            throw new Error(`GraphQL Errors: ${result.errors.map(e => e.message).join(', ')}`);
-        }
-
-        if (!result.data) {
-            throw new Error('No data returned from GraphQL');
-        }
-
-        const { totalCount, nodes } = result.data.allRecords;
-
-        // 4. Map to AuditEvent interface
-        const items: AuditEvent[] = nodes.map((node: any) => {
-            const changes = node.recordDatumByActionId?.changes;
-
-            return {
-                id: node.id,
-                created_at: new Date(parseInt(node.updatedAt)).toISOString(),
-                category: node.category,
-                actor_type: 'user',
-                actor_id: node.actorId,
-                actor_username: node.actorUsername,
-                action: node.action,
-                resource_name: node.resourceName || '',
-                resource_id: node.resourceId || '',
-                target_id: node.targetId,
-                target_name: node.targetName,
-                before_state: changes?.before || null,
-                after_state: changes?.after || null,
-                context: null
-            };
-        });
-
-        const pageResult: AuditEventPage = {
-            page: params.page || 1,
-            items
-        };
-        return pageResult;
+        // 4. Parse and return response
+        return parseAuditEventsResponse(result as any, params.page || 1);
     }
 
     /**
      * Get single audit event by ID
      */
     static async getEventById(id: string): Promise<AuditEvent | null> {
+        const schema = getGraphQLSchema();
+
         const result = await withPostGraphileContext(
             { pgPool },
             async (context: any) => {
-                const query = `
-                    query EventById($id: UUID!) {
-                        recordById(id: $id) {
-                            id
-                            actionId
-                            updatedAt: updatedTime
-                            category: targetType
-                            actorId: executor
-                            actorUsername: executor
-                            action: midurAction
-                            resource: resource
-                            target: target
-                            recordDatumByActionId {
-                                changes
-                            }
-                        }
-                    }
-                `;
-
-                return await graphql(
-                    await context.getGraphQLSchema(),
-                    query,
-                    null,
-                    context,
-                    { id }
-                ) as GraphQLResponse;
+                return await graphql({
+                    schema,
+                    source: GET_AUDIT_EVENT_BY_ID_QUERY,
+                    contextValue: context,
+                    variableValues: { id }
+                });
             }
         );
 
-        if (result.errors) {
-            console.error("GraphQL Error", result.errors);
-            return null;
-        }
-
-        const node = result.data?.recordById;
-        if (!node) return null;
-
-        const changes = node.recordDatumByActionId?.changes;
-
-        const event: AuditEvent = {
-            id: node.id,
-            created_at: new Date(parseInt(node.updatedAt)).toISOString(),
-            category: node.category,
-            actor_type: 'user',
-            actor_id: node.actorId,
-            actor_username: node.actorUsername,
-            action: node.action,
-            resource_name: node.resource || '',
-            resource_id: node.resource || '',
-            target_id: node.target,
-            target_name: node.target,
-            before_state: changes?.before || null,
-            after_state: changes?.after || null,
-            context: null
-        };
-        return event;
+        return parseAuditEventByIdResponse(result as any);
     }
 }
+
