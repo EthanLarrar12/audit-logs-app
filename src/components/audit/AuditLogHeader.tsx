@@ -1,7 +1,8 @@
-import { RefreshCw, Download, Shield } from 'lucide-react';
+import { RefreshCw, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { styles } from './AuditLogHeader.styles';
+import mirageLogo from '@/assets/mirage.svg';
 
 interface AuditLogHeaderProps {
   onRefresh: () => void;
@@ -19,10 +20,10 @@ export function AuditLogHeader({
       <div className={styles.topRow}>
         <div className={styles.titleContainer}>
           <div className={styles.iconWrapper}>
-            <Shield className={styles.icon} />
+            <img src={mirageLogo} alt="Mirage Logo" className={styles.logo} />
           </div>
           <div>
-            <h1 className={styles.title}>יומן ביקורת</h1>
+            <h1 className={styles.title}>היסטוריית פעולות</h1>
           </div>
         </div>
 

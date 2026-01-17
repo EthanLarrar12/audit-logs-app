@@ -126,33 +126,7 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
       {/* Filter controls */}
       {isExpanded && (
         <div className={styles.controlsContainer}>
-          {/* Dynamic Search bars */}
-          {displayFilters.map((filterDef) => (
-            <div key={filterDef.searchField} className={styles.searchContainer}>
-              {isLoading ? (
-                <Loader2 className={styles.loader} />
-              ) : (
-                <Search className={styles.searchIcon} />
-              )}
-              <Input
-                type="text"
-                placeholder={filterDef.name}
-                value={searchValues[filterDef.searchField] || ''}
-                onChange={(e) => handleSearchChange(filterDef.searchField, e.target.value)}
-                className={styles.searchInput}
-              />
-              {searchValues[filterDef.searchField] && (
-                <button
-                  onClick={() => handleSearchChange(filterDef.searchField, '')}
-                  className={styles.clearSearchButton}
-                >
-                  <X className={styles.clearIcon} />
-                </button>
-              )}
-            </div>
-          ))}
-
-          {/* Other filters grid */}
+          {/* Main filters grid */}
           <div className={styles.filtersGrid}>
             {/* Category filter */}
             <div className={styles.filterGroup}>
@@ -290,7 +264,7 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className={styles.calendarPopover} align="start">
+                <PopoverContent className={styles.calendarPopover} align="start" side="bottom">
                   <DateTimePicker
                     date={filters.dateFrom}
                     setDate={(date) => updateFilter('dateFrom', date)}
@@ -336,7 +310,7 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className={styles.calendarPopover} align="start">
+                <PopoverContent className={styles.calendarPopover} align="start" side="bottom">
                   <DateTimePicker
                     date={filters.dateTo}
                     setDate={(date) => updateFilter('dateTo', date)}
@@ -345,6 +319,40 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
               </Popover>
             </div>
           </div>
+
+          {/* Dynamic Search bars - appear as a new row below */}
+          {displayFilters.length > 0 && (
+            <div className={styles.dynamicFiltersGrid}>
+              {displayFilters.map((filterDef) => (
+                <div key={filterDef.searchField} className={styles.filterGroup}>
+                  <label className={styles.label}>
+                    {filterDef.name}
+                  </label>
+                  <div className={styles.searchContainer}>
+                    {isLoading ? (
+                      <Loader2 className={styles.loader} />
+                    ) : (
+                      <Search className={styles.searchIcon} />
+                    )}
+                    <Input
+                      type="text"
+                      value={searchValues[filterDef.searchField] || ''}
+                      onChange={(e) => handleSearchChange(filterDef.searchField, e.target.value)}
+                      className={styles.searchInput}
+                    />
+                    {searchValues[filterDef.searchField] && (
+                      <button
+                        onClick={() => handleSearchChange(filterDef.searchField, '')}
+                        className={styles.clearSearchButton}
+                      >
+                        <X className={styles.clearIcon} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

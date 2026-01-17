@@ -9,7 +9,7 @@
 @layer base {
   :root {
     /* Core brand colors - Mint/Teal theme */
-    --background: 150 20% 98%;
+    --background: 0 0% 97%;
     --foreground: 200 15% 15%;
 
     --card: 0 0% 100%;
@@ -18,22 +18,22 @@
     --popover: 0 0% 100%;
     --popover-foreground: 200 15% 15%;
 
-    /* Primary - Mint green #48c6a0 */
-    --primary: 160 52% 53%;
+    /* Primary - Mint green rgb(53,173,144) */
+    --primary: 164 53% 44%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary - Light lime #e9f6d3 */
     --secondary: 82 60% 90%;
     --secondary-foreground: 160 40% 25%;
 
-    --muted: 150 15% 94%;
+    --muted: 0 0% 97%;
     --muted-foreground: 200 10% 45%;
 
     --accent: 160 45% 92%;
     --accent-foreground: 160 52% 35%;
 
     /* Status colors */
-    --success: 160 52% 53%;
+    --success: 164 53% 44%;
     --success-foreground: 0 0% 100%;
     --failure: 0 72% 55%;
     --failure-foreground: 0 0% 100%;
@@ -43,22 +43,22 @@
 
     --border: 150 15% 88%;
     --input: 150 15% 88%;
-    --ring: 160 52% 53%;
+    --ring: 164 53% 44%;
 
     --radius: 0.5rem;
 
     /* Sidebar */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 200 15% 25%;
-    --sidebar-primary: 160 52% 53%;
+    --sidebar-primary: 164 53% 44%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 82 60% 90%;
     --sidebar-accent-foreground: 160 40% 25%;
     --sidebar-border: 150 15% 90%;
-    --sidebar-ring: 160 52% 53%;
+    --sidebar-ring: 164 53% 44%;
 
     /* Custom tokens for audit interface */
-    --table-header: 150 15% 96%;
+    --table-header: 0 0% 97%;
     --table-row-hover: 160 30% 97%;
     --badge-user: 200 70% 50%;
     --badge-system: 270 50% 55%;
@@ -75,7 +75,7 @@
     --popover: 200 15% 12%;
     --popover-foreground: 150 15% 95%;
 
-    --primary: 160 52% 53%;
+    --primary: 164 53% 44%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 160 30% 18%;
@@ -87,7 +87,7 @@
     --accent: 160 30% 20%;
     --accent-foreground: 160 40% 85%;
 
-    --success: 160 52% 53%;
+    --success: 164 53% 44%;
     --success-foreground: 0 0% 100%;
     --failure: 0 65% 50%;
     --failure-foreground: 0 0% 100%;
@@ -97,16 +97,16 @@
 
     --border: 200 15% 20%;
     --input: 200 15% 20%;
-    --ring: 160 52% 53%;
+    --ring: 164 53% 44%;
 
     --sidebar-background: 200 15% 10%;
     --sidebar-foreground: 150 15% 90%;
-    --sidebar-primary: 160 52% 53%;
+    --sidebar-primary: 164 53% 44%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 160 30% 18%;
     --sidebar-accent-foreground: 160 40% 85%;
     --sidebar-border: 200 15% 18%;
-    --sidebar-ring: 160 52% 53%;
+    --sidebar-ring: 164 53% 44%;
 
     --table-header: 200 15% 14%;
     --table-row-hover: 160 20% 12%;

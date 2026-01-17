@@ -56,9 +56,9 @@ export interface Category {
     filters?: Filter[];
 }
 
-const ACTOR_FILTER = { name: "חפש את מזהה/שם המשתמש שביצע את הפעולה", searchField: "actorSearch" }
-const getAddUserFilter = (semanticName: string) => ({ name: `חפש את שם/מזהה ה${semanticName} שהתווסף`, searchField: "resourceSearch" })
-const getRemoveUserFilter = (semanticName: string) => ({ name: `חפש את שם/מזהה ה${semanticName} שנמחק`, searchField: "resourceSearch" })
+const ACTOR_FILTER = { name: "מזהה/שם המשתמש שביצע את הפעולה", searchField: "actorSearch" }
+const getAddUserFilter = (semanticName: string) => ({ name: `שם/מזהה ה${semanticName} שהתווסף`, searchField: "resourceSearch" })
+const getRemoveUserFilter = (semanticName: string) => ({ name: `שם/מזהה ה${semanticName} שנמחק`, searchField: "resourceSearch" })
 
 export const AUDIT_CATEGORIES: Category[] = [
     {
@@ -66,7 +66,7 @@ export const AUDIT_CATEGORIES: Category[] = [
         name: 'משתמש',
         filters: [
             ACTOR_FILTER,
-            { name: "חפש את מזהה/שם המשתמש שבוצע עליו את הפעולה", searchField: "targetSearch" },
+            { name: "מזהה/שם המשתמש שבוצע עליו את הפעולה", searchField: "targetSearch" },
         ],
         subcategories: [
             { id: 'USER_CREATION', name: 'יצירת משתמש', type: ActionType.CREATE },
@@ -81,7 +81,7 @@ export const AUDIT_CATEGORIES: Category[] = [
         name: 'ישות',
         filters: [
             ACTOR_FILTER,
-            { name: "חפש שם ישות", searchField: "targetSearch" },
+            { name: "שם ישות", searchField: "targetSearch" },
         ],
         subcategories: [
             { id: 'ENTITY_CREATION', name: 'יצירת ישות', type: ActionType.CREATE },
@@ -94,7 +94,7 @@ export const AUDIT_CATEGORIES: Category[] = [
         name: 'שו"ס',
         filters: [
             ACTOR_FILTER,
-            { name: "חפש את מזהה/שם השו\"ס", searchField: "targetSearch" },
+            { name: "מזהה/שם השו\"ס", searchField: "targetSearch" },
         ],
         subcategories: [
             { id: 'SHOS_CREATION', name: 'יצירת שו"ס', type: ActionType.CREATE },
@@ -121,7 +121,7 @@ export const AUDIT_CATEGORIES: Category[] = [
         name: 'תגיות דינמיות',
         filters: [
             ACTOR_FILTER,
-            { name: "חפש את מזהה/שם התגית", searchField: "targetSearch" },
+            { name: "מזהה/שם התגית", searchField: "targetSearch" },
         ],
         subcategories: [
             { id: 'DYNAMIC_TAG_CREATION', name: 'יצירת תגית דינמית', type: ActionType.CREATE },
@@ -138,7 +138,7 @@ export const AUDIT_CATEGORIES: Category[] = [
         name: 'מערכת קצה',
         filters: [
             ACTOR_FILTER,
-            { name: "חפש את מזהה/שם מערכת הקצה", searchField: "targetSearch" },
+            { name: "מזהה/שם מערכת הקצה", searchField: "targetSearch" },
         ],
         subcategories: [
             { id: 'END_SYSTEM_CREATION', name: 'יצירת מערכת קצה', type: ActionType.CREATE },
@@ -151,7 +151,7 @@ export const AUDIT_CATEGORIES: Category[] = [
         name: 'פרופיל',
         filters: [
             ACTOR_FILTER,
-            { name: "חפש את מזהה/שם הפרופיל", searchField: "targetSearch" },
+            { name: "מזהה/שם הפרופיל", searchField: "targetSearch" },
         ],
         subcategories: [
             { id: 'PROFILE_CREATION', name: 'יצירת פרופיל', type: ActionType.CREATE },
@@ -166,7 +166,7 @@ export const AUDIT_CATEGORIES: Category[] = [
         name: 'רשימת תפוצה',
         filters: [
             ACTOR_FILTER,
-            { name: "חפש את מזהה/שם רשימת התפוצה", searchField: "targetSearch" },
+            { name: "מזהה/שם רשימת התפוצה", searchField: "targetSearch" },
         ],
         subcategories: [
             { id: 'DISTRIBUTION_GROUP_CREATION', name: 'יצירת רשימת תפוצה', type: ActionType.CREATE },
