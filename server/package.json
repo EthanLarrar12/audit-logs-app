@@ -2,11 +2,11 @@
     "name": "audit-logs-server",
     "version": "1.0.0",
     "description": "Backend API for Audit Logs",
-    "main": "dist/server/src/server.js",
+    "main": "src/server.ts",
     "scripts": {
-        "dev": "nodemon --exec ts-node src/server.ts",
+        "dev": "nodemon",
         "build": "tsc",
-        "start": "node dist/server/src/server.js"
+        "start": "node dist/server.js"
     },
     "keywords": [],
     "author": "",

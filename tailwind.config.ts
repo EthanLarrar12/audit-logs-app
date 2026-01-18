@@ -14,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Segoe UI", "Tahoma", "Geneva", "Verdana", "sans-serif"],
+        sans: ["Assistant", "Segoe UI", "Tahoma", "Geneva", "Verdana", "sans-serif"],
         mono: ["JetBrains Mono", "Fira Code", "monospace"],
       },
       spacing: {
