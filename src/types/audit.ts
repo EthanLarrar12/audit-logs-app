@@ -8,8 +8,8 @@ export interface AuditFilters {
   targetSearch?: string;
   resourceSearch?: string;
   actorUsername?: string;
-  category?: string;
-  action?: string;
+  category?: string[];
+  action?: string[];
   premadeProfile?: string;
   dateFrom?: Date;
   dateTo?: Date;

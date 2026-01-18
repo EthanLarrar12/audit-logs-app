@@ -56,7 +56,7 @@ export interface Category {
     filters?: Filter[];
 }
 
-const ACTOR_FILTER = { name: "מזהה/שם המשתמש שביצע את הפעולה", searchField: "actorSearch" }
+
 const getAddUserFilter = (semanticName: string) => ({ name: `שם/מזהה ה${semanticName} שהתווסף`, searchField: "resourceSearch" })
 const getRemoveUserFilter = (semanticName: string) => ({ name: `שם/מזהה ה${semanticName} שנמחק`, searchField: "resourceSearch" })
 const PREMADE_PROFILE_FILTER = { name: "פרופיל מוכן מראש", searchField: "premadeProfile" }
@@ -66,7 +66,6 @@ export const AUDIT_CATEGORIES: Category[] = [
         id: 'USER',
         name: 'משתמש',
         filters: [
-            ACTOR_FILTER,
             { name: "מזהה/שם המשתמש שבוצע עליו את הפעולה", searchField: "targetSearch" },
         ],
         subcategories: [
@@ -91,7 +90,6 @@ export const AUDIT_CATEGORIES: Category[] = [
         id: 'ENTITY',
         name: 'ישות',
         filters: [
-            ACTOR_FILTER,
             { name: "שם ישות", searchField: "targetSearch" },
         ],
         subcategories: [
@@ -104,7 +102,6 @@ export const AUDIT_CATEGORIES: Category[] = [
         id: 'SHOS',
         name: 'שו"ס',
         filters: [
-            ACTOR_FILTER,
             { name: "מזהה/שם השו\"ס", searchField: "targetSearch" },
         ],
         subcategories: [
@@ -131,7 +128,6 @@ export const AUDIT_CATEGORIES: Category[] = [
         id: 'DYNAMIC_TAG',
         name: 'תגיות דינמיות',
         filters: [
-            ACTOR_FILTER,
             { name: "מזהה/שם התגית", searchField: "targetSearch" },
         ],
         subcategories: [
@@ -148,7 +144,6 @@ export const AUDIT_CATEGORIES: Category[] = [
         id: 'END_SYSTEM',
         name: 'מערכת קצה',
         filters: [
-            ACTOR_FILTER,
             { name: "מזהה/שם מערכת הקצה", searchField: "targetSearch" },
         ],
         subcategories: [
@@ -161,7 +156,6 @@ export const AUDIT_CATEGORIES: Category[] = [
         id: 'PROFILE',
         name: 'פרופיל',
         filters: [
-            ACTOR_FILTER,
             { name: "מזהה/שם הפרופיל", searchField: "targetSearch" },
         ],
         subcategories: [
@@ -176,7 +170,6 @@ export const AUDIT_CATEGORIES: Category[] = [
         id: 'DISTRIBUTION_GROUP',
         name: 'רשימת תפוצה',
         filters: [
-            ACTOR_FILTER,
             { name: "מזהה/שם רשימת התפוצה", searchField: "targetSearch" },
         ],
         subcategories: [

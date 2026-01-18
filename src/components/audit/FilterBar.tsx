@@ -37,6 +37,17 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
   const [premadeProfiles, setPremadeProfiles] = useState<{ id: string, name: string }[]>([]);
   const [profileSearchText, setProfileSearchText] = useState('');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isActionOpen, setIsActionOpen] = useState(false);
+
+  const toggleMultiFilter = (field: 'category' | 'action', value: string) => {
+    const current = (filters[field] as string[]) || [];
+    const updated = current.includes(value)
+      ? current.filter(v => v !== value)
+      : [...current, value];
+
+    updateFilter(field, updated.length > 0 ? updated : null);
+  };
 
   useEffect(() => {
     fetchPremadeProfiles().then(setPremadeProfiles).catch(console.error);
@@ -94,16 +105,24 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
 
   const activeFilterCount = Object.values(filters).filter((v) => v !== null).length;
 
-  // Resolve filters to display
-  const currentCategory = filters.category ? AUDIT_CATEGORIES.find(c => c.id === filters.category) : null;
-  const currentSubcategory = (currentCategory && filters.action)
-    ? currentCategory.subcategories.find(s => s.id === filters.action)
-    : null;
+  // Resolve filters to display (aggregate from all selected categories and actions)
+  const selectedCategories = Array.isArray(filters.category)
+    ? AUDIT_CATEGORIES.filter(c => (filters.category as string[]).includes(c.id))
+    : [];
 
-  const displayFilters = [
-    ...(currentCategory?.filters || []),
-    ...(currentSubcategory?.filters || [])
-  ];
+  const selectedActions = Array.isArray(filters.action)
+    ? selectedCategories.flatMap(c => c.subcategories).filter(s => (filters.action as string[]).includes(s.id))
+    : [];
+
+  const allApplicableFilters = [
+    ...selectedCategories.flatMap(c => c.filters || []),
+    ...selectedActions.flatMap(s => s.filters || [])
+  ].filter(f => f.searchField !== 'actorSearch');
+
+  // Deduplicate filters by searchField
+  const displayFilters = allApplicableFilters.filter((filter, index, self) =>
+    index === self.findIndex((f) => f.searchField === filter.searchField)
+  );
 
   return (
     <div className={styles.container}>
@@ -139,107 +158,179 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
       {isExpanded && (
         <div className={styles.controlsContainer}>
           {/* Main filters grid */}
-          <div className={styles.filtersGrid}>
+          {/* First Row: Categories */}
+          <div className={styles.firstFiltersRow}>
             {/* Category filter */}
-            <div className={styles.filterGroup}>
+            <div className={styles.largeFilterGroup}>
               <label className={styles.label}>
                 קטגוריה
               </label>
-              <Select
-                dir="rtl"
-                value={filters.category || 'all'}
-                onValueChange={(v) => {
-                  const newCategory = v === 'all' ? null : v;
-                  // Reset all dynamic filters when category changes
-                  const newFilters = { ...filters };
-                  Object.keys(newFilters).forEach(key => {
-                    if (!['category', 'action', 'dateFrom', 'dateTo'].includes(key)) {
-                      delete (newFilters as any)[key];
-                    }
-                  });
-                  onFiltersChange({
-                    ...newFilters,
-                    category: newCategory,
-                    action: null
-                  });
-                }}
-              >
-                <SelectTrigger className={styles.selectTrigger}>
-                  <div className={styles.categoryWrapper}>
-                    {filters.category ? (
-                      <CategoryBadge category={filters.category} />
-                    ) : (
-                      <span className={styles.placeholderText}>כל הקטגוריות</span>
-                    )}
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">
-                    <div className={styles.flexCenterMuted}>
-                      כל הקטגוריות
+              <Popover open={isCategoryOpen} onOpenChange={setIsCategoryOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    dir="rtl"
+                    className={cn(styles.largeTrigger, "justify-between text-right px-3")}
+                  >
+                    <div className={styles.triggerWrapperRight}>
+                      {filters.category && filters.category.length > 0 ? (
+                        <div className="flex gap-1 items-center overflow-hidden">
+                          {filters.category.slice(0, 1).map(catId => (
+                            <CategoryBadge key={catId} category={catId} className="h-6 py-0 px-2" />
+                          ))}
+                          {filters.category.length > 1 && (
+                            <div className={styles.plusChip}>+{filters.category.length - 1}</div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className={styles.placeholderText}>כל הקטגוריות</span>
+                      )}
                     </div>
-                  </SelectItem>
-                  {AUDIT_CATEGORIES.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>
-                      <div className={styles.flexCenter}>
-                        <CategoryBadge category={cat.id} />
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    <ChevronsUpDown className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className={styles.searchableDropdownContent} align="end">
+                  <div className={styles.searchableDropdownList} dir="rtl">
+                    <div
+                      className={cn(
+                        styles.searchableDropdownItem,
+                        (!filters.category || filters.category.length === 0) && styles.searchableDropdownItemSelected
+                      )}
+                      onClick={() => {
+                        updateFilter('category', null);
+                        updateFilter('action', null);
+                        setIsCategoryOpen(false);
+                      }}
+                    >
+                      <span>כל הקטגוריות</span>
+                      {(!filters.category || filters.category.length === 0) && <Check className="h-4 w-4" />}
+                    </div>
+                    {AUDIT_CATEGORIES.map((cat) => {
+                      const isSelected = filters.category?.includes(cat.id);
+                      return (
+                        <div
+                          key={cat.id}
+                          className={cn(
+                            styles.searchableDropdownItem,
+                            isSelected && styles.searchableDropdownItemSelected
+                          )}
+                          onClick={() => {
+                            toggleMultiFilter('category', cat.id);
+                            // If we unselect a category, we might need to clear actions that belonged only to it
+                            // For simplicity, we filter actions later in the component
+                          }}
+                        >
+                          <CategoryBadge category={cat.id} />
+                          {isSelected && <Check className="h-4 w-4" />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
 
             {/* Subcategory (Action) filter */}
-            <div className={styles.filterGroup}>
+            <div className={styles.largeFilterGroup}>
               <label className={styles.label}>
                 תת-קטגוריה
               </label>
-              <Select
-                dir="rtl"
-                value={filters.action || 'all'}
-                onValueChange={(v) => updateFilter('action', v === 'all' ? null : v)}
-                disabled={!filters.category}
-              >
-                <SelectTrigger className={styles.selectTrigger}>
-                  <div className={styles.categoryWrapper}>
-                    {filters.action ? (
-                      <CategoryBadge
-                        category={filters.category!}
-                        label={getSubcategoryName(filters.action)}
-                        icon={getActionIcon(filters.action)}
-                      />
-                    ) : (
-                      <span className={styles.placeholderText}>
-                        {!filters.category ? "בחר קטגוריה תחילה" : "כל התת-קטגוריות"}
-                      </span>
-                    )}
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">
-                    <div className={styles.flexCenterMuted}>
-                      כל התת-קטגוריות
-                    </div>
-                  </SelectItem>
-                  {filters.category &&
-                    AUDIT_CATEGORIES.find(c => c.id === filters.category)
-                      ?.subcategories.map((sub) => (
-                        <SelectItem key={sub.id} value={sub.id}>
-                          <div className={styles.flexCenter}>
+              <Popover open={isActionOpen} onOpenChange={setIsActionOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    dir="rtl"
+                    disabled={selectedCategories.length === 0}
+                    className={cn(styles.largeTrigger, "justify-between text-right px-3")}
+                  >
+                    <div className={styles.triggerWrapperRight}>
+                      {filters.action && filters.action.length > 0 ? (
+                        <div className="flex gap-1 items-center overflow-hidden">
+                          {filters.action.slice(0, 1).map(actionId => (
                             <CategoryBadge
-                              category={filters.category!}
-                              label={sub.name}
-                              icon={getActionIcon(sub.id)}
+                              key={actionId}
+                              category={AUDIT_CATEGORIES.find(c => c.subcategories.some(s => s.id === actionId))?.id || 'USER'}
+                              label={getSubcategoryName(actionId)}
+                              icon={getActionIcon(actionId)}
+                              className="h-6 py-0 px-2"
                             />
-                          </div>
-                        </SelectItem>
-                      ))
-                  }
-                </SelectContent>
-              </Select>
+                          ))}
+                          {filters.action.length > 1 && (
+                            <div className={styles.plusChip}>+{filters.action.length - 1}</div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className={styles.placeholderText}>
+                          {selectedCategories.length === 0 ? "בחר קטגוריה תחילה" : "כל התת-קטגוריות"}
+                        </span>
+                      )}
+                    </div>
+                    <ChevronsUpDown className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className={styles.searchableDropdownContent} align="end">
+                  <div className={styles.searchableDropdownList} dir="rtl">
+                    <div
+                      className={cn(
+                        styles.searchableDropdownItem,
+                        (!filters.action || filters.action.length === 0) && styles.searchableDropdownItemSelected
+                      )}
+                      onClick={() => {
+                        updateFilter('action', null);
+                        setIsActionOpen(false);
+                      }}
+                    >
+                      <span>כל התת-קטגוריות</span>
+                      {(!filters.action || filters.action.length === 0) && <Check className="h-4 w-4" />}
+                    </div>
+                    {selectedCategories.flatMap(c => c.subcategories).map((sub) => {
+                      const isSelected = filters.action?.includes(sub.id);
+                      const catId = AUDIT_CATEGORIES.find(c => c.subcategories.some(s => s.id === sub.id))?.id || 'USER';
+                      return (
+                        <div
+                          key={sub.id}
+                          className={cn(
+                            styles.searchableDropdownItem,
+                            isSelected && styles.searchableDropdownItemSelected
+                          )}
+                          onClick={() => {
+                            toggleMultiFilter('action', sub.id);
+                          }}
+                        >
+                          <CategoryBadge
+                            category={catId}
+                            label={sub.name}
+                            icon={getActionIcon(sub.id)}
+                          />
+                          {isSelected && <Check className="h-4 w-4" />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
+          </div>
 
+          {/* Second Row: Actor and Dates */}
+          <div className={styles.secondFiltersRow}>
+            {/* Actor Search (Permanent) */}
+            <div className={styles.filterGroup}>
+              <label className={styles.label}>
+                מזהה/שם המבצע
+              </label>
+              <div className={styles.searchContainer}>
+                <Search className={styles.searchIcon} />
+                <Input
+                  className={styles.searchInput}
+                  placeholder="חיפוש לפי מבצע..."
+                  value={searchValues.actorSearch || ''}
+                  onChange={(e) => handleSearchChange('actorSearch', e.target.value)}
+                />
+              </div>
+            </div>
 
             {/* Date From */}
             <div className={styles.filterGroup}>

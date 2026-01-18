@@ -30,11 +30,11 @@ export class AuditService {
         if (params.actorUsername) {
             andFilters.push({ executor: { includesInsensitive: params.actorUsername } });
         }
-        if (params.category) {
-            andFilters.push({ targetType: { equalTo: params.category } });
+        if (params.category && params.category.length > 0) {
+            andFilters.push({ targetType: { in: params.category } });
         }
-        if (params.action) {
-            andFilters.push({ midurAction: { equalTo: params.action } });
+        if (params.action && params.action.length > 0) {
+            andFilters.push({ midurAction: { in: params.action } });
         }
 
         // Search Inputs (OR logic)

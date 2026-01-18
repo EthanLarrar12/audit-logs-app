@@ -42,7 +42,11 @@ export async function fetchAuditEvents({
     }
 
     if (filters.action) {
-        params.append('action', filters.action);
+        if (Array.isArray(filters.action)) {
+            filters.action.forEach(a => params.append('action', a));
+        } else {
+            params.append('action', filters.action);
+        }
     }
 
 
@@ -55,7 +59,11 @@ export async function fetchAuditEvents({
     }
 
     if (filters.category) {
-        params.append('category', filters.category);
+        if (Array.isArray(filters.category)) {
+            filters.category.forEach(c => params.append('category', c));
+        } else {
+            params.append('category', filters.category);
+        }
     }
 
     const response = await fetch(`${API_BASE_URL}/audit/events?${params.toString()}`, {

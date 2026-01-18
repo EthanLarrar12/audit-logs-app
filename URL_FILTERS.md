@@ -4,9 +4,9 @@ The audit logs application now supports URL-based filtering. You can set default
 
 ## Supported URL Parameters
 
-### Category & Action
-- `category` - Filter by category (e.g., `USER`, `CONTENT`)
-- `action` - Filter by subcategory/action (e.g., `USER_SYNC`, `USER_LOGIN`)
+### Category & Action (Multi-select)
+- `category` - Filter by one or more categories, comma-separated (e.g., `USER`, `USER,ENTITY`)
+- `action` - Filter by one or more subcategories/actions, comma-separated (e.g., `USER_SYNC`, `USER_SYNC,ENTITY_CREATION`)
 
 ### Search Fields
 - `search` - General search input
@@ -14,6 +14,7 @@ The audit logs application now supports URL-based filtering. You can set default
 - `actorSearch` - Search in actor fields
 - `targetSearch` - Search in target fields
 - `resourceSearch` - Search in resource fields
+- `premadeProfile` - Filter by a premade profile ID (links to a specific set of parameters)
 
 ### Date Range
 - `dateFrom` - Start date (ISO 8601 format)
@@ -21,14 +22,19 @@ The audit logs application now supports URL-based filtering. You can set default
 
 ## Example URLs
 
-### Filter by category
+### Filter by multiple categories
 ```
-http://localhost:5173/?category=USER
+http://localhost:5173/?category=USER,ENTITY
 ```
 
-### Filter by category and action
+### Filter by multiple categories and actions
 ```
-http://localhost:5173/?category=USER&action=USER_SYNC
+http://localhost:5173/?category=USER,ENTITY&action=USER_SYNC,ENTITY_CREATION
+```
+
+### Filter by premade profile
+```
+http://localhost:5173/?premadeProfile=123e4567-e89b-12d3-a456-426614174000
 ```
 
 ### Filter by date range
@@ -52,6 +58,7 @@ http://localhost:5173/?category=USER&action=USER_SYNC&dateFrom=2026-01-01T00:00:
 - **Bookmarks**: Save commonly used filter combinations
 - **Auto-sync**: Filters automatically update the URL as you change them
 - **Reset**: Clicking "Reset" clears all filters and the URL parameters
+- **Multi-select Support**: Most dropdowns support choosing multiple values simultaneously
 
 ## Adding New Filters
 
@@ -61,7 +68,7 @@ The URL filter system is now **fully generic**. To add a new filter:
    ```typescript
    export interface AuditFilters {
      // ... existing fields
-     myNewFilter?: string;
+     myNewFilter?: string | string[];
    }
    ```
 
@@ -73,13 +80,14 @@ The URL filter system is now **fully generic**. To add a new filter:
    };
    ```
 
-3. **If it's a date field**, add it to the `dateFields` set:
+3. **Handle complex types** by adding them to the appropriate set:
+   - **Date fields**: Add to `dateFields` set.
+   - **Array fields**: Add to `arrayFields` set (will be comma-separated in URL).
+
    ```typescript
-   const dateFields: Set<keyof AuditFilters> = new Set([
-     'dateFrom', 
-     'dateTo',
-     'myNewDateFilter', // add here
-   ]);
+   const dateFields: Set<keyof AuditFilters> = new Set(['dateFrom', 'dateTo', 'myDateField']);
+   const arrayFields: Set<keyof AuditFilters> = new Set(['category', 'action', 'myArrayField']);
    ```
 
 That's it! The hook will automatically handle parsing from URL and syncing back.
+

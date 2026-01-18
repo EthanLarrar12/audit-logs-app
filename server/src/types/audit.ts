@@ -7,8 +7,8 @@ export interface AuditQueryParams {
     from?: string;
     to?: string;
     actorUsername?: string;
-    category?: string;
-    action?: string;
+    category?: string[];
+    action?: string[];
     searchInput?: string;
     actorSearch?: string;
     targetSearch?: string;

@@ -30,6 +30,7 @@ export function useUrlFilters() {
      * Fields that should be parsed as Date objects
      */
     const dateFields: Set<keyof AuditFilters> = new Set(['dateFrom', 'dateTo']);
+    const arrayFields: Set<keyof AuditFilters> = new Set(['category', 'action']);
 
     /**
      * Parse URL parameters into AuditFilters object
@@ -51,7 +52,12 @@ export function useUrlFilters() {
                     if (!isNaN(parsed.getTime())) {
                         (filters as any)[key] = parsed;
                     }
-                } else {
+                }
+                // Handle array fields
+                else if (arrayFields.has(key)) {
+                    (filters as any)[key] = value.split(',');
+                }
+                else {
                     // Handle string fields
                     (filters as any)[key] = value;
                 }
@@ -78,8 +84,12 @@ export function useUrlFilters() {
                 if (dateFields.has(key) && value instanceof Date) {
                     params.set(urlParam, value.toISOString());
                 }
+                // Handle array fields
+                else if (arrayFields.has(key) && Array.isArray(value) && value.length > 0) {
+                    params.set(urlParam, value.join(','));
+                }
                 // Handle string fields
-                else if (typeof value === 'string') {
+                else if (typeof value === 'string' && value.trim() !== '') {
                     params.set(urlParam, value);
                 }
             }
