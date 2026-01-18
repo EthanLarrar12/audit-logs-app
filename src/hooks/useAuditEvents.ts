@@ -1,9 +1,10 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useInfiniteQuery, keepPreviousData } from '@tanstack/react-query';
 import { isNil, omitBy } from 'lodash';
 import { AuditEvent, AuditFilters } from '@/types/audit';
 import { useDelayedLoading } from './useDelayedLoading';
 import { fetchAuditEvents } from '@/lib/api';
+import { useUrlFilters } from './useUrlFilters';
 
 interface UseAuditEventsReturn {
   events: AuditEvent[];
@@ -20,11 +21,13 @@ interface UseAuditEventsReturn {
   refetch: () => void;
 }
 
-const initialFilters: AuditFilters = {} as AuditFilters;
 const PAGE_SIZE = 10;
 
 export function useAuditEvents(): UseAuditEventsReturn {
-  const [filters, setFilters] = useState<AuditFilters>(initialFilters);
+  const { getFiltersFromUrl, syncFiltersToUrl } = useUrlFilters();
+
+  // Initialize filters from URL on mount
+  const [filters, setFilters] = useState<AuditFilters>(() => getFiltersFromUrl());
 
   const activeFilters = omitBy(filters, isNil);
 
@@ -57,6 +60,11 @@ export function useAuditEvents(): UseAuditEventsReturn {
     return data?.pages.flatMap((page) => page.items) || [];
   }, [data]);
 
+  // Sync filters to URL whenever they change
+  useEffect(() => {
+    syncFiltersToUrl(filters);
+  }, [filters, syncFiltersToUrl]);
+
   const handleSetFilters: React.Dispatch<React.SetStateAction<AuditFilters>> = useCallback((updater) => {
     // Resolve the new value based on the CURRENT filters state
     const nextFilters = typeof updater === 'function'
@@ -70,7 +78,7 @@ export function useAuditEvents(): UseAuditEventsReturn {
   }, [filters]);
 
   const resetFilters = useCallback(() => {
-    setFilters(initialFilters);
+    setFilters({} as AuditFilters);
   }, []);
 
   return {

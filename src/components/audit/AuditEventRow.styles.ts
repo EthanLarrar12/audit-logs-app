@@ -1,7 +1,7 @@
 import { makeStyles } from '@/lib/makeStyles';
 
 export const styles = makeStyles((t) => ({
-    container: `${t.colors.border} rounded-lg ${t.colors.bgCard} ${t.colors.transition} border`,
+    container: `${t.colors.border} rounded-lg bg-background ${t.colors.transition} border`,
     containerExpanded: t.colors.ring,
     mainRow: `w-full grid grid-cols-12 gap-4 px-4 py-3 items-center text-right ${t.colors.hover} transition-colors rounded-lg`,
     timestampCol: 'col-span-2 flex items-center gap-2',

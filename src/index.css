@@ -9,13 +9,13 @@
 @layer base {
   :root {
     /* Core brand colors - Mint/Teal theme */
-    --background: 0 0% 97%;
+    --background: 0 0% 100%;
     --foreground: 200 15% 15%;
 
-    --card: 0 0% 100%;
+    --card: 0 0% 97%;
     --card-foreground: 200 15% 15%;
 
-    --popover: 0 0% 100%;
+    --popover: 0 0% 97%;
     --popover-foreground: 200 15% 15%;
 
     /* Primary - Mint green rgb(53,173,144) */
