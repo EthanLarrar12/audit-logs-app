@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAuditEvents, getAuditEventById } from '../routes/audit';
+import { getAuditEvents, getAuditEventById, getPremadeProfiles } from '../routes/audit';
 import { validate } from '../middleware/validate';
 import { auditEventsQuerySchema, auditEventIdParamSchema } from '../validators/audit';
 
@@ -8,6 +8,9 @@ const auditRouter = Router();
 // GET /audit/events - List audit events with filters and pagination
 // Apply query validation middleware
 auditRouter.get('/events', validate(auditEventsQuerySchema, 'query'), getAuditEvents);
+
+// GET /audit/premade-profiles - List available premade profiles
+auditRouter.get('/premade-profiles', getPremadeProfiles);
 
 // GET /audit/events/:id - Get single event by ID
 // Apply params validation middleware

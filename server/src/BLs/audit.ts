@@ -3,8 +3,10 @@ import { graphql } from 'graphql';
 import { pgPool } from '../server';
 import { AuditEvent, AuditEventPage, AuditQueryParams } from '../types/audit';
 import { getGraphQLSchema } from '../GQL/schema';
-import { GET_AUDIT_EVENTS_QUERY, GET_AUDIT_EVENT_BY_ID_QUERY } from '../GQL/queries';
+import { GET_AUDIT_EVENTS_QUERY, GET_AUDIT_EVENT_BY_ID_QUERY } from '../GQL/auditQueries';
+import { GET_PREMADE_PROFILES_QUERY, GET_PROFILE_VALUES_QUERY } from '../GQL/profileQueries';
 import { parseAuditEventsResponse, parseAuditEventByIdResponse } from '../parsers/auditParser';
+import { parsePremadeProfilesResponse, parseProfileValuesResponse } from '../parsers/profileParser';
 
 /**
  * Business logic layer for audit events
@@ -54,6 +56,32 @@ export class AuditService {
 
         if (params.resourceSearch) {
             andFilters.push({ resource: { includesInsensitive: params.resourceSearch } });
+        }
+
+        if (params.premadeProfile) {
+            const schema = getGraphQLSchema();
+            const profileValuesResult: any = await withPostGraphileContext(
+                { pgPool },
+                async (context: any) => {
+                    return await graphql({
+                        schema,
+                        source: GET_PROFILE_VALUES_QUERY,
+                        contextValue: context,
+                        variableValues: { condition: { profileId: params.premadeProfile } }
+                    });
+                }
+            );
+
+            const values = parseProfileValuesResponse(profileValuesResult as any);
+
+            if (values.length > 0) {
+                andFilters.push({
+                    resource: { in: values }
+                });
+            } else {
+                // If profile has no values, don't match anything
+                andFilters.push({ resource: { equalTo: '___NONE___' } });
+            }
         }
 
         if (params.searchInput) {
@@ -137,6 +165,25 @@ export class AuditService {
         );
 
         return parseAuditEventByIdResponse(result as any);
+    }
+
+    /**
+     * Get all premade profiles
+     */
+    static async getPremadeProfiles(): Promise<{ id: string, name: string }[]> {
+        const schema = getGraphQLSchema();
+        const result: any = await withPostGraphileContext(
+            { pgPool },
+            async (context: any) => {
+                return await graphql({
+                    schema,
+                    source: GET_PREMADE_PROFILES_QUERY,
+                    contextValue: context
+                });
+            }
+        );
+
+        return parsePremadeProfilesResponse(result as any);
     }
 }
 

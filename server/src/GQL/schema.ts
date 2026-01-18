@@ -19,7 +19,7 @@ export async function buildGraphQLSchema(pgPool: Pool): Promise<GraphQLSchema> {
 
         cachedSchema = await createPostGraphileSchema(
             pgPool,
-            'history', // Target schema
+            ['history', 'api'], // Target schema
             {
                 appendPlugins: [PostGraphileConnectionFilterPlugin],
                 dynamicJson: true,

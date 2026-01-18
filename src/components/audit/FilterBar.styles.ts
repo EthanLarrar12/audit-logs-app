@@ -33,5 +33,15 @@ export const styles = makeStyles((t) => ({
     flexCenter: 'flex justify-center w-full',
     flexCenterMuted: `flex justify-center w-full ${t.colors.textSecondary}`,
     categoryWrapper: 'flex-1 flex justify-center overflow-hidden',
+    triggerWrapperRight: 'flex-1 flex justify-start overflow-hidden text-right',
     placeholderText: t.colors.textSecondary,
+
+    // Searchable Dropdown
+    searchableDropdownContent: 'p-0 w-[var(--radix-popover-trigger-width)] border shadow-md rounded-md bg-white overflow-hidden',
+    searchableDropdownList: 'max-h-[240px] overflow-auto p-1',
+    searchableDropdownItem: `flex items-center justify-between px-3 py-1.5 ${t.typography.sm} rounded-md cursor-pointer hover:bg-slate-50 hover:text-foreground ${t.colors.transition} text-right w-full`,
+    searchableDropdownItemSelected: `bg-primary/10 ${t.colors.textBrand} font-medium`,
+    searchableDropdownSearch: 'p-1.5 flex items-center gap-2 bg-slate-50 border-none',
+    searchableDropdownSearchInput: `h-7 w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 ${t.typography.sm} text-right placeholder:text-muted-foreground`,
+    searchableDropdownNoResults: `p-3 text-center ${t.typography.sm} ${t.colors.textSecondary}`,
 }));

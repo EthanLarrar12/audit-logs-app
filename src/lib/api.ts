@@ -33,6 +33,9 @@ export async function fetchAuditEvents({
     if (filters.resourceSearch) {
         params.append('resourceSearch', filters.resourceSearch);
     }
+    if (filters.premadeProfile) {
+        params.append('premadeProfile', filters.premadeProfile);
+    }
 
     if (filters.actorUsername) {
         params.append('actorUsername', filters.actorUsername);
@@ -77,6 +80,14 @@ export async function fetchAuditEventById(id: string) {
         if (response.status === 404) {
             return null;
         }
+        throw new Error(`API Error: ${response.status}`);
+    }
+    return response.json();
+}
+
+export async function fetchPremadeProfiles(): Promise<{ id: string, name: string }[]> {
+    const response = await fetch(`${API_BASE_URL}/audit/premade-profiles`);
+    if (!response.ok) {
         throw new Error(`API Error: ${response.status}`);
     }
     return response.json();

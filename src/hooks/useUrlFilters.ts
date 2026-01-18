@@ -21,6 +21,7 @@ export function useUrlFilters() {
         actorSearch: 'actorSearch',
         targetSearch: 'targetSearch',
         resourceSearch: 'resourceSearch',
+        premadeProfile: 'premadeProfile',
         dateFrom: 'dateFrom',
         dateTo: 'dateTo',
     };

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { Calendar as CalendarIcon, Filter, X, RotateCcw, Search, Loader2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Filter, X, RotateCcw, Search, Loader2, Check, ChevronsUpDown } from 'lucide-react';
 import { AuditFilters } from '@/types/audit';
 import { AUDIT_CATEGORIES, getSubcategoryName, getActionIcon } from '@/constants/filterOptions';
 import { CategoryBadge } from './CategoryBadge';
+import { fetchPremadeProfiles } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
 import {
@@ -33,6 +34,17 @@ interface FilterBarProps {
 export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: FilterBarProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [searchValues, setSearchValues] = useState<Record<string, string>>({});
+  const [premadeProfiles, setPremadeProfiles] = useState<{ id: string, name: string }[]>([]);
+  const [profileSearchText, setProfileSearchText] = useState('');
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  useEffect(() => {
+    fetchPremadeProfiles().then(setPremadeProfiles).catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (!isProfileOpen) setProfileSearchText('');
+  }, [isProfileOpen]);
 
   // Sync internal state with external filters (e.g. on reset)
   useEffect(() => {
@@ -134,6 +146,7 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                 קטגוריה
               </label>
               <Select
+                dir="rtl"
                 value={filters.category || 'all'}
                 onValueChange={(v) => {
                   const newCategory = v === 'all' ? null : v;
@@ -183,6 +196,7 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                 תת-קטגוריה
               </label>
               <Select
+                dir="rtl"
                 value={filters.action || 'all'}
                 onValueChange={(v) => updateFilter('action', v === 'all' ? null : v)}
                 disabled={!filters.category}
@@ -329,24 +343,98 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                     {filterDef.name}
                   </label>
                   <div className={styles.searchContainer}>
-                    {isLoading ? (
-                      <Loader2 className={styles.loader} />
+                    {filterDef.searchField === 'premadeProfile' ? (
+                      <Popover open={isProfileOpen} onOpenChange={setIsProfileOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            dir="rtl"
+                            aria-expanded={isProfileOpen}
+                            className={cn(styles.selectTrigger, "justify-between text-right px-3")}
+                          >
+                            <div className={styles.triggerWrapperRight}>
+                              <span className={cn("truncate", !filters.premadeProfile && styles.placeholderText)}>
+                                {filters.premadeProfile
+                                  ? premadeProfiles.find((p) => p.id === filters.premadeProfile)?.name
+                                  : "בחר פרופיל..."}
+                              </span>
+                            </div>
+                            <ChevronsUpDown className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className={styles.searchableDropdownContent} align="end">
+                          <div className={styles.searchableDropdownSearch} dir="rtl">
+                            <Search className="h-4 w-4 opacity-50" />
+                            <input
+                              placeholder="חיפוש פרופיל..."
+                              className={styles.searchableDropdownSearchInput}
+                              value={profileSearchText}
+                              onChange={(e) => setProfileSearchText(e.target.value)}
+                            />
+                          </div>
+                          <div className={styles.searchableDropdownList} dir="rtl">
+                            <div
+                              className={cn(
+                                styles.searchableDropdownItem,
+                                !filters.premadeProfile && styles.searchableDropdownItemSelected
+                              )}
+                              onClick={() => {
+                                updateFilter('premadeProfile', null);
+                                setIsProfileOpen(false);
+                              }}
+                            >
+                              <span>כל הפרופילים</span>
+                              {!filters.premadeProfile && <Check className="h-4 w-4" />}
+                            </div>
+                            {premadeProfiles
+                              .filter((p) => p.name.includes(profileSearchText))
+                              .map((profile) => (
+                                <div
+                                  key={profile.id}
+                                  className={cn(
+                                    styles.searchableDropdownItem,
+                                    filters.premadeProfile === profile.id && styles.searchableDropdownItemSelected
+                                  )}
+                                  onClick={() => {
+                                    updateFilter('premadeProfile', profile.id);
+                                    setIsProfileOpen(false);
+                                  }}
+                                >
+                                  <span>{profile.name}</span>
+                                  {filters.premadeProfile === profile.id && <Check className="h-4 w-4" />}
+                                </div>
+                              ))}
+                            {premadeProfiles.filter((p) => p.name.includes(profileSearchText)).length === 0 && (
+                              <div className={styles.searchableDropdownNoResults}>
+                                לא נמצאו תוצאות
+                              </div>
+                            )}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                     ) : (
-                      <Search className={styles.searchIcon} />
-                    )}
-                    <Input
-                      type="text"
-                      value={searchValues[filterDef.searchField] || ''}
-                      onChange={(e) => handleSearchChange(filterDef.searchField, e.target.value)}
-                      className={styles.searchInput}
-                    />
-                    {searchValues[filterDef.searchField] && (
-                      <button
-                        onClick={() => handleSearchChange(filterDef.searchField, '')}
-                        className={styles.clearSearchButton}
-                      >
-                        <X className={styles.clearIcon} />
-                      </button>
+                      <>
+                        {isLoading ? (
+                          <Loader2 className={styles.loader} />
+                        ) : (
+                          <Search className={styles.searchIcon} />
+                        )}
+                        <Input
+                          type="text"
+                          value={searchValues[filterDef.searchField] || ''}
+                          onChange={(e) => handleSearchChange(filterDef.searchField, e.target.value)}
+                          className={styles.searchInput}
+                        />
+                        {searchValues[filterDef.searchField] && (
+                          <button
+                            onClick={() => handleSearchChange(filterDef.searchField, '')}
+                            className={styles.clearSearchButton}
+                          >
+                            <X className={styles.clearIcon} />
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

@@ -59,6 +59,7 @@ export interface Category {
 const ACTOR_FILTER = { name: "מזהה/שם המשתמש שביצע את הפעולה", searchField: "actorSearch" }
 const getAddUserFilter = (semanticName: string) => ({ name: `שם/מזהה ה${semanticName} שהתווסף`, searchField: "resourceSearch" })
 const getRemoveUserFilter = (semanticName: string) => ({ name: `שם/מזהה ה${semanticName} שנמחק`, searchField: "resourceSearch" })
+const PREMADE_PROFILE_FILTER = { name: "פרופיל מוכן מראש", searchField: "premadeProfile" }
 
 export const AUDIT_CATEGORIES: Category[] = [
     {
@@ -72,8 +73,18 @@ export const AUDIT_CATEGORIES: Category[] = [
             { id: 'USER_CREATION', name: 'יצירת משתמש', type: ActionType.CREATE },
             { id: 'USER_DELETION', name: 'מחיקה משתמש', type: ActionType.DELETE },
             { id: 'USER_SYNC', name: 'סינכרון משתמש', type: ActionType.SYNC },
-            { id: 'ADD_VALUE_TO_USER', name: 'הוספת תכונה למשתמש', type: ActionType.ADD_VALUE },
-            { id: 'REMOVE_VALUE_FROM_USER', name: 'הסרת תכונה מהמשתמש', type: ActionType.REMOVE_VALUE },
+            {
+                id: 'ADD_VALUE_TO_USER',
+                name: 'הוספת תכונה למשתמש',
+                type: ActionType.ADD_VALUE,
+                filters: [PREMADE_PROFILE_FILTER]
+            },
+            {
+                id: 'REMOVE_VALUE_FROM_USER',
+                name: 'הסרת תכונה מהמשתמש',
+                type: ActionType.REMOVE_VALUE,
+                filters: [PREMADE_PROFILE_FILTER]
+            },
         ],
     },
     {

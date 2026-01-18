@@ -33,3 +33,19 @@ INSERT INTO history.records (action_id, updated_time, executor, target, resource
     ('act_013', 1709323200000, 'config_bot', 'john.doe', 'new_config', 'USER', 'ADD_VALUE_TO_USER', NULL),
     ('act_014', 1709326800000, 'admin_user', 'Profile X', 'user_b', 'PROFILE', 'ADD_USER_TO_PROFILE', 'USER'),
     ('act_015', 1709330400000, 'sync_service', 'jane.doe', NULL, 'USER', 'USER_SYNC', NULL);
+
+-- Insert sample data into api.mirage_premade_profiles
+INSERT INTO api.mirage_premade_profiles (id, name) VALUES
+    ('prof_001', 'פרופיל ניהול בכיר'),
+    ('prof_002', 'פרופיל אבטחת מידע'),
+    ('prof_003', 'פרופיל משתמש רגיל');
+
+-- Insert sample data into api.mirage_premade_profile_digital_parameter_values
+INSERT INTO api.mirage_premade_profile_digital_parameter_values (profile_id, parameter_id, value_id) VALUES
+    ('prof_001', 'param_display_mode', 'val_dark'),
+    ('prof_001', 'param_language', 'val_hebrew'),
+    ('prof_001', 'param_notifications', 'val_enabled'),
+    ('prof_002', 'param_display_mode', 'val_light'),
+    ('prof_002', 'param_security_level', 'val_high'),
+    ('prof_003', 'param_language', 'val_english'),
+    ('prof_003', 'param_display_mode', 'val_dark');

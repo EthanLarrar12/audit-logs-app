@@ -30,3 +30,18 @@ CREATE TABLE IF NOT EXISTS history.records (
     midur_action history.mirage_actions,
     resource_type history.mirage_object_types
 );
+
+CREATE SCHEMA IF NOT EXISTS api;
+
+CREATE TABLE IF NOT EXISTS api.mirage_premade_profiles(
+    id text PRIMARY KEY,
+    name text NOT NULL 
+);
+
+CREATE TABLE IF NOT EXISTS api.mirage_premade_profile_digital_parameter_values(
+    profile_id text not null,
+    parameter_id text not null,
+    value_id text not null,
+    PRIMARY KEY (profile_id, parameter_id, value_id),
+    FOREIGN KEY (profile_id) REFERENCES api.mirage_premade_profiles(id)
+);

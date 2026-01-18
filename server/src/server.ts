@@ -27,7 +27,7 @@ const pluginHook = makePluginHook([
 app.use(
     postgraphile(
         pgPool,
-        'history', // Target schema(s)
+        ['history', 'api'], // Target schema(s)
         {
             watchPg: true,
             graphiql: true,

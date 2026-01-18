@@ -1,6 +1,5 @@
 /**
  * GraphQL queries for audit events
- * Centralized location for all GraphQL query strings
  */
 
 /**

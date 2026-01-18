@@ -62,3 +62,17 @@ export const getAuditEventById: RequestHandler = async (req, res): Promise<void>
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+/**
+ * Get all available premade profiles
+ */
+export const getPremadeProfiles: RequestHandler = async (req, res): Promise<void> => {
+    try {
+        const profiles = await AuditService.getPremadeProfiles();
+        res.status(200).json(profiles);
+    } catch (error) {
+        console.error('Error in getPremadeProfiles:', error);
+        res.status(500).json([]);
+    }
+};
+

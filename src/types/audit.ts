@@ -10,6 +10,7 @@ export interface AuditFilters {
   actorUsername?: string;
   category?: string;
   action?: string;
+  premadeProfile?: string;
   dateFrom?: Date;
   dateTo?: Date;
 }
