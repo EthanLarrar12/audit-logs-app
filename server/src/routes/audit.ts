@@ -1,13 +1,16 @@
 import { Request, Response, RequestHandler } from 'express';
 import { AuditEvent, AuditEventPage } from '../types/audit';
 import { AuditService } from '../BLs/audit';
-import { AuditEventsQuery, AuditEventIdParam } from '../validators/audit';
+import { AuditEventsQuery, AuditEventIdParam, SuggestionsQuery } from '../validators/audit';
 
 // Type for validated audit events request
 type AuditEventsRequest = Request<{}, AuditEventPage, {}, AuditEventsQuery>;
 
 // Type for validated single event request
 type AuditEventByIdRequest = Request<AuditEventIdParam, AuditEvent | { error: string }, {}>;
+
+// Type for validated suggestions request
+type SuggestionsRequest = Request<{}, string[], {}, SuggestionsQuery>;
 
 /**
  * Controller for audit events
@@ -72,6 +75,21 @@ export const getPremadeProfiles: RequestHandler = async (req, res): Promise<void
         res.status(200).json(profiles);
     } catch (error) {
         console.error('Error in getPremadeProfiles:', error);
+        res.status(500).json([]);
+    }
+};
+
+/**
+ * Get autocomplete suggestions for general search
+ * Term param is validated by Zod middleware
+ */
+export const getSuggestions: RequestHandler = async (req, res): Promise<void> => {
+    try {
+        const { term } = req.query as unknown as SuggestionsQuery;
+        const result = await AuditService.getSuggestions({ term });
+        res.status(200).json(result);
+    } catch (error) {
+        console.error('Error in getSuggestions:', error);
         res.status(500).json([]);
     }
 };

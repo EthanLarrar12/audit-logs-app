@@ -26,6 +26,14 @@ export const auditEventIdParamSchema = z.object({
     id: z.string().uuid('Invalid event ID format'),
 });
 
+/**
+ * Zod schema for suggestions query parameters
+ */
+export const suggestionsQuerySchema = z.object({
+    term: z.string().min(1),
+});
+
 // Export inferred types
 export type AuditEventsQuery = z.infer<typeof auditEventsQuerySchema>;
 export type AuditEventIdParam = z.infer<typeof auditEventIdParamSchema>;
+export type SuggestionsQuery = z.infer<typeof suggestionsQuerySchema>;

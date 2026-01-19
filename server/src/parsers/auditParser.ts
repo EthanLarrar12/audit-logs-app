@@ -123,3 +123,64 @@ export function parseAuditEventByIdResponse(
 
     return parseAuditEventNode(node);
 }
+interface GraphQLSuggestionsResponse {
+    data?: {
+        allRecords?: {
+            nodes: Array<{
+                executor: string;
+                target: string;
+                resource: string;
+                targetType: string;
+                resourceType: string;
+            }>;
+        };
+    };
+    errors?: Array<{ message: string }>;
+}
+
+export interface SuggestionResult {
+    text: string;
+    type: string; // The category (USER, SHOS, etc.)
+}
+
+/**
+ * Parse GraphQL response for suggestions and extract unique values with categories
+ */
+export function parseSuggestionsResponse(
+    response: GraphQLSuggestionsResponse,
+    term: string
+): SuggestionResult[] {
+    if (response.errors && response.errors.length > 0) {
+        throw new Error(`GraphQL Errors: ${response.errors.map(e => e.message).join(', ')}`);
+    }
+
+    if (!response.data || !response.data.allRecords) {
+        return [];
+    }
+
+    const { nodes } = response.data.allRecords;
+    const suggestionsMap = new Map<string, SuggestionResult>();
+    const lowerTerm = term.toLowerCase();
+
+    nodes.forEach(node => {
+        // Map fields to their corresponding categories
+        const fields: Array<{ val: string, category: string }> = [
+            { val: node.executor, category: 'USER' },
+            { val: node.target, category: node.targetType },
+            { val: node.resource, category: node.resourceType }
+        ];
+
+        fields.forEach(({ val, category }) => {
+            if (val && val.toLowerCase().includes(lowerTerm)) {
+                const key = `${val}:${category}`;
+                if (!suggestionsMap.has(key)) {
+                    suggestionsMap.set(key, { text: val, type: category });
+                }
+            }
+        });
+    });
+
+    return Array.from(suggestionsMap.values())
+        .sort((a, b) => a.text.localeCompare(b.text))
+        .slice(0, 10);
+}

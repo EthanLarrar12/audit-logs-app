@@ -100,3 +100,22 @@ export async function fetchPremadeProfiles(): Promise<{ id: string, name: string
     }
     return response.json();
 }
+
+export interface SuggestionResult {
+    text: string;
+    type: string; // The category ID (e.g. USER, SHOS, etc.)
+}
+
+export async function fetchSuggestions(term: string): Promise<SuggestionResult[]> {
+    if (!term) return [];
+    try {
+        const response = await fetch(`${API_BASE_URL}/audit/suggest?term=${encodeURIComponent(term)}`);
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
+        return response.json();
+    } catch (error) {
+        console.error('Error fetching suggestions:', error);
+        return [];
+    }
+}

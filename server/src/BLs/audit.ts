@@ -3,9 +3,9 @@ import { graphql } from 'graphql';
 import { pgPool } from '../server';
 import { AuditEvent, AuditEventPage, AuditQueryParams } from '../types/audit';
 import { getGraphQLSchema } from '../GQL/schema';
-import { GET_AUDIT_EVENTS_QUERY, GET_AUDIT_EVENT_BY_ID_QUERY } from '../GQL/auditQueries';
+import { GET_AUDIT_EVENTS_QUERY, GET_AUDIT_EVENT_BY_ID_QUERY, GET_SUGGESTIONS_QUERY } from '../GQL/auditQueries';
 import { GET_PREMADE_PROFILES_QUERY, GET_PROFILE_VALUES_QUERY } from '../GQL/profileQueries';
-import { parseAuditEventsResponse, parseAuditEventByIdResponse } from '../parsers/auditParser';
+import { parseAuditEventsResponse, parseAuditEventByIdResponse, parseSuggestionsResponse } from '../parsers/auditParser';
 import { parsePremadeProfilesResponse, parseProfileValuesResponse } from '../parsers/profileParser';
 
 /**
@@ -184,6 +184,35 @@ export class AuditService {
         );
 
         return parsePremadeProfilesResponse(result as any);
+    }
+
+    /**
+     * Get unique suggestions for autocomplete based on a search term
+     */
+    static async getSuggestions(params: { term: string }): Promise<any[]> {
+        const term = params.term;
+        const filter = {
+            or: [
+                { executor: { includesInsensitive: term } },
+                { target: { includesInsensitive: term } },
+                { resource: { includesInsensitive: term } }
+            ]
+        };
+
+        const schema = getGraphQLSchema();
+        const result = await withPostGraphileContext(
+            { pgPool },
+            async (context: any) => {
+                return await graphql({
+                    schema,
+                    source: GET_SUGGESTIONS_QUERY,
+                    contextValue: context,
+                    variableValues: { filter }
+                });
+            }
+        );
+
+        return parseSuggestionsResponse(result as any, term);
     }
 }
 

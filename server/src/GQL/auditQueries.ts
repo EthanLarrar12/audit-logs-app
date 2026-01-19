@@ -56,3 +56,22 @@ export const GET_AUDIT_EVENT_BY_ID_QUERY = `
         }
     }
 `;
+/**
+ * Query to fetch unique values for autocomplete suggestions
+ */
+export const GET_SUGGESTIONS_QUERY = `
+    query Suggestions($filter: RecordFilter) {
+        allRecords(
+            filter: $filter
+            first: 50
+        ) {
+            nodes {
+                executor
+                target
+                resource
+                targetType
+                resourceType
+            }
+        }
+    }
+`;
