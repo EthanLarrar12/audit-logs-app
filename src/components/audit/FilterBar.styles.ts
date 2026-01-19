@@ -2,7 +2,6 @@ import { makeStyles } from '@/lib/makeStyles';
 
 export const styles = makeStyles((t) => ({
     container: `${t.colors.bgCard} ${t.colors.border} rounded-lg p-4 space-y-4 border`,
-    header: 'flex items-center justify-between min-h-10',
     expandButton: `flex items-center gap-2 ${t.typography.sm} ${t.typography.medium} ${t.colors.textPrimary} hover:${t.colors.textBrand} ${t.colors.transition}`,
     activeFilterBadge: `mr-1 px-2 py-0.5 ${t.typography.xs} ${t.typography.medium} ${t.colors.bgBrand} ${t.colors.textInverse} rounded-full`,
     resetButton: `${t.colors.textSecondary} hover:${t.colors.textPrimary} gap-1.5`,

@@ -77,9 +77,17 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
   // Handle autocomplete suggestions fetching
   useEffect(() => {
     const term = searchValues.searchInput;
-    if (!term || term.length < 2) {
+    if (!term) {
       setSuggestions([]);
       setIsSuggestionsOpen(false);
+      return;
+    }
+
+    // Always show the "Search for..." option if there is any text
+    setIsSuggestionsOpen(true);
+
+    if (term.length < 2) {
+      setSuggestions([]);
       return;
     }
 
@@ -88,11 +96,8 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
       try {
         const data = await fetchSuggestions(term);
         setSuggestions(data);
-        if (data.length > 0) {
-          setIsSuggestionsOpen(true);
-        } else {
-          setIsSuggestionsOpen(false);
-        }
+        // Keep popover open even if no results, to show the custom search option
+        setIsSuggestionsOpen(true);
       } catch (err) {
         console.error(err);
       } finally {
@@ -135,8 +140,12 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
       const updatedFilters = { ...filters };
 
       Object.entries(searchValues).forEach(([field, value]) => {
-        if (filters[field] !== (value || null)) {
-          updatedFilters[field] = value || null;
+        // Skip searchInput as we want explicit search for it
+        if (field === 'searchInput') return;
+
+        const key = field as keyof AuditFilters;
+        if (filters[key] !== (value || null)) {
+          (updatedFilters as any)[key] = value || null;
           changed = true;
         }
       });
@@ -149,7 +158,26 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
     return () => clearTimeout(timer);
   }, [searchValues]);
 
-  const activeFilterCount = Object.values(filters).filter((v) => v !== null).length;
+  const activeFilters = Object.entries(filters).filter(([key, value]) => {
+    // Exclude top row filters
+    if (['searchInput', 'dateFrom', 'dateTo'].includes(key)) return false;
+
+    // Check if filter is active
+    if (value === null || value === undefined) return false;
+    if (typeof value === 'string' && value.trim() === '') return false;
+    if (Array.isArray(value) && value.length === 0) return false;
+
+    return true;
+  });
+
+  const activeFilterCount = activeFilters.length;
+
+  const hasAnyActiveFilter = Object.values(filters).some(v => {
+    if (v === null || v === undefined) return false;
+    if (typeof v === 'string' && v.trim() === '') return false;
+    if (Array.isArray(v) && v.length === 0) return false;
+    return true;
+  });
 
   // Resolve filters to display (aggregate from all selected categories and actions)
   const selectedCategories = Array.isArray(filters.category)
@@ -172,24 +200,21 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
 
   return (
     <div className={styles.container}>
-      {/* Header with Reset Button only */}
-      <div className={styles.header}>
-        <div /> {/* Spacer to keep reset button on the left */}
-        {hasActiveFilters && (
+      {/* Main filters grid */}
+      <div className={styles.controlsContainer}>
+        <div className="flex justify-end -mb-2">
           <Button
             variant="ghost"
             size="sm"
             onClick={onReset}
             className={styles.resetButton}
+            disabled={!hasAnyActiveFilter}
           >
             <RotateCcw className={styles.resetIcon} />
             איפוס
           </Button>
-        )}
-      </div>
+        </div>
 
-      {/* Main filters grid */}
-      <div className={styles.controlsContainer}>
         {/* Permanent First row */}
         <div className={styles.firstFiltersRow}>
           {/* General Search with Autocomplete */}
@@ -197,7 +222,13 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
             <label className={styles.label}>
               חיפוש כללי (מבצע, יעד, משאב)
             </label>
-            <Popover open={isSuggestionsOpen} onOpenChange={setIsSuggestionsOpen}>
+            <Popover
+              open={isSuggestionsOpen}
+              onOpenChange={(open) => {
+                if (open && !searchValues.searchInput) return;
+                setIsSuggestionsOpen(open);
+              }}
+            >
               <PopoverTrigger asChild>
                 <div className={styles.searchContainer}>
                   {isSuggestionsLoading ? (
@@ -212,16 +243,24 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                     onChange={(e) => handleSearchChange('searchInput', e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
+                        updateFilter('searchInput', searchValues.searchInput);
                         setIsSuggestionsOpen(false);
                       }
                     }}
                     onFocus={() => {
-                      if (suggestions.length > 0) setIsSuggestionsOpen(true);
+                      if (searchValues.searchInput && suggestions.length > 0) {
+                        setIsSuggestionsOpen(true);
+                      }
                     }}
                   />
                   {searchValues.searchInput && (
                     <button
-                      onClick={() => handleSearchChange('searchInput', '')}
+                      onClick={() => {
+                        handleSearchChange('searchInput', '');
+                        updateFilter('searchInput', null);
+                        setIsSuggestionsOpen(false);
+                        setSuggestions([]);
+                      }}
                       className={styles.clearSearchButton}
                     >
                       <X className={styles.clearIcon} />
@@ -235,6 +274,22 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                 onOpenAutoFocus={(e) => e.preventDefault()} // Don't steal focus from input
               >
                 <div className={styles.searchableDropdownList} dir="rtl">
+                  {/* Option to search for the typed word */}
+                  {searchValues.searchInput && (
+                    <div
+                      className={cn(styles.searchableDropdownItem, "border-b border-slate-50 italic")}
+                      onClick={() => {
+                        updateFilter('searchInput', searchValues.searchInput);
+                        setIsSuggestionsOpen(false);
+                      }}
+                    >
+                      <div className="flex items-center gap-2 text-brand">
+                        <Search className="h-4 w-4 opacity-70" />
+                        <span>חפש את: "{searchValues.searchInput}"</span>
+                      </div>
+                    </div>
+                  )}
+
                   {suggestions.map((suggestion) => {
                     const actionIcon = getActionIcon(suggestion.text);
 
@@ -243,7 +298,9 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                         key={`${suggestion.text}-${suggestion.type}`}
                         className={styles.searchableDropdownItem}
                         onClick={() => {
-                          handleSearchChange('searchInput', suggestion.text);
+                          const val = suggestion.text;
+                          setSearchValues(prev => ({ ...prev, searchInput: val }));
+                          updateFilter('searchInput', val);
                           setIsSuggestionsOpen(false);
                         }}
                       >
