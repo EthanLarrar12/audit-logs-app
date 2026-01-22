@@ -1,16 +1,7 @@
-import { Request, Response, RequestHandler } from 'express';
+import { RequestHandler } from 'express';
 import { AuditEvent, AuditEventPage } from '../types/audit';
 import { AuditService } from '../BLs/audit';
 import { AuditEventsQuery, AuditEventIdParam, SuggestionsQuery } from '../validators/audit';
-
-// Type for validated audit events request
-type AuditEventsRequest = Request<{}, AuditEventPage, {}, AuditEventsQuery>;
-
-// Type for validated single event request
-type AuditEventByIdRequest = Request<AuditEventIdParam, AuditEvent | { error: string }, {}>;
-
-// Type for validated suggestions request
-type SuggestionsRequest = Request<{}, string[], {}, SuggestionsQuery>;
 
 /**
  * Controller for audit events
