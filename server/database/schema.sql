@@ -24,8 +24,11 @@ CREATE TABLE IF NOT EXISTS history.records (
     action_id TEXT NOT NULL REFERENCES history.record_data(action_id),
     updated_time BIGINT NOT NULL,
     executor TEXT NOT NULL,
+    executor_name TEXT,
     target TEXT NOT NULL,
+    target_name TEXT,
     resource TEXT,
+    resource_name TEXT,
     target_type history.mirage_object_types,
     midur_action history.mirage_actions,
     resource_type history.mirage_object_types

@@ -23,6 +23,9 @@ export async function fetchAuditEvents({
     // Filters mapping (Fixed params according to API spec)
     if (filters.searchInput) {
         params.append('searchInput', filters.searchInput);
+        if (filters.searchInputIsExact) {
+            params.append('exactSearch', 'true');
+        }
     }
     if (filters.actorSearch) {
         params.append('actorSearch', filters.actorSearch);
@@ -102,7 +105,8 @@ export async function fetchPremadeProfiles(): Promise<{ id: string, name: string
 }
 
 export interface SuggestionResult {
-    text: string;
+    id: string;
+    name: string | null;
     type: string; // The category ID (e.g. USER, SHOS, etc.)
 }
 

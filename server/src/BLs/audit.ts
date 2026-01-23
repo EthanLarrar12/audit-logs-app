@@ -86,14 +86,27 @@ export class AuditService {
 
         if (params.searchInput) {
             const term = params.searchInput;
-            andFilters.push({
-                or: [
-                    { actionId: { includesInsensitive: term } },
-                    { executor: { includesInsensitive: term } },
-                    { target: { includesInsensitive: term } },
-                    { resource: { includesInsensitive: term } }
-                ]
-            });
+            if (params.exactSearch) {
+                andFilters.push({
+                    or: [
+                        { executor: { equalTo: term } },
+                        { target: { equalTo: term } },
+                        { resource: { equalTo: term } }
+                    ]
+                });
+            } else {
+                andFilters.push({
+                    or: [
+                        { actionId: { includesInsensitive: term } },
+                        { executor: { includesInsensitive: term } },
+                        { executorName: { includesInsensitive: term } },
+                        { target: { includesInsensitive: term } },
+                        { targetName: { includesInsensitive: term } },
+                        { resource: { includesInsensitive: term } },
+                        { resourceName: { includesInsensitive: term } }
+                    ]
+                });
+            }
         }
 
         if (andFilters.length > 0) {
@@ -194,8 +207,11 @@ export class AuditService {
         const filter = {
             or: [
                 { executor: { includesInsensitive: term } },
+                { executorName: { includesInsensitive: term } },
                 { target: { includesInsensitive: term } },
-                { resource: { includesInsensitive: term } }
+                { targetName: { includesInsensitive: term } },
+                { resource: { includesInsensitive: term } },
+                { resourceName: { includesInsensitive: term } }
             ]
         };
 

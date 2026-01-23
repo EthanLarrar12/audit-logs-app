@@ -10,6 +10,7 @@ export interface AuditQueryParams {
     category?: string[];
     action?: string[];
     searchInput?: string;
+    exactSearch?: boolean;
     actorSearch?: string;
     targetSearch?: string;
     resourceSearch?: string;

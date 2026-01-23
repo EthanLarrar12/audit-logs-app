@@ -13,7 +13,7 @@ interface GeneralSearchProps {
     label: string;
     value: string;
     onChange: (val: string) => void;
-    onSelect: (val: string) => void;
+    onSelect: (val: string, isExact?: boolean) => void;
     onClear: () => void;
 }
 
@@ -23,16 +23,9 @@ export function GeneralSearch({ label, value, onChange, onSelect, onClear }: Gen
     const [isSuggestionsLoading, setIsSuggestionsLoading] = useState(false);
 
     useEffect(() => {
-        if (!value) {
+        if (!value || value.length < 2) {
             setSuggestions([]);
-            setIsSuggestionsOpen(false);
-            return;
-        }
-
-        setIsSuggestionsOpen(true);
-
-        if (value.length < 2) {
-            setSuggestions([]);
+            if (!value) setIsSuggestionsOpen(false);
             return;
         }
 
@@ -41,7 +34,6 @@ export function GeneralSearch({ label, value, onChange, onSelect, onClear }: Gen
             try {
                 const data = await fetchSuggestions(value);
                 setSuggestions(data);
-                setIsSuggestionsOpen(true);
             } catch (err) {
                 console.error(err);
             } finally {
@@ -72,10 +64,13 @@ export function GeneralSearch({ label, value, onChange, onSelect, onClear }: Gen
                             className={styles.searchInput}
                             placeholder="הקלידו לחיפוש..."
                             value={value || ''}
-                            onChange={(e) => onChange(e.target.value)}
+                            onChange={(e) => {
+                                onChange(e.target.value);
+                                setIsSuggestionsOpen(true);
+                            }}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
-                                    onSelect(value);
+                                    onSelect(value, false);
                                     setIsSuggestionsOpen(false);
                                 }
                             }}
@@ -109,7 +104,7 @@ export function GeneralSearch({ label, value, onChange, onSelect, onClear }: Gen
                             <div
                                 className={cn(styles.searchableDropdownItem, "border-b border-slate-50 italic")}
                                 onClick={() => {
-                                    onSelect(value);
+                                    onSelect(value, false);
                                     setIsSuggestionsOpen(false);
                                 }}
                             >
@@ -121,14 +116,14 @@ export function GeneralSearch({ label, value, onChange, onSelect, onClear }: Gen
                         )}
 
                         {suggestions.map((suggestion) => {
-                            const actionIcon = getActionIcon(suggestion.text);
+                            const actionIcon = getActionIcon(suggestion.id);
 
                             return (
                                 <div
-                                    key={`${suggestion.text}-${suggestion.type}`}
+                                    key={`${suggestion.id}-${suggestion.type}`}
                                     className={styles.searchableDropdownItem}
                                     onClick={() => {
-                                        onSelect(suggestion.text);
+                                        onSelect(suggestion.id, true);
                                         setIsSuggestionsOpen(false);
                                     }}
                                 >
@@ -141,12 +136,12 @@ export function GeneralSearch({ label, value, onChange, onSelect, onClear }: Gen
                                                         return <IconComponent className="h-4 w-4 text-slate-500" />;
                                                     })()}
                                                 </div>
-                                                <span>{suggestion.text}</span>
+                                                <span>{suggestion.name ? `${suggestion.name} (${suggestion.id})` : suggestion.id}</span>
                                             </div>
                                         ) : (
                                             <CategoryBadge
                                                 category={suggestion.type}
-                                                label={suggestion.text}
+                                                label={suggestion.name ? `${suggestion.name} (${suggestion.id})` : suggestion.id}
                                                 className="bg-transparent border-none p-0 h-auto lowercase"
                                             />
                                         )}

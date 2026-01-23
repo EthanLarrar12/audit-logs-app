@@ -4,6 +4,7 @@ export type { AuditEvent, AuditEventPage };
 
 export interface AuditFilters {
   searchInput?: string;
+  searchInputIsExact?: boolean;
   actorSearch?: string;
   targetSearch?: string;
   resourceSearch?: string;

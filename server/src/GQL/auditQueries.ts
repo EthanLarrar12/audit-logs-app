@@ -1,6 +1,6 @@
 /**
- * GraphQL queries for audit events
- */
+* GraphQL queries for audit events
+*/
 
 /**
  * Query to fetch paginated and filtered audit events
@@ -21,12 +21,12 @@ export const GET_AUDIT_EVENTS_QUERY = `
                 category: targetType
                 actorType: targetType
                 actorId: executor
-                actorUsername: executor
+                actorUsername: executorName
                 action: midurAction
-                resourceName: resource
+                resourceName
                 resourceId: resource
                 targetId: target
-                targetName: target
+                targetName
                 recordDatumByActionId {
                     changes
                 }
@@ -46,10 +46,12 @@ export const GET_AUDIT_EVENT_BY_ID_QUERY = `
             updatedAt: updatedTime
             category: targetType
             actorId: executor
-            actorUsername: executor
+            actorUsername: executorName
             action: midurAction
-            resource: resource
-            target: target
+            resourceName: resourceName
+            resourceId: resource
+            targetId: target
+            targetName: targetName
             recordDatumByActionId {
                 changes
             }
@@ -67,8 +69,11 @@ export const GET_SUGGESTIONS_QUERY = `
         ) {
             nodes {
                 executor
+                executorName
                 target
+                targetName
                 resource
+                resourceName
                 targetType
                 resourceType
             }

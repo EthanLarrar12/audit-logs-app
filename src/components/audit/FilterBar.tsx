@@ -67,7 +67,9 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
 
   const handleSearchChange = (field: string, value: string) => {
     setSearchValues(prev => ({ ...prev, [field]: value }));
-    // Debounce is handled per field in a separate effect or single one
+    if (field === 'searchInput') {
+      updateFilter('searchInputIsExact', false);
+    }
   };
 
   // Generic debounce for all search fields
@@ -96,8 +98,8 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
   }, [searchValues]);
 
   const activeFilters = Object.entries(filters).filter(([key, value]) => {
-    // Exclude top row filters
-    if (['searchInput', 'dateFrom', 'dateTo'].includes(key)) return false;
+    // Exclude top row filters and internal flags
+    if (['searchInput', 'searchInputIsExact', 'dateFrom', 'dateTo'].includes(key)) return false;
 
     // Check if filter is active
     if (value === null || value === undefined) return false;
@@ -158,10 +160,14 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
             label="חיפוש כללי (מבצע, יעד, משאב)"
             value={searchValues.searchInput || ''}
             onChange={(val) => handleSearchChange('searchInput', val)}
-            onSelect={(val) => updateFilter('searchInput', val)}
+            onSelect={(val, isExact) => {
+              updateFilter('searchInputIsExact', isExact);
+              updateFilter('searchInput', val);
+            }}
             onClear={() => {
               handleSearchChange('searchInput', '');
               updateFilter('searchInput', null);
+              updateFilter('searchInputIsExact', false);
             }}
           />
 

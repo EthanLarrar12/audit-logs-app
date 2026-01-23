@@ -11,6 +11,8 @@ interface GraphQLAuditNode {
     category: string;
     actorId: string;
     actorUsername: string;
+    executor: string;
+    executorName: string;
     action: string;
     resourceName?: string;
     resourceId?: string;
@@ -18,6 +20,8 @@ interface GraphQLAuditNode {
     targetId: string;
     target: string;
     targetName: string;
+    targetType: string;
+    resourceType: string;
     recordDatumByActionId?: {
         changes?: {
             before?: any;
@@ -128,8 +132,11 @@ interface GraphQLSuggestionsResponse {
         allRecords?: {
             nodes: Array<{
                 executor: string;
+                executorName: string;
                 target: string;
+                targetName: string;
                 resource: string;
+                resourceName: string;
                 targetType: string;
                 resourceType: string;
             }>;
@@ -139,7 +146,8 @@ interface GraphQLSuggestionsResponse {
 }
 
 export interface SuggestionResult {
-    text: string;
+    id: string;
+    name: string | null;
     type: string; // The category (USER, SHOS, etc.)
 }
 
@@ -164,23 +172,26 @@ export function parseSuggestionsResponse(
 
     nodes.forEach(node => {
         // Map fields to their corresponding categories
-        const fields: Array<{ val: string, category: string }> = [
-            { val: node.executor, category: 'USER' },
-            { val: node.target, category: node.targetType },
-            { val: node.resource, category: node.resourceType }
+        const fields: Array<{ id: string, name: string | null, category: string }> = [
+            { id: node.executor, name: node.executorName || null, category: 'USER' },
+            { id: node.target, name: node.targetName || null, category: node.targetType },
+            { id: node.resource, name: node.resourceName || null, category: node.resourceType }
         ];
 
-        fields.forEach(({ val, category }) => {
-            if (val && val.toLowerCase().includes(lowerTerm)) {
-                const key = `${val}:${category}`;
+        fields.forEach(({ id, name, category }) => {
+            const matchesId = id && id.toLowerCase().includes(lowerTerm);
+            const matchesName = name && name.toLowerCase().includes(lowerTerm);
+
+            if (matchesId || matchesName) {
+                const key = `${id}:${category}`;
                 if (!suggestionsMap.has(key)) {
-                    suggestionsMap.set(key, { text: val, type: category });
+                    suggestionsMap.set(key, { id, name, type: category });
                 }
             }
         });
     });
 
     return Array.from(suggestionsMap.values())
-        .sort((a, b) => a.text.localeCompare(b.text))
+        .sort((a, b) => (a.name || a.id).localeCompare(b.name || b.id))
         .slice(0, 10);
 }
