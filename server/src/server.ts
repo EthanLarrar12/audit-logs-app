@@ -3,8 +3,8 @@ import cors from 'cors';
 import { postgraphile, makePluginHook } from 'postgraphile';
 import PostGraphileConnectionFilterPlugin from 'postgraphile-plugin-connection-filter';
 import { Pool } from 'pg';
-import auditRouter from './routers/audit';
-import { buildGraphQLSchema } from './GQL/schema';
+import { createAuditRouter } from './routers/audit';
+import { getPerformQuery } from './utils/performQuery';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -41,7 +41,8 @@ app.use(
 );
 
 // API Routes
-app.use('/audit', auditRouter);
+// API Routes - Initialized after schema build in startServer
+// app.use('/audit', auditRouter); // Removed in favor of dynamic initialization
 
 // Health check
 app.get('/health', (req: express.Request, res: express.Response<{ status: string; message: string }>): void => {
@@ -51,8 +52,11 @@ app.get('/health', (req: express.Request, res: express.Response<{ status: string
 // Initialize and start server
 const startServer = async (): Promise<void> => {
     try {
-        // Build GraphQL schema first
-        await buildGraphQLSchema(pgPool);
+        // Initialize performQuery (internally builds schema)
+        const performQuery = await getPerformQuery(pgPool);
+
+        // Initialize and mount routers with performQuery
+        app.use('/audit', createAuditRouter(performQuery));
 
         // Start server
         app.listen(PORT, () => {
@@ -65,6 +69,7 @@ const startServer = async (): Promise<void> => {
         console.error('Failed to start server:', error);
         process.exit(1);
     }
-}
+};
 
 startServer();
+

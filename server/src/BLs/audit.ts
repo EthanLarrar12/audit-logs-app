@@ -1,12 +1,9 @@
-import { withPostGraphileContext } from 'postgraphile';
-import { graphql } from 'graphql';
-import { pgPool } from '../server';
 import { AuditEvent, AuditEventPage, AuditQueryParams } from '../types/audit';
-import { getGraphQLSchema } from '../GQL/schema';
 import { GET_AUDIT_EVENTS_QUERY, GET_AUDIT_EVENT_BY_ID_QUERY, GET_SUGGESTIONS_QUERY } from '../GQL/auditQueries';
 import { GET_PREMADE_PROFILES_QUERY, GET_PROFILE_VALUES_QUERY } from '../GQL/profileQueries';
 import { parseAuditEventsResponse, parseAuditEventByIdResponse, parseSuggestionsResponse } from '../parsers/auditParser';
 import { parsePremadeProfilesResponse, parseProfileValuesResponse } from '../parsers/profileParser';
+import { PerformQuery } from '../utils/performQuery';
 
 /**
  * Business logic layer for audit events
@@ -16,7 +13,7 @@ export class AuditService {
     /**
      * Get paginated and filtered audit events
      */
-    static getEvents = async (params: AuditQueryParams): Promise<AuditEventPage> => {
+    static getEvents = async (params: AuditQueryParams, performQuery: PerformQuery): Promise<AuditEventPage> => {
         // 1. Construct Filter Object
         const filter: any = {};
         const andFilters: any[] = [];
@@ -59,17 +56,9 @@ export class AuditService {
         }
 
         if (params.premadeProfile) {
-            const schema = getGraphQLSchema();
-            const profileValuesResult: any = await withPostGraphileContext(
-                { pgPool },
-                async (context: any) => {
-                    return await graphql({
-                        schema,
-                        source: GET_PROFILE_VALUES_QUERY,
-                        contextValue: context,
-                        variableValues: { condition: { profileId: params.premadeProfile } }
-                    });
-                }
+            const profileValuesResult: any = await performQuery(
+                GET_PROFILE_VALUES_QUERY,
+                { condition: { profileId: params.premadeProfile } }
             );
 
             const values = parseProfileValuesResponse(profileValuesResult as any);
@@ -165,18 +154,9 @@ export class AuditService {
             variables.filter = filter;
         }
 
-        const schema = getGraphQLSchema();
-
-        const result = await withPostGraphileContext(
-            { pgPool },
-            async (context: any) => {
-                return await graphql({
-                    schema,
-                    source: GET_AUDIT_EVENTS_QUERY,
-                    contextValue: context,
-                    variableValues: variables
-                });
-            }
+        const result = await performQuery(
+            GET_AUDIT_EVENTS_QUERY,
+            variables
         );
 
         // 4. Parse and return response
@@ -186,19 +166,10 @@ export class AuditService {
     /**
      * Get single audit event by ID
      */
-    static getEventById = async (id: string): Promise<AuditEvent | null> => {
-        const schema = getGraphQLSchema();
-
-        const result = await withPostGraphileContext(
-            { pgPool },
-            async (context: any) => {
-                return await graphql({
-                    schema,
-                    source: GET_AUDIT_EVENT_BY_ID_QUERY,
-                    contextValue: context,
-                    variableValues: { id }
-                });
-            }
+    static getEventById = async (id: string, performQuery: PerformQuery): Promise<AuditEvent | null> => {
+        const result = await performQuery(
+            GET_AUDIT_EVENT_BY_ID_QUERY,
+            { id }
         );
 
         return parseAuditEventByIdResponse(result as any);
@@ -207,18 +178,8 @@ export class AuditService {
     /**
      * Get all premade profiles
      */
-    static getPremadeProfiles = async (): Promise<{ id: string, name: string }[]> => {
-        const schema = getGraphQLSchema();
-        const result: any = await withPostGraphileContext(
-            { pgPool },
-            async (context: any) => {
-                return await graphql({
-                    schema,
-                    source: GET_PREMADE_PROFILES_QUERY,
-                    contextValue: context
-                });
-            }
-        );
+    static getPremadeProfiles = async (performQuery: PerformQuery): Promise<{ id: string, name: string }[]> => {
+        const result: any = await performQuery(GET_PREMADE_PROFILES_QUERY);
 
         return parsePremadeProfilesResponse(result as any);
     }
@@ -226,7 +187,7 @@ export class AuditService {
     /**
      * Get unique suggestions for autocomplete based on a search term
      */
-    static getSuggestions = async (params: { term: string }): Promise<any[]> => {
+    static getSuggestions = async (params: { term: string }, performQuery: PerformQuery): Promise<any[]> => {
         const term = params.term;
         const filter = {
             or: [
@@ -239,17 +200,9 @@ export class AuditService {
             ]
         };
 
-        const schema = getGraphQLSchema();
-        const result = await withPostGraphileContext(
-            { pgPool },
-            async (context: any) => {
-                return await graphql({
-                    schema,
-                    source: GET_SUGGESTIONS_QUERY,
-                    contextValue: context,
-                    variableValues: { filter }
-                });
-            }
+        const result = await performQuery(
+            GET_SUGGESTIONS_QUERY,
+            { filter }
         );
 
         return parseSuggestionsResponse(result as any, term);
