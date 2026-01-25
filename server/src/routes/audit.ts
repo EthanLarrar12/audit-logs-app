@@ -13,8 +13,9 @@ export const getAuditRoutes = (performQuery: PerformQuery) => {
      */
     const handleGetAuditEvents: RequestHandler = async (req, res): Promise<void> => {
         try {
+            const userId = (req.headers['x-user-id'] as string) || 'group_admin';
             const params = req.query as unknown as AuditEventsQuery;
-            const result: AuditEventPage = await getEvents(params, performQuery);
+            const result: AuditEventPage = await getEvents(params, performQuery, userId);
             res.status(200).json(result);
         } catch (error) {
             console.error('Error in getAuditEvents:', error);
@@ -71,6 +72,8 @@ export const getAuditRoutes = (performQuery: PerformQuery) => {
             res.status(500).json([]);
         }
     };
+
+
 
     return {
         getAuditEvents: handleGetAuditEvents,

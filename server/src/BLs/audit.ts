@@ -4,6 +4,7 @@ import { GET_PREMADE_PROFILES_QUERY, GET_PROFILE_VALUES_QUERY } from '../GQL/pro
 import { parseAuditEventsResponse, parseAuditEventByIdResponse, parseSuggestionsResponse } from '../parsers/auditParser';
 import { parsePremadeProfilesResponse, parseProfileValuesResponse } from '../parsers/profileParser';
 import { PerformQuery } from '../utils/performQuery';
+import { getRlsFilters } from '../utils/auth';
 
 /**
  * Business logic layer for audit events
@@ -12,10 +13,13 @@ import { PerformQuery } from '../utils/performQuery';
 /**
  * Get paginated and filtered audit events
  */
-export const getEvents = async (params: AuditQueryParams, performQuery: PerformQuery): Promise<AuditEventPage> => {
+export const getEvents = async (params: AuditQueryParams, performQuery: PerformQuery, userId: string): Promise<AuditEventPage> => {
     // 1. Construct Filter Object
     const filter: any = {};
     const andFilters: any[] = [];
+
+    // Apply RLS Filters
+    andFilters.push(getRlsFilters(userId));
 
     if (params.from) {
         andFilters.push({ updatedTime: { greaterThanOrEqualTo: new Date(params.from).getTime() } });
