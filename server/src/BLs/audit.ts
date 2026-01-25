@@ -87,13 +87,37 @@ export class AuditService {
         if (params.searchInput) {
             const term = params.searchInput;
             if (params.exactSearch) {
-                andFilters.push({
-                    or: [
-                        { executor: { equalTo: term } },
-                        { target: { equalTo: term } },
-                        { resource: { equalTo: term } }
-                    ]
-                });
+                const searchType = params.searchType;
+                if (searchType) {
+                    const typeFilters: any[] = [];
+                    typeFilters.push({
+                        and: [
+                            { executor: { equalTo: term } },
+                            { executorType: { equalTo: searchType } }
+                        ]
+                    });
+                    typeFilters.push({
+                        and: [
+                            { target: { equalTo: term } },
+                            { targetType: { equalTo: searchType } }
+                        ]
+                    });
+                    typeFilters.push({
+                        and: [
+                            { resource: { equalTo: term } },
+                            { resourceType: { equalTo: searchType } }
+                        ]
+                    });
+                    andFilters.push({ or: typeFilters });
+                } else {
+                    andFilters.push({
+                        or: [
+                            { executor: { equalTo: term } },
+                            { target: { equalTo: term } },
+                            { resource: { equalTo: term } }
+                        ]
+                    });
+                }
             } else {
                 andFilters.push({
                     or: [

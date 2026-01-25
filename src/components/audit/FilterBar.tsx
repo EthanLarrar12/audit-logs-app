@@ -65,10 +65,15 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
     onFiltersChange({ ...filters, [key]: value });
   };
 
+  const updateFilters = (updates: Partial<AuditFilters>) => {
+    onFiltersChange({ ...filters, ...updates });
+  };
+
   const handleSearchChange = (field: string, value: string) => {
     setSearchValues(prev => ({ ...prev, [field]: value }));
     if (field === 'searchInput') {
       updateFilter('searchInputIsExact', false);
+      updateFilter('searchInputType', undefined);
     }
   };
 
@@ -99,7 +104,7 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
 
   const activeFilters = Object.entries(filters).filter(([key, value]) => {
     // Exclude top row filters and internal flags
-    if (['searchInput', 'searchInputIsExact', 'dateFrom', 'dateTo'].includes(key)) return false;
+    if (['searchInput', 'searchInputIsExact', 'searchInputType', 'dateFrom', 'dateTo'].includes(key)) return false;
 
     // Check if filter is active
     if (value === null || value === undefined) return false;
@@ -160,14 +165,20 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
             label="חיפוש כללי (מבצע, יעד, משאב)"
             value={searchValues.searchInput || ''}
             onChange={(val) => handleSearchChange('searchInput', val)}
-            onSelect={(val, isExact) => {
-              updateFilter('searchInputIsExact', isExact);
-              updateFilter('searchInput', val);
+            onSelect={(val, type, isExact) => {
+              updateFilters({
+                searchInputIsExact: isExact,
+                searchInputType: type || undefined,
+                searchInput: val
+              });
             }}
             onClear={() => {
               handleSearchChange('searchInput', '');
-              updateFilter('searchInput', null);
-              updateFilter('searchInputIsExact', false);
+              updateFilters({
+                searchInput: null,
+                searchInputIsExact: false,
+                searchInputType: undefined
+              });
             }}
           />
 

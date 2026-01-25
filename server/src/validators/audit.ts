@@ -11,6 +11,7 @@ export const auditEventsQuerySchema = z.object({
     category: z.union([z.string(), z.array(z.string())]).optional().transform(val => val ? (Array.isArray(val) ? val : [val]) : undefined),
     action: z.union([z.string(), z.array(z.string())]).optional().transform(val => val ? (Array.isArray(val) ? val : [val]) : undefined),
     searchInput: z.string().optional(),
+    searchType: z.string().optional(),
     exactSearch: z.preprocess((val) => val === 'true' || val === true, z.boolean().optional()),
     actorSearch: z.string().optional(),
     targetSearch: z.string().optional(),

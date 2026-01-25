@@ -11,7 +11,7 @@ CREATE TYPE history.mirage_actions AS ENUM (
     'DISTRIBUTION_GROUP_CREATION', 'DISTRIBUTION_GROUP_EDIT', 'DISTRIBUTION_GROUP_DELETION', 'ADD_USER_TO_DISTRIBUTION_GROUP', 'REMOVE_USER_FROM_DISTRIBUTION_GROUP', 'ADD_MANAGER_TO_DISTRIBUTION_GROUP', 'REMOVE_MANAGER_FROM_DISTRIBUTION_GROUP'
 );
 
-CREATE TYPE history.mirage_object_types AS ENUM ('USER', 'ENTITY', 'SHOS', 'DYNAMIC_TAG', 'END_SYSTEM', 'PROFILE', 'DISTRIBUTION_GROUP', 'DIGITAL_VALUE');
+CREATE TYPE history.mirage_object_types AS ENUM ('USER', 'ENTITY', 'SHOS', 'DYNAMIC_TAG', 'END_SYSTEM', 'PROFILE', 'DISTRIBUTION_GROUP', 'DIGITAL_VALUE', 'SYSTEM', 'SERVICE');
 
 CREATE TABLE history.record_data(
     action_id TEXT PRIMARY KEY,
@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS history.records (
     target_name TEXT,
     resource TEXT,
     resource_name TEXT,
+    executor_type history.mirage_object_types,
     target_type history.mirage_object_types,
     midur_action history.mirage_actions,
     resource_type history.mirage_object_types

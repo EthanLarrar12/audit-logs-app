@@ -25,6 +25,9 @@ export async function fetchAuditEvents({
         params.append('searchInput', filters.searchInput);
         if (filters.searchInputIsExact) {
             params.append('exactSearch', 'true');
+            if (filters.searchInputType) {
+                params.append('searchType', filters.searchInputType);
+            }
         }
     }
     if (filters.actorSearch) {

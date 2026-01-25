@@ -19,7 +19,7 @@ export const GET_AUDIT_EVENTS_QUERY = `
                 actionId
                 updatedAt: updatedTime
                 category: targetType
-                actorType: targetType
+                actorType: executorType
                 actorId: executor
                 actorUsername: executorName
                 action: midurAction

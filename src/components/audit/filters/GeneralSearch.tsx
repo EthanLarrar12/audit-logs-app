@@ -13,7 +13,7 @@ interface GeneralSearchProps {
     label: string;
     value: string;
     onChange: (val: string) => void;
-    onSelect: (val: string, isExact?: boolean) => void;
+    onSelect: (val: string, type: string | null, isExact?: boolean) => void;
     onClear: () => void;
 }
 
@@ -70,7 +70,7 @@ export function GeneralSearch({ label, value, onChange, onSelect, onClear }: Gen
                             }}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
-                                    onSelect(value, false);
+                                    onSelect(value, null, false);
                                     setIsSuggestionsOpen(false);
                                 }
                             }}
@@ -104,7 +104,7 @@ export function GeneralSearch({ label, value, onChange, onSelect, onClear }: Gen
                             <div
                                 className={cn(styles.searchableDropdownItem, "border-b border-slate-50 italic")}
                                 onClick={() => {
-                                    onSelect(value, false);
+                                    onSelect(value, null, false);
                                     setIsSuggestionsOpen(false);
                                 }}
                             >
@@ -123,7 +123,7 @@ export function GeneralSearch({ label, value, onChange, onSelect, onClear }: Gen
                                     key={`${suggestion.id}-${suggestion.type}`}
                                     className={styles.searchableDropdownItem}
                                     onClick={() => {
-                                        onSelect(suggestion.id, true);
+                                        onSelect(suggestion.id, suggestion.type, true);
                                         setIsSuggestionsOpen(false);
                                     }}
                                 >

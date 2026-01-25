@@ -14,14 +14,15 @@ interface GraphQLAuditNode {
     executor: string;
     executorName: string;
     action: string;
+    actorType: any;
     resourceName?: string;
     resourceId?: string;
     resource?: string;
     targetId: string;
     target: string;
     targetName: string;
-    targetType: string;
-    resourceType: string;
+    targetType: any;
+    resourceType: any;
     recordDatumByActionId?: {
         changes?: {
             before?: any;
@@ -65,14 +66,16 @@ export function parseAuditEventNode(node: GraphQLAuditNode): AuditEvent {
         id: node.id,
         created_at: timestamp,
         category: node.category,
-        actor_type: 'user',
-        actor_id: node.actorId,
-        actor_username: node.actorUsername,
+        actor_type: node.actorType,
+        actor_id: node.actorId || node.executor,
+        actor_username: node.actorUsername || node.executorName,
         action: node.action,
         resource_name: node.resourceName || node.resource || '',
         resource_id: node.resourceId || node.resource || '',
+        resource_type: node.resourceType,
         target_id: node.targetId || node.target,
         target_name: node.targetName || node.target,
+        target_type: node.targetType,
         before_state: changes?.before || null,
         after_state: changes?.after || null,
         context: null

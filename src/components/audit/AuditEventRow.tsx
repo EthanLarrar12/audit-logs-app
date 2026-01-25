@@ -56,9 +56,14 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
           <div className={styles.username}>
             {event.actor_username || '—'}
           </div>
-          {event.actor_id && (
-            <div className={styles.userId} dir="ltr">
-              {event.actor_id}
+          {(event.actor_type || event.actor_id) && (
+            <div className={styles.targetInfo}>
+              {event.actor_type && <CategoryBadge category={event.actor_type} />}
+              {event.actor_id && (
+                <span className={styles.targetId} dir="ltr">
+                  {event.actor_id}
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -82,7 +87,7 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
               {event.category && <CategoryBadge category={event.category} />}
               {event.target_id && (
                 <span className={styles.targetId} dir="ltr">
-                  #{event.target_id}
+                  {event.target_id}
                 </span>
               )}
             </div>

@@ -24,6 +24,8 @@ export function useUrlFilters() {
         premadeProfile: 'premadeProfile',
         dateFrom: 'dateFrom',
         dateTo: 'dateTo',
+        searchInputIsExact: 'isExact',
+        searchInputType: 'searchType',
     };
 
     /**
@@ -31,6 +33,7 @@ export function useUrlFilters() {
      */
     const dateFields: Set<keyof AuditFilters> = new Set(['dateFrom', 'dateTo']);
     const arrayFields: Set<keyof AuditFilters> = new Set(['category', 'action']);
+    const booleanFields: Set<keyof AuditFilters> = new Set(['searchInputIsExact']);
 
     /**
      * Parse URL parameters into AuditFilters object
@@ -56,6 +59,10 @@ export function useUrlFilters() {
                 // Handle array fields
                 else if (arrayFields.has(key)) {
                     (filters as any)[key] = value.split(',');
+                }
+                // Handle boolean fields
+                else if (booleanFields.has(key)) {
+                    (filters as any)[key] = value === 'true';
                 }
                 else {
                     // Handle string fields
@@ -91,6 +98,10 @@ export function useUrlFilters() {
                 // Handle string fields
                 else if (typeof value === 'string' && value.trim() !== '') {
                     params.set(urlParam, value);
+                }
+                // Handle boolean fields
+                else if (typeof value === 'boolean') {
+                    params.set(urlParam, value ? 'true' : 'false');
                 }
             }
         });
