@@ -49,7 +49,7 @@ app.get('/health', (req: express.Request, res: express.Response<{ status: string
 });
 
 // Initialize and start server
-async function startServer() {
+const startServer = async (): Promise<void> => {
     try {
         // Build GraphQL schema first
         await buildGraphQLSchema(pgPool);

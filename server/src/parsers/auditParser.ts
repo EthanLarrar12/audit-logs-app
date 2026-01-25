@@ -51,7 +51,7 @@ interface GraphQLAuditEventByIdResponse {
 /**
  * Parse a single GraphQL node to AuditEvent
  */
-export function parseAuditEventNode(node: GraphQLAuditNode): AuditEvent {
+export const parseAuditEventNode = (node: GraphQLAuditNode): AuditEvent => {
     const changes = node.recordDatumByActionId?.changes;
 
     // Handle timestamp conversion - could be string or number
@@ -85,10 +85,10 @@ export function parseAuditEventNode(node: GraphQLAuditNode): AuditEvent {
 /**
  * Parse the full paginated audit events response
  */
-export function parseAuditEventsResponse(
+export const parseAuditEventsResponse = (
     response: GraphQLAuditEventsResponse,
     page: number
-): AuditEventPage {
+): AuditEventPage => {
     // Handle errors
     if (response.errors && response.errors.length > 0) {
         throw new Error(`GraphQL Errors: ${response.errors.map(e => e.message).join(', ')}`);
@@ -113,9 +113,9 @@ export function parseAuditEventsResponse(
 /**
  * Parse single audit event by ID response
  */
-export function parseAuditEventByIdResponse(
+export const parseAuditEventByIdResponse = (
     response: GraphQLAuditEventByIdResponse
-): AuditEvent | null {
+): AuditEvent | null => {
     // Handle errors
     if (response.errors && response.errors.length > 0) {
         console.error('GraphQL Error:', response.errors);
@@ -157,10 +157,10 @@ export interface SuggestionResult {
 /**
  * Parse GraphQL response for suggestions and extract unique values with categories
  */
-export function parseSuggestionsResponse(
+export const parseSuggestionsResponse = (
     response: GraphQLSuggestionsResponse,
     term: string
-): SuggestionResult[] {
+): SuggestionResult[] => {
     if (response.errors && response.errors.length > 0) {
         throw new Error(`GraphQL Errors: ${response.errors.map(e => e.message).join(', ')}`);
     }

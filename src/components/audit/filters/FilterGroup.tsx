@@ -8,7 +8,7 @@ interface FilterGroupProps {
     className?: string;
 }
 
-export function FilterGroup({ label, children, className }: FilterGroupProps) {
+export const FilterGroup: React.FC<FilterGroupProps> = ({ label, children, className }) => {
     return (
         <div className={cn(styles.container, className)}>
             <label className={styles.label}>{label}</label>

@@ -12,7 +12,15 @@ interface SearchFilterProps {
     isLoading?: boolean;
 }
 
-export function SearchFilter({ label, value, onChange, placeholder, isLoading }: SearchFilterProps) {
+export const SearchFilter: React.FC<SearchFilterProps> = ({ label, value, onChange, placeholder, isLoading }) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+        onChange(e.target.value);
+    };
+
+    const handleClear = (): void => {
+        onChange('');
+    };
+
     return (
         <FilterGroup label={label}>
             <div className={styles.searchContainer}>
@@ -25,11 +33,11 @@ export function SearchFilter({ label, value, onChange, placeholder, isLoading }:
                     className={styles.searchInput}
                     placeholder={placeholder}
                     value={value}
-                    onChange={(e) => onChange(e.target.value)}
+                    onChange={handleInputChange}
                 />
                 {value && (
                     <button
-                        onClick={() => onChange('')}
+                        onClick={handleClear}
                         className={styles.clearSearchButton}
                     >
                         <X className={styles.clearIcon} />

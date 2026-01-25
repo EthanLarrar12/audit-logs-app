@@ -18,7 +18,7 @@ interface ProfileFilterProps {
     onChange: (id: string | null) => void;
 }
 
-export function ProfileFilter({ label, value, profiles, onChange }: ProfileFilterProps) {
+export const ProfileFilter: React.FC<ProfileFilterProps> = ({ label, value, profiles, onChange }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchText, setSearchText] = useState('');
 
@@ -27,6 +27,20 @@ export function ProfileFilter({ label, value, profiles, onChange }: ProfileFilte
     }, [isOpen]);
 
     const filteredProfiles = profiles.filter((p) => p.name.includes(searchText));
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+        setSearchText(e.target.value);
+    };
+
+    const handleClearSelection = (): void => {
+        onChange(null);
+        setIsOpen(false);
+    };
+
+    const handleProfileSelect = (id: string): void => {
+        onChange(id);
+        setIsOpen(false);
+    };
 
     return (
         <FilterGroup label={label}>
@@ -55,7 +69,7 @@ export function ProfileFilter({ label, value, profiles, onChange }: ProfileFilte
                             placeholder="חיפוש פרופיל..."
                             className={styles.searchableDropdownSearchInput}
                             value={searchText}
-                            onChange={(e) => setSearchText(e.target.value)}
+                            onChange={handleSearchChange}
                         />
                     </div>
                     <div className={styles.searchableDropdownList} dir="rtl">
@@ -64,10 +78,7 @@ export function ProfileFilter({ label, value, profiles, onChange }: ProfileFilte
                                 styles.searchableDropdownItem,
                                 !value && styles.searchableDropdownItemSelected
                             )}
-                            onClick={() => {
-                                onChange(null);
-                                setIsOpen(false);
-                            }}
+                            onClick={handleClearSelection}
                         >
                             <span>כל הפרופילים</span>
                             {!value && <Check className="h-4 w-4" />}
@@ -79,10 +90,7 @@ export function ProfileFilter({ label, value, profiles, onChange }: ProfileFilte
                                     styles.searchableDropdownItem,
                                     value === profile.id && styles.searchableDropdownItemSelected
                                 )}
-                                onClick={() => {
-                                    onChange(profile.id);
-                                    setIsOpen(false);
-                                }}
+                                onClick={() => handleProfileSelect(profile.id)}
                             >
                                 <span>{profile.name}</span>
                                 {value === profile.id && <Check className="h-4 w-4" />}

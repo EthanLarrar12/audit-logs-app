@@ -22,7 +22,7 @@ interface MultiSelectFilterProps {
     disabled?: boolean;
 }
 
-export function MultiSelectFilter({
+export const MultiSelectFilter: React.FC<MultiSelectFilterProps> = ({
     label,
     selected,
     options,
@@ -30,8 +30,17 @@ export function MultiSelectFilter({
     onClear,
     placeholder,
     disabled
-}: MultiSelectFilterProps) {
+}) => {
     const [isOpen, setIsOpen] = useState(false);
+
+    const handleClear = (): void => {
+        onClear();
+        setIsOpen(false);
+    };
+
+    const handleToggle = (id: string): void => {
+        onToggle(id);
+    };
 
     return (
         <FilterGroup label={label}>
@@ -67,10 +76,7 @@ export function MultiSelectFilter({
                                 styles.item,
                                 selected.length === 0 && styles.itemSelected
                             )}
-                            onClick={() => {
-                                onClear();
-                                setIsOpen(false);
-                            }}
+                            onClick={handleClear}
                         >
                             <span>{placeholder}</span>
                             {selected.length === 0 && <Check className="h-4 w-4" />}
@@ -84,7 +90,7 @@ export function MultiSelectFilter({
                                         styles.item,
                                         isSelected && styles.itemSelected
                                     )}
-                                    onClick={() => onToggle(option.id)}
+                                    onClick={() => handleToggle(option.id)}
                                 >
                                     {option.renderItem()}
                                     {isSelected && <Check className="h-4 w-4" />}

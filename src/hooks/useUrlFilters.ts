@@ -6,7 +6,7 @@ import { AuditFilters } from '@/types/audit';
  * Generic hook to sync audit filters with URL search parameters
  * Automatically handles any filter fields without requiring code changes
  */
-export function useUrlFilters() {
+export const useUrlFilters = () => {
     const [searchParams, setSearchParams] = useSearchParams();
 
     /**

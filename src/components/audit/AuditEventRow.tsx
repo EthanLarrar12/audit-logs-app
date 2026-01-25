@@ -12,12 +12,15 @@ interface AuditEventRowProps {
   event: AuditEvent;
 }
 
-export function AuditEventRow({ event }: AuditEventRowProps) {
+export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const formattedDate = format(new Date(event.created_at), 'd בMMM yyyy', { locale: he });
   const formattedTime = format(new Date(event.created_at), 'HH:mm:ss');
 
+  const handleToggleExpanded = () => {
+    setIsExpanded((prev) => !prev);
+  };
 
   return (
     <div
@@ -28,7 +31,7 @@ export function AuditEventRow({ event }: AuditEventRowProps) {
     >
       {/* Main row */}
       <button
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={handleToggleExpanded}
         className={styles.mainRow}
       >
         {/* Timestamp */}

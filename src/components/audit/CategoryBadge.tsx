@@ -105,7 +105,7 @@ const defaultConfig: { icon: React.ElementType; styleKey: StyleKey; label?: stri
     styleKey: 'default',
 };
 
-export function CategoryBadge({ category, label: customLabel, icon: CustomIcon, className }: CategoryBadgeProps) {
+export const CategoryBadge: React.FC<CategoryBadgeProps> = ({ category, label: customLabel, icon: CustomIcon, className }) => {
     const config = badgeConfig[category] || defaultConfig;
     const label = customLabel || config.label || getCategoryName(category);
     const Icon = CustomIcon || config.icon;

@@ -16,7 +16,18 @@ interface DateFilterProps {
     placeholder: string;
 }
 
-export function DateFilter({ label, value, onChange, placeholder }: DateFilterProps) {
+export const DateFilter: React.FC<DateFilterProps> = ({ label, value, onChange, placeholder }) => {
+    const handleClear = (e: React.MouseEvent | React.TouchEvent): void => {
+        e.stopPropagation();
+        e.preventDefault();
+        onChange(null);
+    };
+
+    const handlePointerDown = (e: React.PointerEvent): void => {
+        e.stopPropagation();
+        e.preventDefault();
+    };
+
     return (
         <FilterGroup label={label}>
             <Popover>
@@ -36,15 +47,8 @@ export function DateFilter({ label, value, onChange, placeholder }: DateFilterPr
                             <div
                                 role="button"
                                 className={styles.dateButtonClear}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    onChange(null);
-                                }}
-                                onPointerDown={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                }}
+                                onClick={handleClear}
+                                onPointerDown={handlePointerDown}
                             >
                                 <X className={styles.clearIcon} />
                             </div>

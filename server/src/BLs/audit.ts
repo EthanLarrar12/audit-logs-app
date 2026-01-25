@@ -16,7 +16,7 @@ export class AuditService {
     /**
      * Get paginated and filtered audit events
      */
-    static async getEvents(params: AuditQueryParams): Promise<AuditEventPage> {
+    static getEvents = async (params: AuditQueryParams): Promise<AuditEventPage> => {
         // 1. Construct Filter Object
         const filter: any = {};
         const andFilters: any[] = [];
@@ -186,7 +186,7 @@ export class AuditService {
     /**
      * Get single audit event by ID
      */
-    static async getEventById(id: string): Promise<AuditEvent | null> {
+    static getEventById = async (id: string): Promise<AuditEvent | null> => {
         const schema = getGraphQLSchema();
 
         const result = await withPostGraphileContext(
@@ -207,7 +207,7 @@ export class AuditService {
     /**
      * Get all premade profiles
      */
-    static async getPremadeProfiles(): Promise<{ id: string, name: string }[]> {
+    static getPremadeProfiles = async (): Promise<{ id: string, name: string }[]> => {
         const schema = getGraphQLSchema();
         const result: any = await withPostGraphileContext(
             { pgPool },
@@ -226,7 +226,7 @@ export class AuditService {
     /**
      * Get unique suggestions for autocomplete based on a search term
      */
-    static async getSuggestions(params: { term: string }): Promise<any[]> {
+    static getSuggestions = async (params: { term: string }): Promise<any[]> => {
         const term = params.term;
         const filter = {
             or: [

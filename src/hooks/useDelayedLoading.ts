@@ -9,7 +9,7 @@ import { debounce } from 'lodash';
  * @param delay The delay in milliseconds before showing the loader (default: 200ms)
  * @returns boolean indicating if the loader should be shown
  */
-export function useDelayedLoading(isLoading: boolean, delay: number = 200): boolean {
+export const useDelayedLoading = (isLoading: boolean, delay: number = 200): boolean => {
     const [showLoader, setShowLoader] = useState(false);
 
     const debouncedShow = useMemo(

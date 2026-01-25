@@ -1,11 +1,11 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { ZodObject, ZodError } from 'zod';
 
 /**
  * Generic validation middleware factory
  * Validates request query, params, or body against a Zod schema
  */
-export const validate = (schema: ZodObject, source: 'query' | 'params' | 'body' = 'body') => {
+export const validate = (schema: ZodObject<any, any>, source: 'query' | 'params' | 'body' = 'body'): RequestHandler => {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             // Validate the specified part of the request

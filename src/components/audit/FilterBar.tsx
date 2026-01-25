@@ -27,7 +27,7 @@ interface FilterBarProps {
   isLoading?: boolean;
 }
 
-export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: FilterBarProps) {
+export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, onReset, isLoading }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [searchValues, setSearchValues] = useState<Record<string, string>>({});
   const [premadeProfiles, setPremadeProfiles] = useState<{ id: string, name: string }[]>([]);
@@ -142,6 +142,68 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
     index === self.findIndex((f) => f.searchField === filter.searchField)
   );
 
+  const handleReset = (): void => {
+    onReset();
+  };
+
+  const handleGeneralSearchChange = (val: string): void => {
+    handleSearchChange('searchInput', val);
+  };
+
+  const handleGeneralSearchSelect = (val: string, type: string | null, isExact?: boolean): void => {
+    updateFilters({
+      searchInputIsExact: isExact,
+      searchInputType: type || undefined,
+      searchInput: val
+    });
+  };
+
+  const handleGeneralSearchClear = (): void => {
+    handleSearchChange('searchInput', '');
+    updateFilters({
+      searchInput: null,
+      searchInputIsExact: false,
+      searchInputType: undefined
+    });
+  };
+
+  const handleDateFromChange = (date: Date | undefined): void => {
+    updateFilter('dateFrom', date);
+  };
+
+  const handleDateToChange = (date: Date | undefined): void => {
+    updateFilter('dateTo', date);
+  };
+
+  const handleToggleExpansion = (): void => {
+    setIsExpanded((prev) => !prev);
+  };
+
+  const handleActorSearchChange = (val: string): void => {
+    handleSearchChange('actorSearch', val);
+  };
+
+  const handleCategoryToggle = (id: string): void => {
+    toggleMultiFilter('category', id);
+  };
+
+  const handleCategoryClear = (): void => {
+    updateFilter('category', null);
+    updateFilter('action', null);
+  };
+
+  const handleActionToggle = (id: string): void => {
+    toggleMultiFilter('action', id);
+  };
+
+  const handleActionClear = (): void => {
+    updateFilter('action', null);
+  };
+
+  const handlePremadeProfileChange = (id: string): void => {
+    updateFilter('premadeProfile', id);
+  };
+
   return (
     <div className={styles.container}>
       {/* Main filters grid */}
@@ -150,7 +212,7 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
           <Button
             variant="ghost"
             size="sm"
-            onClick={onReset}
+            onClick={handleReset}
             className={styles.resetButton}
             disabled={!hasAnyActiveFilter}
           >
@@ -164,35 +226,22 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
           <GeneralSearch
             label="חיפוש כללי (מבצע, יעד, משאב)"
             value={searchValues.searchInput || ''}
-            onChange={(val) => handleSearchChange('searchInput', val)}
-            onSelect={(val, type, isExact) => {
-              updateFilters({
-                searchInputIsExact: isExact,
-                searchInputType: type || undefined,
-                searchInput: val
-              });
-            }}
-            onClear={() => {
-              handleSearchChange('searchInput', '');
-              updateFilters({
-                searchInput: null,
-                searchInputIsExact: false,
-                searchInputType: undefined
-              });
-            }}
+            onChange={handleGeneralSearchChange}
+            onSelect={handleGeneralSearchSelect}
+            onClear={handleGeneralSearchClear}
           />
 
           <DateFilter
             label="מתאריך"
             value={filters.dateFrom}
-            onChange={(date) => updateFilter('dateFrom', date)}
+            onChange={handleDateFromChange}
             placeholder="תאריך התחלה"
           />
 
           <DateFilter
             label="עד תאריך"
             value={filters.dateTo}
-            onChange={(date) => updateFilter('dateTo', date)}
+            onChange={handleDateToChange}
             placeholder="תאריך סיום"
           />
         </div>
@@ -200,7 +249,7 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
         {/* Expanders / Rest of filters button */}
         <div className="flex justify-start py-2">
           <button
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={handleToggleExpansion}
             className={styles.expandButton}
           >
             <Filter className={styles.filterIcon} />
@@ -221,18 +270,15 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                 label="מזהה/שם המבצע"
                 placeholder="חיפוש לפי מבצע..."
                 value={searchValues.actorSearch || ''}
-                onChange={(val) => handleSearchChange('actorSearch', val)}
+                onChange={handleActorSearchChange}
               />
 
               <MultiSelectFilter
                 label="קטגוריה"
                 placeholder="כל הקטגוריות"
                 selected={(filters.category as string[]) || []}
-                onToggle={(id) => toggleMultiFilter('category', id)}
-                onClear={() => {
-                  updateFilter('category', null);
-                  updateFilter('action', null);
-                }}
+                onToggle={handleCategoryToggle}
+                onClear={handleCategoryClear}
                 options={AUDIT_CATEGORIES.map(cat => ({
                   id: cat.id,
                   renderItem: () => <CategoryBadge category={cat.id} />,
@@ -245,8 +291,8 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                 placeholder={selectedCategories.length === 0 ? "בחר קטגוריה תחילה" : "כל התת-קטגוריות"}
                 disabled={selectedCategories.length === 0}
                 selected={(filters.action as string[]) || []}
-                onToggle={(id) => toggleMultiFilter('action', id)}
-                onClear={() => updateFilter('action', null)}
+                onToggle={handleActionToggle}
+                onClear={handleActionClear}
                 options={selectedCategories.flatMap(c => c.subcategories).map(sub => {
                   const catId = AUDIT_CATEGORIES.find(c => c.subcategories.some(s => s.id === sub.id))?.id || 'USER';
                   return {
@@ -281,7 +327,7 @@ export function FilterBar({ filters, onFiltersChange, onReset, isLoading }: Filt
                         label={filterDef.name}
                         value={filters.premadeProfile || null}
                         profiles={premadeProfiles}
-                        onChange={(id) => updateFilter('premadeProfile', id)}
+                        onChange={handlePremadeProfileChange}
                       />
                     ) : (
                       <SearchFilter

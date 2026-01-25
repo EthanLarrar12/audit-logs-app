@@ -23,7 +23,7 @@ interface UseAuditEventsReturn {
 
 const PAGE_SIZE = 10;
 
-export function useAuditEvents(): UseAuditEventsReturn {
+export const useAuditEvents = (): UseAuditEventsReturn => {
   const { getFiltersFromUrl, syncFiltersToUrl } = useUrlFilters();
 
   // Initialize filters from URL on mount

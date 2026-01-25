@@ -17,7 +17,7 @@ interface GeneralSearchProps {
     onClear: () => void;
 }
 
-export function GeneralSearch({ label, value, onChange, onSelect, onClear }: GeneralSearchProps) {
+export const GeneralSearch: React.FC<GeneralSearchProps> = ({ label, value, onChange, onSelect, onClear }) => {
     const [suggestions, setSuggestions] = useState<SuggestionResult[]>([]);
     const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
     const [isSuggestionsLoading, setIsSuggestionsLoading] = useState(false);
@@ -44,14 +44,50 @@ export function GeneralSearch({ label, value, onChange, onSelect, onClear }: Gen
         return () => clearTimeout(timer);
     }, [value]);
 
+    const handlePopoverOpenChange = (open: boolean): void => {
+        if (open && !value) return;
+        setIsSuggestionsOpen(open);
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+        onChange(e.target.value);
+        setIsSuggestionsOpen(true);
+    };
+
+    const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+        if (e.key === 'Enter') {
+            onSelect(value, null, false);
+            setIsSuggestionsOpen(false);
+        }
+    };
+
+    const handleInputFocus = (): void => {
+        if (value && suggestions.length > 0) {
+            setIsSuggestionsOpen(true);
+        }
+    };
+
+    const handleClearSearch = (): void => {
+        onClear();
+        setIsSuggestionsOpen(false);
+        setSuggestions([]);
+    };
+
+    const handleSelectCurrentValue = (): void => {
+        onSelect(value, null, false);
+        setIsSuggestionsOpen(false);
+    };
+
+    const handleSelectSuggestion = (id: string, type: string | null): void => {
+        onSelect(id, type, true);
+        setIsSuggestionsOpen(false);
+    };
+
     return (
         <FilterGroup label={label}>
             <Popover
                 open={isSuggestionsOpen}
-                onOpenChange={(open) => {
-                    if (open && !value) return;
-                    setIsSuggestionsOpen(open);
-                }}
+                onOpenChange={handlePopoverOpenChange}
             >
                 <PopoverTrigger asChild>
                     <div className={styles.searchContainer}>
@@ -64,29 +100,13 @@ export function GeneralSearch({ label, value, onChange, onSelect, onClear }: Gen
                             className={styles.searchInput}
                             placeholder="הקלידו לחיפוש..."
                             value={value || ''}
-                            onChange={(e) => {
-                                onChange(e.target.value);
-                                setIsSuggestionsOpen(true);
-                            }}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    onSelect(value, null, false);
-                                    setIsSuggestionsOpen(false);
-                                }
-                            }}
-                            onFocus={() => {
-                                if (value && suggestions.length > 0) {
-                                    setIsSuggestionsOpen(true);
-                                }
-                            }}
+                            onChange={handleInputChange}
+                            onKeyDown={handleInputKeyDown}
+                            onFocus={handleInputFocus}
                         />
                         {value && (
                             <button
-                                onClick={() => {
-                                    onClear();
-                                    setIsSuggestionsOpen(false);
-                                    setSuggestions([]);
-                                }}
+                                onClick={handleClearSearch}
                                 className={styles.clearSearchButton}
                             >
                                 <X className={styles.clearIcon} />
@@ -103,10 +123,7 @@ export function GeneralSearch({ label, value, onChange, onSelect, onClear }: Gen
                         {value && (
                             <div
                                 className={cn(styles.searchableDropdownItem, "border-b border-slate-50 italic")}
-                                onClick={() => {
-                                    onSelect(value, null, false);
-                                    setIsSuggestionsOpen(false);
-                                }}
+                                onClick={handleSelectCurrentValue}
                             >
                                 <div className="flex items-center gap-2 text-brand">
                                     <Search className="h-4 w-4 opacity-70" />
@@ -122,10 +139,7 @@ export function GeneralSearch({ label, value, onChange, onSelect, onClear }: Gen
                                 <div
                                     key={`${suggestion.id}-${suggestion.type}`}
                                     className={styles.searchableDropdownItem}
-                                    onClick={() => {
-                                        onSelect(suggestion.id, suggestion.type, true);
-                                        setIsSuggestionsOpen(false);
-                                    }}
+                                    onClick={() => handleSelectSuggestion(suggestion.id, suggestion.type)}
                                 >
                                     <div className="flex items-center gap-2">
                                         {actionIcon ? (
