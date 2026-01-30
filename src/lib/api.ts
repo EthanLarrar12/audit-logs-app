@@ -1,6 +1,6 @@
 import { AuditFilters, AuditEventPage } from '@/types/audit';
 
-const API_BASE_URL = 'http://localhost:3001';
+
 
 interface FetchAuditEventsParams {
     page: number;
@@ -72,7 +72,7 @@ export async function fetchAuditEvents({
         }
     }
 
-    const response = await fetch(`${API_BASE_URL}/audit/events?${params.toString()}`, {
+    const response = await fetch(`/audit/events?${params.toString()}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ export async function fetchAuditEvents({
 }
 
 export async function fetchAuditEventById(id: string) {
-    const response = await fetch(`${API_BASE_URL}/audit/events/${id}`);
+    const response = await fetch(`/audit/events/${id}`);
     if (!response.ok) {
         if (response.status === 404) {
             return null;
@@ -100,7 +100,7 @@ export async function fetchAuditEventById(id: string) {
 }
 
 export async function fetchPremadeProfiles(): Promise<{ id: string, name: string }[]> {
-    const response = await fetch(`${API_BASE_URL}/audit/premade-profiles`);
+    const response = await fetch(`/audit/premade-profiles`);
     if (!response.ok) {
         throw new Error(`API Error: ${response.status}`);
     }
@@ -116,7 +116,7 @@ export interface SuggestionResult {
 export async function fetchSuggestions(term: string): Promise<SuggestionResult[]> {
     if (!term) return [];
     try {
-        const response = await fetch(`${API_BASE_URL}/audit/suggest?term=${encodeURIComponent(term)}`);
+        const response = await fetch(`/audit/suggest?term=${encodeURIComponent(term)}`);
         if (!response.ok) {
             throw new Error(`API Error: ${response.status}`);
         }

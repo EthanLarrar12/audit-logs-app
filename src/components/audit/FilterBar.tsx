@@ -9,7 +9,6 @@ import { AuditFilters } from '@/types/audit';
 import { AUDIT_CATEGORIES, getSubcategoryName, getActionIcon } from '@/constants/filterOptions';
 import { fetchPremadeProfiles } from '@/lib/api';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import { styles } from './FilterBar.styles';
 import { CategoryBadge } from './CategoryBadge';
 
@@ -56,7 +55,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
     });
   }, [filters.searchInput, filters.actorUsername, filters.actorSearch, filters.targetSearch, filters.resourceSearch]);
 
-  const hasActiveFilters = Object.values(filters).some((v) => v !== null);
 
   const updateFilter = <K extends keyof AuditFilters>(
     key: K,

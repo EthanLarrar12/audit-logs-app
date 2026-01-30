@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { postgraphile, makePluginHook } from 'postgraphile';
 import PostGraphileConnectionFilterPlugin from 'postgraphile-plugin-connection-filter';
+import path from 'path';
 import { Pool } from 'pg';
 import { createAuditRouter } from './routers/audit';
 import { getPerformQuery } from './utils/performQuery';
@@ -49,6 +50,10 @@ app.get('/health', (req: express.Request, res: express.Response<{ status: string
     res.json({ status: 'ok', message: 'Audit Logs API is running' });
 });
 
+// Serve static files from the React app
+const clientBuildPath = path.join(__dirname, '../../dist');
+app.use(express.static(clientBuildPath));
+
 // Initialize and start server
 const startServer = async (): Promise<void> => {
     try {
@@ -57,6 +62,12 @@ const startServer = async (): Promise<void> => {
 
         // Initialize and mount routers with performQuery
         app.use('/audit', createAuditRouter(performQuery));
+
+        // The "catchall" handler: for any request that doesn't
+        // match one above, send back React's index.html file.
+        app.get('/', (req, res) => {
+            res.sendFile(path.join(clientBuildPath, 'index.html'));
+        });
 
         // Start server
         app.listen(PORT, () => {
