@@ -1,11 +1,13 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import { postgraphile, makePluginHook } from 'postgraphile';
 import PostGraphileConnectionFilterPlugin from 'postgraphile-plugin-connection-filter';
 import path from 'path';
 import { Pool } from 'pg';
 import { createAuditRouter } from './routers/audit';
-import { getPerformQuery } from './utils/performQuery';
+import { getPerformQuery } from '../sdks/performQuery';
+import { getSTSMiddleware } from '../sdks/getSTSMiddleware';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -19,6 +21,8 @@ export const pgPool = new Pool({
 // Middleware
 app.use(cors()); // Enable CORS for frontend requests
 app.use(express.json());
+app.use(cookieParser());
+app.use(getSTSMiddleware());
 
 // PostGraphile Middleware
 const pluginHook = makePluginHook([

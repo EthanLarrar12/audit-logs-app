@@ -2,7 +2,7 @@ import { RequestHandler } from 'express';
 import { AuditEvent, AuditEventPage } from '../types/audit';
 import { getEvents, getEventById, getPremadeProfiles, getSuggestions } from '../BLs/audit';
 import { AuditEventsQuery, AuditEventIdParam, SuggestionsQuery } from '../validators/audit';
-import { PerformQuery } from '../utils/performQuery';
+import { PerformQuery } from '../../sdks/performQuery';
 
 /**
  * Controller factor for audit events

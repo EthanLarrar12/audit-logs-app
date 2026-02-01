@@ -1,0 +1,11 @@
+$ docker run --name trino -d -p 8080:8080 -e CATALOG_MANAGEMENT=dynamic trinodb/trino
+
+docker exec -it trino trino
+
+CREATE CATALOG trino_history USING postgresql
+    WITH (
+    "connection-url" = 'jdbc:postgresql://host.docker.internal:5432/audit_logs',
+    "connection-user" = 'postgres',
+    "connection-password" = 'postgres',
+    "case-insensitive-name-matching" = 'true'
+);

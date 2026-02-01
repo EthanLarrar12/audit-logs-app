@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { getAuditRoutes } from '../routes/audit';
 import { validate } from '../middleware/validate';
 import { auditEventsQuerySchema, auditEventIdParamSchema, suggestionsQuerySchema } from '../validators/audit';
-import { PerformQuery } from '../utils/performQuery';
+import { PerformQuery } from '../../sdks/performQuery';
 
 export const createAuditRouter = (performQuery: PerformQuery) => {
     const auditRouter = Router();

@@ -3,7 +3,7 @@ import { GET_AUDIT_EVENTS_QUERY, GET_AUDIT_EVENT_BY_ID_QUERY, GET_SUGGESTIONS_QU
 import { GET_PREMADE_PROFILES_QUERY, GET_PROFILE_VALUES_QUERY } from '../GQL/profileQueries';
 import { parseAuditEventsResponse, parseAuditEventByIdResponse, parseSuggestionsResponse } from '../parsers/auditParser';
 import { parsePremadeProfilesResponse, parseProfileValuesResponse } from '../parsers/profileParser';
-import { PerformQuery } from '../utils/performQuery';
+import { PerformQuery } from '../../sdks/performQuery';
 import { getRlsFilters } from '../utils/auth';
 
 /**
