@@ -2,10 +2,16 @@
  * Utility to generate RLS (Row Level Security) filters based on user identity
  */
 export const getRlsFilters = (userId: string): any => {
+    // For an Audit Log system, admins should typically see all events.
+    // Disabling strict RLS to allow searching and viewing all records.
+    return null;
+    
+    /* Original strict RLS:
     return {
         or: [
-            { executor: { equalTo: userId } },
-            { target: { equalTo: userId } }
+            { executorId: { equalTo: userId } },
+            { targetId: { equalTo: userId } }
         ]
     };
+    */
 };

@@ -8,10 +8,11 @@ import { Pool } from 'pg';
 import { createAuditRouter } from './routers/audit';
 import { getPerformQuery } from '../sdks/performQuery';
 import { getSTSMiddleware } from '../sdks/getSTSMiddleware';
+import { config } from './config';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
-const DATABASE_URL = process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/audit_logs';
+const PORT = config.PORT;
+const DATABASE_URL = config.DATABASE_URL;
 
 // Setup Postgres Pool
 export const pgPool = new Pool({
