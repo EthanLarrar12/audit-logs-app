@@ -1,7 +1,7 @@
 CREATE SCHEMA IF NOT EXISTS history;
 
 -- Create the enum types
-CREATE TYPE history.mirage_actions AS ENUM (
+CREATE TYPE history.history_actions AS ENUM (
     'USER_CREATION', 'USER_DELETION', 'USER_SYNC', 'ADD_VALUE_TO_USER', 'REMOVE_VALUE_FROM_USER',
     'ENTITY_CREATION', 'ENTITY_EDIT', 'ENTITY_DELETION',
     'SHOS_CREATION', 'SHOS_EDIT', 'SHOS_DELETION', 'ADD_USER_TO_SHOS', 'REMOVE_USER_FROM_SHOS', 'ADD_MANAGER_TO_SHOS', 'REMOVE_MANAGER_FROM_SHOS',
@@ -20,10 +20,10 @@ CREATE TABLE history.record_data(
 
 -- Create the table for audit_events
 CREATE TABLE history.records(
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), -- TODO: do we need this?
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     action_id TEXT NOT NULL,
     insert_time BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM now()) * 1000),
-    midur_action history.midur_actions NOT NULL,
+    midur_action history.history_actions NOT NULL,
     executor_id TEXT,
     executor_name TEXT,
     target_type history.mirage_object_types,
