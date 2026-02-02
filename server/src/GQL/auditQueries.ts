@@ -1,6 +1,6 @@
 /**
-* GraphQL queries for audit events
-*/
+ * GraphQL queries for audit events
+ */
 
 /**
  * Query to fetch paginated and filtered audit events
@@ -17,15 +17,14 @@ export const GET_AUDIT_EVENTS_QUERY = `
             nodes {
                 id
                 actionId
-                updatedAt: updatedTime
+                updatedAt: insertTime
                 category: targetType
-                actorType: executorType
-                actorId: executor
+                actorId: executorId
                 actorUsername: executorName
                 action: midurAction
                 resourceName
-                resourceId: resource
-                targetId: target
+                resourceId: resourceId
+                targetId: targetId
                 targetName
                 recordDatumByActionId {
                     changes
@@ -43,14 +42,14 @@ export const GET_AUDIT_EVENT_BY_ID_QUERY = `
         recordById(id: $id) {
             id
             actionId
-            updatedAt: updatedTime
+            updatedAt: insertTime
             category: targetType
-            actorId: executor
+            actorId: executorId
             actorUsername: executorName
             action: midurAction
             resourceName: resourceName
-            resourceId: resource
-            targetId: target
+            resourceId: resourceId
+            targetId: targetId
             targetName: targetName
             recordDatumByActionId {
                 changes
@@ -68,11 +67,11 @@ export const GET_SUGGESTIONS_QUERY = `
             first: 50
         ) {
             nodes {
-                executor
+                executorId
                 executorName
-                target
+                targetId
                 targetName
-                resource
+                resourceId
                 resourceName
                 targetType
                 resourceType

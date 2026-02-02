@@ -19,16 +19,19 @@ export const getEvents = async (params: AuditQueryParams, performQuery: PerformQ
     const andFilters: any[] = [];
 
     // Apply RLS Filters
-    andFilters.push(getRlsFilters(userId));
+    const rls = getRlsFilters(userId);
+    if (rls) {
+        andFilters.push(rls);
+    }
 
     if (params.from) {
-        andFilters.push({ updatedTime: { greaterThanOrEqualTo: new Date(params.from).getTime() } });
+        andFilters.push({ insertTime: { greaterThanOrEqualTo: new Date(params.from).getTime() } });
     }
     if (params.to) {
-        andFilters.push({ updatedTime: { lessThanOrEqualTo: new Date(params.to).getTime() } });
+        andFilters.push({ insertTime: { lessThanOrEqualTo: new Date(params.to).getTime() } });
     }
     if (params.actorUsername) {
-        andFilters.push({ executor: { includesInsensitive: params.actorUsername } });
+        andFilters.push({ executorId: { includesInsensitive: params.actorUsername } });
     }
     if (params.category && params.category.length > 0) {
         andFilters.push({ targetType: { in: params.category } });
@@ -41,7 +44,7 @@ export const getEvents = async (params: AuditQueryParams, performQuery: PerformQ
     if (params.actorSearch) {
         andFilters.push({
             or: [
-                { executor: { includesInsensitive: params.actorSearch } }
+                { executorId: { includesInsensitive: params.actorSearch } }
             ]
         });
     }
@@ -49,13 +52,13 @@ export const getEvents = async (params: AuditQueryParams, performQuery: PerformQ
     if (params.targetSearch) {
         andFilters.push({
             or: [
-                { target: { includesInsensitive: params.targetSearch } }
+                { targetId: { includesInsensitive: params.targetSearch } }
             ]
         });
     }
 
     if (params.resourceSearch) {
-        andFilters.push({ resource: { includesInsensitive: params.resourceSearch } });
+        andFilters.push({ resourceId: { includesInsensitive: params.resourceSearch } });
     }
 
     if (params.premadeProfile) {
@@ -68,11 +71,11 @@ export const getEvents = async (params: AuditQueryParams, performQuery: PerformQ
 
         if (values.length > 0) {
             andFilters.push({
-                resource: { in: values }
+                resourceId: { in: values }
             });
         } else {
             // If profile has no values, don't match anything
-            andFilters.push({ resource: { equalTo: '___NONE___' } });
+            andFilters.push({ resourceId: { equalTo: '___NONE___' } });
         }
     }
 
@@ -82,21 +85,24 @@ export const getEvents = async (params: AuditQueryParams, performQuery: PerformQ
             const searchType = params.searchType;
             if (searchType) {
                 const typeFilters: any[] = [];
+                // Only filter by type if relevant. 'USER' type was related to executor but executorType is gone.
+                // Assuming 'searchType' was checking executorType, targetType, or resourceType.
+                
+                // For executor, we can't check type anymore efficiently unless we infer it (always USER).
+                // Or if the searchType is USER, we check executorId.
+                if (searchType === 'USER') {
+                     typeFilters.push({ executorId: { equalTo: term } });
+                }
+
                 typeFilters.push({
                     and: [
-                        { executor: { equalTo: term } },
-                        { executorType: { equalTo: searchType } }
-                    ]
-                });
-                typeFilters.push({
-                    and: [
-                        { target: { equalTo: term } },
+                        { targetId: { equalTo: term } },
                         { targetType: { equalTo: searchType } }
                     ]
                 });
                 typeFilters.push({
                     and: [
-                        { resource: { equalTo: term } },
+                        { resourceId: { equalTo: term } },
                         { resourceType: { equalTo: searchType } }
                     ]
                 });
@@ -104,9 +110,9 @@ export const getEvents = async (params: AuditQueryParams, performQuery: PerformQ
             } else {
                 andFilters.push({
                     or: [
-                        { executor: { equalTo: term } },
-                        { target: { equalTo: term } },
-                        { resource: { equalTo: term } }
+                        { executorId: { equalTo: term } },
+                        { targetId: { equalTo: term } },
+                        { resourceId: { equalTo: term } }
                     ]
                 });
             }
@@ -114,11 +120,11 @@ export const getEvents = async (params: AuditQueryParams, performQuery: PerformQ
             andFilters.push({
                 or: [
                     { actionId: { includesInsensitive: term } },
-                    { executor: { includesInsensitive: term } },
+                    { executorId: { includesInsensitive: term } },
                     { executorName: { includesInsensitive: term } },
-                    { target: { includesInsensitive: term } },
+                    { targetId: { includesInsensitive: term } },
                     { targetName: { includesInsensitive: term } },
-                    { resource: { includesInsensitive: term } },
+                    { resourceId: { includesInsensitive: term } },
                     { resourceName: { includesInsensitive: term } }
                 ]
             });
@@ -139,8 +145,8 @@ export const getEvents = async (params: AuditQueryParams, performQuery: PerformQ
         switch (params.sort) {
             case 'created_at': orderBy = `INSERT_TIME_${direction}`; break;
             case 'action': orderBy = `MIDUR_ACTION_${direction}`; break;
-            case 'actor_username': orderBy = `EXECUTOR_${direction}`; break;
-            case 'target_name': orderBy = `TARGET_${direction}`; break;
+            case 'actor_username': orderBy = `EXECUTOR_ID_${direction}`; break;
+            case 'target_name': orderBy = `TARGET_ID_${direction}`; break;
             default: orderBy = `INSERT_TIME_${direction}`;
         }
     }
@@ -194,11 +200,11 @@ export const getSuggestions = async (params: { term: string }, performQuery: Per
     const term = params.term;
     const filter = {
         or: [
-            { executor: { includesInsensitive: term } },
+            { executorId: { includesInsensitive: term } },
             { executorName: { includesInsensitive: term } },
-            { target: { includesInsensitive: term } },
+            { targetId: { includesInsensitive: term } },
             { targetName: { includesInsensitive: term } },
-            { resource: { includesInsensitive: term } },
+            { resourceId: { includesInsensitive: term } },
             { resourceName: { includesInsensitive: term } }
         ]
     };

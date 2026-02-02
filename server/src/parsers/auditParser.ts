@@ -11,15 +11,12 @@ interface GraphQLAuditNode {
     category: string;
     actorId: string;
     actorUsername: string;
-    executor: string;
+    executorId: string;
     executorName: string;
     action: string;
-    actorType: any;
     resourceName?: string;
     resourceId?: string;
-    resource?: string;
     targetId: string;
-    target: string;
     targetName: string;
     targetType: any;
     resourceType: any;
@@ -66,15 +63,15 @@ export const parseAuditEventNode = (node: GraphQLAuditNode): AuditEvent => {
         id: node.id,
         created_at: timestamp,
         category: node.category,
-        actor_type: node.actorType,
-        actor_id: node.actorId || node.executor,
+        actor_type: 'USER', // Default to USER as executor_type was removed // TODO: does this help at all?
+        actor_id: node.actorId || node.executorId,
         actor_username: node.actorUsername || node.executorName,
         action: node.action,
-        resource_name: node.resourceName || node.resource || '',
-        resource_id: node.resourceId || node.resource || '',
+        resource_name: node.resourceName || node.resourceId || '',
+        resource_id: node.resourceId || '',
         resource_type: node.resourceType,
-        target_id: node.targetId || node.target,
-        target_name: node.targetName || node.target,
+        target_id: node.targetId,
+        target_name: node.targetName || node.targetId,
         target_type: node.targetType,
         before_state: changes?.before || null,
         after_state: changes?.after || null,
@@ -134,11 +131,11 @@ interface GraphQLSuggestionsResponse {
     data?: {
         allRecords?: {
             nodes: Array<{
-                executor: string;
+                executorId: string;
                 executorName: string;
-                target: string;
+                targetId: string;
                 targetName: string;
-                resource: string;
+                resourceId: string;
                 resourceName: string;
                 targetType: string;
                 resourceType: string;
@@ -176,9 +173,9 @@ export const parseSuggestionsResponse = (
     nodes.forEach(node => {
         // Map fields to their corresponding categories
         const fields: Array<{ id: string, name: string | null, category: string }> = [
-            { id: node.executor, name: node.executorName || null, category: 'USER' },
-            { id: node.target, name: node.targetName || null, category: node.targetType },
-            { id: node.resource, name: node.resourceName || null, category: node.resourceType }
+            { id: node.executorId, name: node.executorName || null, category: 'USER' },
+            { id: node.targetId, name: node.targetName || null, category: node.targetType },
+            { id: node.resourceId, name: node.resourceName || null, category: node.resourceType }
         ];
 
         fields.forEach(({ id, name, category }) => {
