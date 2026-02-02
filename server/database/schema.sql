@@ -19,20 +19,20 @@ CREATE TABLE history.record_data(
 );
 
 -- Create the table for audit_events
-CREATE TABLE IF NOT EXISTS history.records (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    action_id TEXT NOT NULL REFERENCES history.record_data(action_id),
-    updated_time BIGINT NOT NULL,
-    executor TEXT NOT NULL,
+CREATE TABLE history.records(
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), -- TODO: do we need this?
+    action_id TEXT NOT NULL,
+    insert_time BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM now()) * 1000),
+    midur_action history.midur_actions NOT NULL,
+    executor_id TEXT,
     executor_name TEXT,
-    target TEXT NOT NULL,
-    target_name TEXT,
-    resource TEXT,
-    resource_name TEXT,
-    executor_type history.mirage_object_types,
     target_type history.mirage_object_types,
-    midur_action history.mirage_actions,
-    resource_type history.mirage_object_types
+    target_id TEXT,
+    target_name TEXT,
+    resource_type history.mirage_object_types,
+    resource_id TEXT, -- (eg: dg value id)
+    resource_name TEXT,
+    FOREIGN KEY (action_id) REFERENCES history.record_data(action_id) ON DELETE CASCADE
 );
 
 CREATE SCHEMA IF NOT EXISTS api;
@@ -49,3 +49,5 @@ CREATE TABLE IF NOT EXISTS api.mirage_premade_profile_digital_parameter_values(
     PRIMARY KEY (profile_id, parameter_id, value_id),
     FOREIGN KEY (profile_id) REFERENCES api.mirage_premade_profiles(id)
 );
+
+-- TODO: add user premade profile table

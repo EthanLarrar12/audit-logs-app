@@ -133,15 +133,15 @@ export const getEvents = async (params: AuditQueryParams, performQuery: PerformQ
     const first = 10; // Default page size
     const offset = ((params.page || 1) - 1) * first;
 
-    let orderBy = 'UPDATED_TIME_DESC'; // Default sort
+    let orderBy = 'INSERT_TIME_DESC'; // Default sort
     if (params.sort) {
         const direction = params.order === 'asc' ? 'ASC' : 'DESC';
         switch (params.sort) {
-            case 'created_at': orderBy = `UPDATED_TIME_${direction}`; break;
+            case 'created_at': orderBy = `INSERT_TIME_${direction}`; break;
             case 'action': orderBy = `MIDUR_ACTION_${direction}`; break;
             case 'actor_username': orderBy = `EXECUTOR_${direction}`; break;
             case 'target_name': orderBy = `TARGET_${direction}`; break;
-            default: orderBy = `UPDATED_TIME_${direction}`;
+            default: orderBy = `INSERT_TIME_${direction}`;
         }
     }
 

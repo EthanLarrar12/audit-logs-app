@@ -17,7 +17,7 @@ INSERT INTO history.record_data (action_id, changes) VALUES
     ('act_015', '{"before": null, "after": {"sync_status": "completed"}}');
 
 -- Insert sample data into history.records
-INSERT INTO history.records (action_id, updated_time, executor, executor_name, target, target_name, resource, resource_name, executor_type, target_type, midur_action, resource_type) VALUES
+INSERT INTO history.records (action_id, insert_time, executor, executor_name, target, target_name, resource, resource_name, executor_type, target_type, midur_action, resource_type) VALUES
     ('act_001', 1709280000000, 'admin_user', 'אברהם אבינו', 'john.doe', 'ג''ון דו', NULL, NULL, 'USER', 'USER', 'USER_CREATION', NULL),
     ('act_002', 1709283600000, 'editor_user', 'משה רבנו', 'Entity 1', 'ישות א''', NULL, NULL, 'USER', 'ENTITY', 'ENTITY_EDIT', NULL),
     ('act_003', 1709287200000, 'system_service', 'שרת אוטומציה', 'Shos 123', 'שוס 123', 'shos_123', 'מערכת שוס מרכזית', 'USER', 'SHOS', 'SHOS_CREATION', 'SHOS'),
