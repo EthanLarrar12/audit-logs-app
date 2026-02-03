@@ -1,7 +1,8 @@
 import { RequestHandler } from 'express';
 import { AuditEvent, AuditEventPage } from '../types/audit';
-import { getEvents, getEventById, getPremadeProfiles, getSuggestions } from '../BLs/audit';
-import { AuditEventsQuery, AuditEventIdParam, SuggestionsQuery } from '../validators/audit';
+import { getEvents, getEventById, getPremadeProfiles, getSuggestions, deleteAuditHistory } from '../BLs/audit';
+import { AuditEventsQuery, AuditEventIdParam, SuggestionsQuery, DeleteHistoryBody } from '../validators/audit';
+
 import { PerformQuery } from '../../sdks/performQuery';
 
 /**
@@ -75,12 +76,35 @@ export const getAuditRoutes = (performQuery: PerformQuery) => {
 
 
 
+
+    /**
+     * Delete history records by time range
+     */
+    const handleDeleteHistory: RequestHandler = async (req, res): Promise<void> => {
+        try {
+            const { startDate, endDate } = req.body as DeleteHistoryBody;
+            const deletedCount = await deleteAuditHistory(performQuery, startDate, endDate);
+            
+            res.status(200).json({ 
+                success: true, 
+                message: `Deleted ${deletedCount} records`,
+                deletedCount 
+            });
+        } catch (error) {
+            console.error('Error in handleDeleteHistory:', error);
+            res.status(500).json({ error: 'Internal server error', details: (error as Error).message });
+        }
+    };
+
     return {
+
         getAuditEvents: handleGetAuditEvents,
         getAuditEventById: handleGetAuditEventById,
         getPremadeProfiles: handleGetPremadeProfiles,
         getSuggestions: handleGetSuggestions,
+        deleteAuditHistory: handleDeleteHistory,
     };
+
 };
 
 

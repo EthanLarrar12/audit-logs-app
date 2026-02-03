@@ -6,6 +6,7 @@ import PostGraphileConnectionFilterPlugin from 'postgraphile-plugin-connection-f
 import path from 'path';
 import { Pool } from 'pg';
 import { createAuditRouter } from './routers/audit';
+
 import { getPerformQuery } from '../sdks/performQuery';
 import { getSTSMiddleware } from '../sdks/getSTSMiddleware';
 import { config } from './config';
@@ -67,6 +68,7 @@ const startServer = async (): Promise<void> => {
 
         // Initialize and mount routers with performQuery
         app.use('/audit', createAuditRouter(performQuery));
+
 
         // The "catchall" handler: for any request that doesn't
         // match one above, send back React's index.html file.

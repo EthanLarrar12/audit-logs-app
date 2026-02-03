@@ -13,7 +13,8 @@ export const getExecuteTrinoQuery = () => {
     return async (query: string) => {
         try {
             const iter = await trino.query(query);
-            const rows: any[] = [];
+            const rows: Record<string, unknown>[] = [];
+
             for await (const row of iter) {
                 rows.push(row);
             }

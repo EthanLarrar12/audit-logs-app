@@ -5,8 +5,9 @@ import PostGraphileConnectionFilterPlugin from 'postgraphile-plugin-connection-f
 
 export type PerformQuery = (
     source: string,
-    variableValues?: Record<string, any>
-) => Promise<any>;
+    variableValues?: Record<string, unknown>
+) => Promise<unknown>;
+
 
 export const getPerformQuery = async (pgPool: Pool): Promise<PerformQuery> => {
     const schema = await createPostGraphileSchema(
@@ -18,10 +19,10 @@ export const getPerformQuery = async (pgPool: Pool): Promise<PerformQuery> => {
         }
     );
 
-    return async (source: string, variableValues?: Record<string, any>): Promise<any> => {
+    return async (source: string, variableValues?: Record<string, unknown>): Promise<unknown> => {
         return await withPostGraphileContext(
             { pgPool },
-            async (context: any) => {
+            async (context: Record<string, unknown> | object) => { // context type isn't strictly typed by PostGraphile, but object/Record is better than any
                 return await graphql({
                     schema,
                     source,
@@ -31,4 +32,5 @@ export const getPerformQuery = async (pgPool: Pool): Promise<PerformQuery> => {
             }
         );
     };
+
 };
