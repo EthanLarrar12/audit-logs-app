@@ -258,12 +258,12 @@ export const getSuggestions = async (
  */
 export const deleteAuditHistory = async (
   performQuery: PerformQuery,
-  startDate?: string,
-  endDate?: string,
+  startDate?: number,
+  endDate?: number,
 ): Promise<number> => {
   const result = (await performQuery(DELETE_AUDIT_HISTORY_MUTATION, {
-    startDate,
-    endDate,
+    startDate: startDate ? new Date(startDate).toISOString() : null,
+    endDate: endDate ? new Date(endDate).toISOString() : null,
   })) as {
     errors?: Array<{ message: string }>;
     data?: { deleteAuditHistory?: { integer?: number } };
