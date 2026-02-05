@@ -2,6 +2,14 @@
  * GraphQL queries for audit events
  */
 
+export const DELETE_AUDIT_HISTORY_MUTATION = `
+    mutation DeleteAuditHistory($startDate: String, $endDate: String) {
+        deleteAuditHistory(input: { startDate: $startDate, endDate: $endDate }) {
+            integer
+        }
+    }
+`;
+
 /**
  * Query to fetch paginated and filtered audit events
  */
