@@ -20,6 +20,7 @@ import {
 } from "../parsers/profileParser";
 import { PerformQuery } from "../../sdks/performQuery";
 import { getRlsFilters } from "../utils/auth";
+import { BadGatewayException } from "../../sdks/exceptions";
 
 /**
  * Business logic layer for audit events
@@ -270,7 +271,7 @@ export const deleteAuditHistory = async (
   };
 
   if (result.errors) {
-    throw new Error(result.errors[0].message);
+    throw new BadGatewayException(result.errors[0].message);
   }
 
   return result.data?.deleteAuditHistory?.integer || 0;

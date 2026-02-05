@@ -20,8 +20,12 @@ app.use(express.json());
 // We should probably mock that too or bypass it for testing logic.
 // The router function takes `performQuery`.
 
+import { errorMiddleware } from "../../sdks/errorMiddleware";
+import { BadGatewayException } from "../../sdks/exceptions";
+
 const router = createAuditRouter(mockPerformQuery);
 app.use("/audit", router);
+app.use(errorMiddleware);
 
 describe("DELETE /audit", () => {
   beforeEach(() => {
@@ -53,9 +57,22 @@ describe("DELETE /audit", () => {
   });
 
   it("should return validation error if dates are missing", async () => {
-    const response = await request(app).delete("/audit").send({});
+    // Missing both
+    let response = await request(app).delete("/audit").send({});
+    expect(response.status).toBe(400);
+    expect(response.body.error).toBe("Invalid Parameter");
 
-    expect(response.status).toBe(400); // Validation error
+    // Missing startDate
+    response = await request(app)
+      .delete("/audit")
+      .send({ endDate: 1707040800000 });
+    expect(response.status).toBe(400);
+
+    // Missing endDate
+    response = await request(app)
+      .delete("/audit")
+      .send({ startDate: 1706954400000 });
+    expect(response.status).toBe(400);
   });
 
   it("should return validation error if dates are invalid types", async () => {
@@ -74,12 +91,33 @@ describe("DELETE /audit", () => {
     );
 
     const startDate = 1706954400000;
-    const response = await request(app).delete("/audit").send({ startDate });
+    const endDate = 1707040800000;
+    const response = await request(app)
+      .delete("/audit")
+      .send({ startDate, endDate });
 
     expect(response.status).toBe(500);
     expect(response.body).toEqual({
-      error: "Internal server error",
-      details: errorMessage,
+      error: "Internal Server Error",
+    });
+  });
+
+  it("should handle BadGatewayException correctly", async () => {
+    const errorMessage = "Upstream error";
+    (auditBL.deleteAuditHistory as jest.Mock).mockRejectedValue(
+      new BadGatewayException(errorMessage),
+    );
+
+    const startDate = 1706954400000;
+    const endDate = 1707040800000;
+    const response = await request(app)
+      .delete("/audit")
+      .send({ startDate, endDate });
+
+    expect(response.status).toBe(502);
+    expect(response.body).toEqual({
+      error: "Bad Gateway",
+      additionalInfo: errorMessage,
     });
   });
 });

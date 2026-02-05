@@ -50,15 +50,10 @@ export const suggestionsQuerySchema = z.object({
 /**
  * Zod schema for history deletion body
  */
-export const deleteHistorySchema = z
-  .object({
-    startDate: z.number().int().min(0).optional(),
-    endDate: z.number().int().min(0).optional(),
-  })
-  .refine((data) => data.startDate || data.endDate, {
-    message: "At least one of 'startDate' or 'endDate' must be provided",
-    path: ["startDate", "endDate"],
-  });
+export const deleteHistorySchema = z.object({
+  startDate: z.number().int().min(0),
+  endDate: z.number().int().min(0),
+});
 
 // Export inferred types
 export type AuditEventsQuery = z.infer<typeof auditEventsQuerySchema>;

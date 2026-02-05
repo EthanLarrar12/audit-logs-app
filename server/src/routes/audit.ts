@@ -15,6 +15,8 @@ import {
 } from "../validators/audit";
 
 import { PerformQuery } from "../../sdks/performQuery";
+import { NotFoundException } from "../../sdks/exceptions";
+import { StatusCodes } from "http-status-codes";
 
 /**
  * Controller factor for audit events
@@ -26,6 +28,7 @@ export const getAuditRoutes = (performQuery: PerformQuery) => {
   const handleGetAuditEvents: RequestHandler = async (
     req,
     res,
+    next,
   ): Promise<void> => {
     try {
       const userId = (req.headers["x-user-id"] as string) || "group_admin";
@@ -35,13 +38,9 @@ export const getAuditRoutes = (performQuery: PerformQuery) => {
         performQuery,
         userId,
       );
-      res.status(200).json(result);
+      res.status(StatusCodes.OK).json(result);
     } catch (error) {
-      console.error("Error in getAuditEvents:", error);
-      res.status(500).json({
-        page: 1,
-        items: [],
-      } as AuditEventPage);
+      next(error);
     }
   };
 
@@ -51,20 +50,19 @@ export const getAuditRoutes = (performQuery: PerformQuery) => {
   const handleGetAuditEventById: RequestHandler = async (
     req,
     res,
+    next,
   ): Promise<void> => {
     try {
       const { id } = req.params as unknown as AuditEventIdParam;
       const event: AuditEvent | null = await getEventById(id, performQuery);
 
       if (!event) {
-        res.status(404).json({ error: "Event not found" });
-        return;
+        throw new NotFoundException();
       }
 
-      res.status(200).json(event);
+      res.status(StatusCodes.OK).json(event);
     } catch (error) {
-      console.error("Error in getAuditEventById:", error);
-      res.status(500).json({ error: "Internal server error" });
+      next(error);
     }
   };
 
@@ -74,13 +72,13 @@ export const getAuditRoutes = (performQuery: PerformQuery) => {
   const handleGetPremadeProfiles: RequestHandler = async (
     req,
     res,
+    next,
   ): Promise<void> => {
     try {
       const profiles = await getPremadeProfiles(performQuery);
-      res.status(200).json(profiles);
+      res.status(StatusCodes.OK).json(profiles);
     } catch (error) {
-      console.error("Error in getPremadeProfiles:", error);
-      res.status(500).json([]);
+      next(error);
     }
   };
 
@@ -90,14 +88,14 @@ export const getAuditRoutes = (performQuery: PerformQuery) => {
   const handleGetSuggestions: RequestHandler = async (
     req,
     res,
+    next,
   ): Promise<void> => {
     try {
       const { term } = req.query as unknown as SuggestionsQuery;
       const result = await getSuggestions({ term }, performQuery);
-      res.status(200).json(result);
+      res.status(StatusCodes.OK).json(result);
     } catch (error) {
-      console.error("Error in getSuggestions:", error);
-      res.status(500).json([]);
+      next(error);
     }
   };
 
@@ -107,6 +105,7 @@ export const getAuditRoutes = (performQuery: PerformQuery) => {
   const handleDeleteHistory: RequestHandler = async (
     req,
     res,
+    next,
   ): Promise<void> => {
     try {
       const { startDate, endDate } = req.body as DeleteHistoryBody;
@@ -116,17 +115,13 @@ export const getAuditRoutes = (performQuery: PerformQuery) => {
         endDate,
       );
 
-      res.status(200).json({
+      res.status(StatusCodes.OK).json({
         success: true,
         message: `Deleted ${deletedCount} records`,
         deletedCount,
       });
     } catch (error) {
-      console.error("Error in handleDeleteHistory:", error);
-      res.status(500).json({
-        error: "Internal server error",
-        details: (error as Error).message,
-      });
+      next(error);
     }
   };
 
