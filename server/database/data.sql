@@ -49,3 +49,8 @@ INSERT INTO api.mirage_premade_profile_digital_parameter_values (profile_id, par
     ('prof_002', 'param_security_level', 'val_high'),
     ('prof_003', 'param_language', 'val_english'),
     ('prof_003', 'param_display_mode', 'val_dark');
+
+INSERT INTO api.mirage_user_premade_profiles (user_id, profile_id) VALUES
+    ('user_001', 'prof_001'),
+    ('user_002', 'prof_002'),
+    ('user_003', 'prof_003');

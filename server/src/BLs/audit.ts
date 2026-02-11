@@ -2,7 +2,7 @@ import { AuditEvent, AuditEventPage, AuditQueryParams } from "../types/audit";
 import {
   GET_AUDIT_EVENTS_QUERY,
   GET_AUDIT_EVENT_BY_ID_QUERY,
-  GET_SUGGESTIONS_QUERY,
+  GET_SEARCH_FILTERS_QUERY, // Updated query
   DELETE_AUDIT_HISTORY_MUTATION,
 } from "../GQL/auditQueries";
 import {
@@ -12,7 +12,7 @@ import {
 import {
   parseAuditEventsResponse,
   parseAuditEventByIdResponse,
-  parseSuggestionsResponse,
+  parseSearchFiltersResponse, // Updated parser
 } from "../parsers/auditParser";
 import {
   parsePremadeProfilesResponse,
@@ -69,7 +69,10 @@ export const getEvents = async (
   // Search Inputs (OR logic)
   if (params.actorSearch) {
     andFilters.push({
-      or: [{ executorId: { includesInsensitive: params.actorSearch } }],
+      and: [
+        { executorId: { includesInsensitive: params.actorSearch } },
+        { executorType: { equalTo: "USER" } },
+      ],
     });
   }
 
@@ -114,7 +117,12 @@ export const getEvents = async (
         // For executor, we can't check type anymore efficiently unless we infer it (always USER).
         // Or if the searchType is USER, we check executorId.
         if (searchType === "USER") {
-          typeFilters.push({ executorId: { equalTo: term } });
+          typeFilters.push({
+            and: [
+              { executorId: { equalTo: term } },
+              { executorType: { equalTo: searchType } },
+            ],
+          });
         }
 
         typeFilters.push({
@@ -142,12 +150,8 @@ export const getEvents = async (
     } else {
       andFilters.push({
         or: [
-          { actionId: { includesInsensitive: term } },
-          { executorId: { includesInsensitive: term } },
           { executorName: { includesInsensitive: term } },
-          { targetId: { includesInsensitive: term } },
           { targetName: { includesInsensitive: term } },
-          { resourceId: { includesInsensitive: term } },
           { resourceName: { includesInsensitive: term } },
         ],
       });
@@ -237,21 +241,12 @@ export const getSuggestions = async (
   params: { term: string },
   performQuery: PerformQuery,
 ): Promise<unknown[]> => {
-  const term = params.term;
-  const filter = {
-    or: [
-      { executorId: { includesInsensitive: term } },
-      { executorName: { includesInsensitive: term } },
-      { targetId: { includesInsensitive: term } },
-      { targetName: { includesInsensitive: term } },
-      { resourceId: { includesInsensitive: term } },
-      { resourceName: { includesInsensitive: term } },
-    ],
-  };
+  const result = await performQuery(GET_SEARCH_FILTERS_QUERY, {
+    searchValues: params.term,
+    resultLimit: 50,
+  });
 
-  const result = await performQuery(GET_SUGGESTIONS_QUERY, { filter });
-
-  return parseSuggestionsResponse(result as Record<string, unknown>, term);
+  return parseSearchFiltersResponse(result as Record<string, unknown>);
 };
 
 /**

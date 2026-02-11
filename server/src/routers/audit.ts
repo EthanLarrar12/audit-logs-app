@@ -12,7 +12,7 @@ import {
   getApiKeyValidationMiddleware,
   getValidateRestrictedResourcesMiddleware,
   RestrictedResources,
-} from "../../sdks/apiSdk";
+} from "../../sdks/Api";
 
 export const createAuditRouter = (performQuery: PerformQuery) => {
   const auditRouter = Router();
