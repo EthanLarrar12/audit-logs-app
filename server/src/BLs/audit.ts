@@ -21,6 +21,9 @@ import {
 import { PerformQuery } from "../../sdks/performQuery";
 import { getRlsFilters } from "../utils/auth";
 import { BadGatewayException } from "../../sdks/exceptions";
+import { isPermitted } from "../../sdks/STS"; // Added STS import
+import { GET_USER_ALLOWED_PARAMETERS_QUERY } from "../GQL/profileQueries"; // Added query import
+import { parseUserAllowedParametersResponse } from "../parsers/profileParser"; // Added parser import
 
 /**
  * Business logic layer for audit events
@@ -58,6 +61,48 @@ export const getEvents = async (
     andFilters.push({
       executorId: { includesInsensitive: params.actorUsername },
     });
+  }
+
+  // Compartmentalization Logic
+  const canReadParams = isPermitted({ profilePermissions: ["read"] });
+  const canUpdateParams = isPermitted({ profilePermissions: ["update"] });
+
+  if (!canReadParams) {
+    // User cannot see parameters at all
+    andFilters.push({
+      resourceType: { notEqualTo: "DIGITAL_VALUE" },
+    });
+    // Note: If targetType can be DIGITAL_VALUE, we might need to filter that too.
+    // Assuming resourceType is the primary indicator for now as per schema.
+  } else if (!canUpdateParams) {
+    // User can read parameters but only allowed ones
+    const allowedParamsResult = await performQuery(
+      GET_USER_ALLOWED_PARAMETERS_QUERY,
+      { userId },
+    );
+    const allowedParams = parseUserAllowedParametersResponse(
+      allowedParamsResult as Record<string, unknown>,
+    );
+    const allowedIds = allowedParams.map((p) => p.valueId);
+
+    if (allowedIds.length > 0) {
+      andFilters.push({
+        or: [
+          { resourceType: { notEqualTo: "DIGITAL_VALUE" } },
+          {
+            and: [
+              { resourceType: { equalTo: "DIGITAL_VALUE" } },
+              { resourceId: { in: allowedIds } },
+            ],
+          },
+        ],
+      });
+    } else {
+      // If no allowed parameters, hide all parameters
+      andFilters.push({
+        resourceType: { notEqualTo: "DIGITAL_VALUE" },
+      });
+    }
   }
   if (params.category && params.category.length > 0) {
     andFilters.push({ targetType: { in: params.category } });

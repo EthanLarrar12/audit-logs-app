@@ -8,13 +8,23 @@ import { AuditQueryParams } from "../types/audit";
 import { getRlsFilters } from "../utils/auth";
 
 // Mock dependencies
-jest.mock("../utils/auth");
+jest.mock("../utils/auth", () => ({
+  getRlsFilters: jest.fn(),
+}));
+jest.mock("../../sdks/STS", () => ({
+  isPermitted: jest.fn(),
+  getUserIdFromCookie: jest.fn().mockReturnValue("user-123"),
+}));
+
+import { isPermitted } from "../../sdks/STS";
+import { GET_USER_ALLOWED_PARAMETERS_QUERY } from "../GQL/profileQueries";
 const mockPerformQuery = jest.fn() as unknown as PerformQuery;
 
 describe("getEvents", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (getRlsFilters as jest.Mock).mockReturnValue(null);
+    (isPermitted as jest.Mock).mockReturnValue(true); // Default to permitted for existing tests
     (mockPerformQuery as jest.Mock).mockResolvedValue({
       data: {
         allRecords: {
@@ -220,5 +230,127 @@ describe("getSuggestions", () => {
     await expect(
       getSuggestions({ term: "error" }, mockPerformQuery),
     ).rejects.toThrow("GraphQL Errors: Database errror");
+  });
+});
+
+describe("Compartmentalization Logic", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (mockPerformQuery as jest.Mock).mockResolvedValue({
+      data: {
+        allRecords: {
+          totalCount: 0,
+          nodes: [],
+        },
+      },
+    });
+  });
+
+  it("should filter out parameters if user has no read permissions", async () => {
+    (isPermitted as jest.Mock).mockReturnValue(false); // No read permissions
+
+    const params: AuditQueryParams = {};
+    await getEvents(params, mockPerformQuery, "user-123");
+
+    const calls = (mockPerformQuery as jest.Mock).mock.calls;
+    const variables = calls[0][1];
+    const filter = variables.filter;
+
+    // Should include filter to exclude DIGITAL_VALUE
+    expect(JSON.stringify(filter)).toContain(
+      JSON.stringify({ resourceType: { notEqualTo: "DIGITAL_VALUE" } }),
+    );
+  });
+
+  it("should allow all parameters if user has update permissions", async () => {
+    (isPermitted as jest.Mock).mockImplementation((args) => {
+      if (args.profilePermissions.includes("read")) return true;
+      if (args.profilePermissions.includes("update")) return true;
+      return false;
+    });
+
+    const params: AuditQueryParams = {};
+    await getEvents(params, mockPerformQuery, "user-123");
+
+    const calls = (mockPerformQuery as jest.Mock).mock.calls;
+    const variables = calls[0][1];
+
+    // Should NOT include filter to exclude DIGITAL_VALUE
+    // And should not query allowed parameters
+    if (variables.filter) {
+      expect(JSON.stringify(variables.filter)).not.toContain("DIGITAL_VALUE");
+    }
+    expect(mockPerformQuery).not.toHaveBeenCalledWith(
+      GET_USER_ALLOWED_PARAMETERS_QUERY,
+      expect.anything(),
+    );
+  });
+
+  it("should filter by allowed parameters if user has read but not update permissions", async () => {
+    (isPermitted as jest.Mock).mockImplementation((args) => {
+      if (args.profilePermissions.includes("read")) return true;
+      if (args.profilePermissions.includes("update")) return false;
+      return false;
+    });
+
+    // Mock allowed parameters response
+    (mockPerformQuery as jest.Mock).mockImplementation((query, variables) => {
+      if (query === GET_USER_ALLOWED_PARAMETERS_QUERY) {
+        return Promise.resolve({
+          data: {
+            allMiragePremadeProfileOwners: {
+              nodes: [
+                {
+                  miragePremadeProfileByProfileId: {
+                    miragePremadeProfileDigitalParameterValuesByProfileId: {
+                      nodes: [
+                        { parameterId: "p1", valueId: "v1" },
+                        { parameterId: "p2", valueId: "v2" },
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        });
+      }
+      // Return empty result for main query
+      return Promise.resolve({
+        data: { allRecords: { nodes: [], totalCount: 0 } },
+      });
+    });
+
+    const params: AuditQueryParams = {};
+    await getEvents(params, mockPerformQuery, "user-123");
+
+    // Verify allowed parameters query was called
+    expect(mockPerformQuery).toHaveBeenCalledWith(
+      GET_USER_ALLOWED_PARAMETERS_QUERY,
+      { userId: "user-123" },
+    );
+
+    // Verify filter construction
+    const calls = (mockPerformQuery as jest.Mock).mock.calls;
+    // Find call to GET_AUDIT_EVENTS_QUERY
+    const auditCall = calls.find((call) => call[0] === GET_AUDIT_EVENTS_QUERY);
+    const variables = auditCall[1];
+    const filter = variables.filter;
+
+    const expectedOrCondition = {
+      or: [
+        { resourceType: { notEqualTo: "DIGITAL_VALUE" } },
+        {
+          and: [
+            { resourceType: { equalTo: "DIGITAL_VALUE" } },
+            { resourceId: { in: ["v1", "v2"] } },
+          ],
+        },
+      ],
+    };
+
+    expect(JSON.stringify(filter)).toContain(
+      JSON.stringify(expectedOrCondition),
+    );
   });
 });

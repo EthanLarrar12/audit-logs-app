@@ -17,6 +17,7 @@ import {
 import { PerformQuery } from "../../sdks/performQuery";
 import { NotFoundException } from "../../sdks/exceptions";
 import { StatusCodes } from "http-status-codes";
+import { getUserIdFromCookie } from "../../sdks/STS";
 
 /**
  * Controller factor for audit events
@@ -31,7 +32,7 @@ export const getAuditRoutes = (performQuery: PerformQuery) => {
     next,
   ): Promise<void> => {
     try {
-      const userId = (req.headers["x-user-id"] as string) || "group_admin";
+      const userId = getUserIdFromCookie();
       const params = req.query as unknown as AuditEventsQuery;
       const result: AuditEventPage = await getEvents(
         params,
