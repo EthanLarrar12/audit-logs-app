@@ -287,7 +287,7 @@ export const getSuggestions = async (
   performQuery: PerformQuery,
 ): Promise<unknown[]> => {
   const result = await performQuery(GET_SEARCH_FILTERS_QUERY, {
-    searchValues: params.term,
+    searchTerm: params.term,
     resultLimit: 50,
   });
 

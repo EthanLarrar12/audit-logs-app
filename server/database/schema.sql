@@ -121,4 +121,4 @@ BEGIN
     LIMIT result_limit
     OFFSET result_offset; 
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql STABLE;
