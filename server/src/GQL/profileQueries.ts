@@ -27,7 +27,6 @@ export const GET_PROFILE_VALUES_QUERY = `
             }
         }
     }
-    }
 `;
 
 /**

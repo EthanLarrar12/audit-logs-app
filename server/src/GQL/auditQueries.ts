@@ -86,7 +86,6 @@ export const GET_SUGGESTIONS_QUERY = `
             }
         }
     }
-    }
 `;
 
 /**
