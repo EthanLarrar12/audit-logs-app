@@ -70,9 +70,9 @@ export const getEvents = async (
   if (!canReadParams) {
     // User cannot see parameters at all
     andFilters.push({
-      resourceType: { notEqualTo: "DIGITAL_VALUE" },
+      resourceType: { notEqualTo: "PARAMETER" },
     });
-    // Note: If targetType can be DIGITAL_VALUE, we might need to filter that too.
+    // Note: If targetType can be PARAMETER, we might need to filter that too.
     // Assuming resourceType is the primary indicator for now as per schema.
   } else if (!canUpdateParams) {
     // User can read parameters but only allowed ones
@@ -87,20 +87,15 @@ export const getEvents = async (
 
     if (allowedIds.length > 0) {
       andFilters.push({
-        or: [
-          { resourceType: { notEqualTo: "DIGITAL_VALUE" } },
-          {
             and: [
-              { resourceType: { equalTo: "DIGITAL_VALUE" } },
+              { resourceType: { equalTo: "PARAMETER" } },
               { resourceId: { in: allowedIds } },
             ],
-          },
-        ],
       });
     } else {
       // If no allowed parameters, hide all parameters
       andFilters.push({
-        resourceType: { notEqualTo: "DIGITAL_VALUE" },
+        resourceType: { notEqualTo: "PARAMETER" },
       });
     }
   }

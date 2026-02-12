@@ -256,9 +256,9 @@ describe("Compartmentalization Logic", () => {
     const variables = calls[0][1];
     const filter = variables.filter;
 
-    // Should include filter to exclude DIGITAL_VALUE
+    // Should include filter to exclude PARAMETER
     expect(JSON.stringify(filter)).toContain(
-      JSON.stringify({ resourceType: { notEqualTo: "DIGITAL_VALUE" } }),
+      JSON.stringify({ resourceType: { notEqualTo: "PARAMETER" } }),
     );
   });
 
@@ -275,10 +275,10 @@ describe("Compartmentalization Logic", () => {
     const calls = (mockPerformQuery as jest.Mock).mock.calls;
     const variables = calls[0][1];
 
-    // Should NOT include filter to exclude DIGITAL_VALUE
+    // Should NOT include filter to exclude PARAMETER
     // And should not query allowed parameters
     if (variables.filter) {
-      expect(JSON.stringify(variables.filter)).not.toContain("DIGITAL_VALUE");
+      expect(JSON.stringify(variables.filter)).not.toContain("PARAMETER");
     }
     expect(mockPerformQuery).not.toHaveBeenCalledWith(
       GET_USER_ALLOWED_PARAMETERS_QUERY,
@@ -339,10 +339,10 @@ describe("Compartmentalization Logic", () => {
 
     const expectedOrCondition = {
       or: [
-        { resourceType: { notEqualTo: "DIGITAL_VALUE" } },
+        { resourceType: { notEqualTo: "PARAMETER" } },
         {
           and: [
-            { resourceType: { equalTo: "DIGITAL_VALUE" } },
+            { resourceType: { equalTo: "PARAMETER" } },
             { resourceId: { in: ["v1", "v2"] } },
           ],
         },
