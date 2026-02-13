@@ -87,10 +87,10 @@ export const getEvents = async (
 
     if (allowedIds.length > 0) {
       andFilters.push({
-            and: [
-              { resourceType: { equalTo: "PARAMETER" } },
-              { resourceId: { in: allowedIds } },
-            ],
+        and: [
+          { resourceType: { equalTo: "PARAMETER" } },
+          { resourceId: { in: allowedIds } },
+        ],
       });
     } else {
       // If no allowed parameters, hide all parameters
@@ -278,12 +278,17 @@ export const getPremadeProfiles = async (
  * Get unique suggestions for autocomplete based on a search term
  */
 export const getSuggestions = async (
-  params: { term: string },
+  params: { term: string; page?: number; limit?: number },
   performQuery: PerformQuery,
 ): Promise<unknown[]> => {
+  const page = params.page || 1;
+  const limit = params.limit || 50;
+  const offset = (page - 1) * limit;
+
   const result = await performQuery(GET_SEARCH_FILTERS_QUERY, {
     searchTerm: params.term,
-    resultLimit: 50,
+    resultLimit: limit,
+    resultOffset: offset,
   });
 
   return parseSearchFiltersResponse(result as Record<string, unknown>);

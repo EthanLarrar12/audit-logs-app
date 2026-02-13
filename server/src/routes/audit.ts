@@ -92,8 +92,8 @@ export const getAuditRoutes = (performQuery: PerformQuery) => {
     next,
   ): Promise<void> => {
     try {
-      const { term } = req.query as unknown as SuggestionsQuery;
-      const result = await getSuggestions({ term }, performQuery);
+      const { term, page, limit } = req.query as unknown as SuggestionsQuery;
+      const result = await getSuggestions({ term, page, limit }, performQuery);
       res.status(StatusCodes.OK).json(result);
     } catch (error) {
       next(error);

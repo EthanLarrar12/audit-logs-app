@@ -45,6 +45,8 @@ export const auditEventIdParamSchema = z.object({
  */
 export const suggestionsQuerySchema = z.object({
   term: z.string().min(1),
+  page: z.coerce.number().int().min(1).optional().default(1),
+  limit: z.coerce.number().int().min(1).max(100).optional().default(50),
 });
 
 /**
