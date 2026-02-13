@@ -14,7 +14,8 @@ INSERT INTO history.record_data (action_id, changes) VALUES
     ('act_012', '{"before": {"tags": ["tag1"]}, "after": {"tags": ["tag1", "tag2"]}}'),
     ('act_013', '{"before": null, "after": {"value": "new_config"}}'),
     ('act_014', '{"before": {"owner": "user_a"}, "after": {"owner": "user_b"}}'),
-    ('act_015', '{"before": null, "after": {"sync_status": "completed"}}');
+    ('act_015', '{"before": null, "after": {"sync_status": "completed"}}'),
+    ('act_016', '{"before": {"clearance": 2, "rank": "prince"}, "after": {"clearance": 1, "rank": "king"}}');
 
 -- Insert sample data into history.records
 INSERT INTO history.records (action_id, insert_time, executor_type, executor_id, executor_name, target_type, target_id, target_name, resource_type, resource_id, resource_name, midur_action) VALUES
@@ -32,7 +33,12 @@ INSERT INTO history.records (action_id, insert_time, executor_type, executor_id,
     ('act_012', 1709319600000, 'USER', 'tag_manager', 'מרדכי היהודי', 'DYNAMIC_TAG', 'Tag B', 'תגית ב''', 'USER', 'tag2', 'תג דינמי 2', 'ADD_VALUE_TO_USER'),
     ('act_013', 1709323200000, 'SYSTEM', 'config_bot', 'בוט הגדרות', 'USER', 'john.doe', 'ג''ון דו', NULL, 'new_config', 'הגדרת מערכת חדשה', 'ADD_VALUE_TO_USER'),
     ('act_014', 1709326800000, 'USER', 'admin_user', 'אברהם אבינו', 'PROFILE', 'Profile X', 'פרופיל איקס', 'USER', 'user_b', 'משתמש ב''', 'ADD_USER_TO_PROFILE'),
-    ('act_015', 1709330400000, 'SYSTEM', 'sync_service', 'שירות סנכרון', 'USER', 'jane.doe', 'ג''יין דו', NULL, NULL, NULL, 'USER_SYNC');
+    ('act_015', 1709330400000, 'SYSTEM', 'sync_service', 'שירות סנכרון', 'USER', 'jane.doe', 'ג''יין דו', NULL, NULL, NULL, 'USER_SYNC'),
+    ('act_016', 1709334000000, 'USER', 'ethan', 'פיצפון', 'USER', 'YG', 'יותם', 'PARAMETER', 'clearance:1', 'סיווג: 1', 'ADD_VALUE_TO_USER'),
+    ('act_016', 1709334000000, 'USER', 'ethan', 'פיצפון', 'USER', 'YG', 'יותם', 'PARAMETER', 'clearance:2', 'סיווג: 2', 'REMOVE_VALUE_FROM_USER'),
+    ('act_016', 1709334001000, 'USER', 'ethan', 'פיצפון', 'USER', 'YG', 'יותם', 'PARAMETER', 'rank:king', 'דרגה: מלך', 'ADD_VALUE_TO_USER'),
+    ('act_016', 1709334001000, 'USER', 'ethan', 'פיצפון', 'USER', 'YG', 'יותם', 'PARAMETER', 'rank:prince', 'דרגה: נסיך', 'REMOVE_VALUE_FROM_USER');
+
 
 -- Insert sample data into api.mirage_premade_profiles
 INSERT INTO api.mirage_premade_profiles (id, name) VALUES
