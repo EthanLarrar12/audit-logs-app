@@ -1,23 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import { Filter, RotateCcw, ChevronUp, ChevronDown } from "lucide-react";
+import { AuditFilters } from "@/types/audit";
 import {
-  Filter,
-  RotateCcw,
-  ChevronUp,
-  ChevronDown
-} from 'lucide-react';
-import { AuditFilters } from '@/types/audit';
-import { AUDIT_CATEGORIES, getSubcategoryName, getActionIcon } from '@/constants/filterOptions';
-import { fetchPremadeProfiles } from '@/lib/api';
-import { Button } from '@/components/ui/button';
-import { styles } from './FilterBar.styles';
-import { CategoryBadge } from './CategoryBadge';
+  AUDIT_CATEGORIES,
+  getSubcategoryName,
+  getActionIcon,
+} from "@/constants/filterOptions";
+import { fetchPremadeProfiles } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { styles } from "./FilterBar.styles";
+import { CategoryBadge } from "./CategoryBadge";
 
 // Sub-components
-import { GeneralSearch } from './filters/GeneralSearch';
-import { DateFilter } from './filters/DateFilter';
-import { MultiSelectFilter } from './filters/MultiSelectFilter';
-import { SearchFilter } from './filters/SearchFilter';
-import { ProfileFilter } from './filters/ProfileFilter';
+import { GeneralSearch } from "./filters/GeneralSearch";
+import { DateFilter } from "./filters/DateFilter";
+import { MultiSelectFilter } from "./filters/MultiSelectFilter";
+import { SearchFilter } from "./filters/SearchFilter";
+import { ProfileFilter } from "./filters/ProfileFilter";
 
 interface FilterBarProps {
   filters: AuditFilters;
@@ -26,15 +25,22 @@ interface FilterBarProps {
   isLoading?: boolean;
 }
 
-export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, onReset, isLoading }) => {
+export const FilterBar: React.FC<FilterBarProps> = ({
+  filters,
+  onFiltersChange,
+  onReset,
+  isLoading,
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [searchValues, setSearchValues] = useState<Record<string, string>>({});
-  const [premadeProfiles, setPremadeProfiles] = useState<{ id: string, name: string }[]>([]);
+  const [premadeProfiles, setPremadeProfiles] = useState<
+    { id: string; name: string }[]
+  >([]);
 
-  const toggleMultiFilter = (field: 'category' | 'action', value: string) => {
+  const toggleMultiFilter = (field: "category" | "action", value: string) => {
     const current = (filters[field] as string[]) || [];
     const updated = current.includes(value)
-      ? current.filter(v => v !== value)
+      ? current.filter((v) => v !== value)
       : [...current, value];
 
     updateFilter(field, updated.length > 0 ? updated : null);
@@ -45,20 +51,31 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
   }, []);
 
   // Sync internal state with external filters (e.g. on reset)
+  const [generalSearchObjects, setGeneralSearchObjects] = useState<
+    { id: string; name?: string; type: string }[]
+  >([]);
+
+  // Sync internal state with external filters (e.g. on reset)
   useEffect(() => {
     setSearchValues({
-      searchInput: filters.searchInput || '',
-      actorUsername: filters.actorUsername || '',
-      actorSearch: filters.actorSearch || '',
-      targetSearch: filters.targetSearch || '',
-      resourceSearch: filters.resourceSearch || '',
+      searchInput: "", // Search input is now just the text being typed, not the filter value (which is array)
+      actorUsername: filters.actorUsername || "",
+      actorSearch: filters.actorSearch || "",
+      targetSearch: filters.targetSearch || "",
+      resourceSearch: filters.resourceSearch || "",
     });
-  }, [filters.searchInput, filters.actorUsername, filters.actorSearch, filters.targetSearch, filters.resourceSearch]);
-
+    setGeneralSearchObjects(filters.generalSearchObjects || []);
+  }, [
+    filters.actorUsername,
+    filters.actorSearch,
+    filters.targetSearch,
+    filters.resourceSearch,
+    filters.generalSearchObjects,
+  ]);
 
   const updateFilter = <K extends keyof AuditFilters>(
     key: K,
-    value: AuditFilters[K]
+    value: AuditFilters[K],
   ) => {
     onFiltersChange({ ...filters, [key]: value });
   };
@@ -68,11 +85,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
   };
 
   const handleSearchChange = (field: string, value: string) => {
-    setSearchValues(prev => ({ ...prev, [field]: value }));
-    if (field === 'searchInput') {
-      updateFilter('searchInputIsExact', false);
-      updateFilter('searchInputType', undefined);
-    }
+    setSearchValues((prev) => ({ ...prev, [field]: value }));
+    // For general search, we don't update the filter immediately on text change, only on select/enter
   };
 
   // Generic debounce for all search fields
@@ -82,8 +96,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
       const updatedFilters = { ...filters };
 
       Object.entries(searchValues).forEach(([field, value]) => {
-        // Skip searchInput as we want explicit search for it
-        if (field === 'searchInput') return;
+        // Skip searchInput as we handle it via selection/enter
+        if (field === "searchInput") return;
 
         const key = field as keyof AuditFilters;
         if (filters[key] !== (value || null)) {
@@ -102,11 +116,21 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
 
   const activeFilters = Object.entries(filters).filter(([key, value]) => {
     // Exclude top row filters and internal flags
-    if (['searchInput', 'searchInputIsExact', 'searchInputType', 'dateFrom', 'dateTo'].includes(key)) return false;
+    if (
+      [
+        "searchInput",
+        "generalSearchObjects",
+        "searchInputIsExact",
+        "searchInputType",
+        "dateFrom",
+        "dateTo",
+      ].includes(key)
+    )
+      return false;
 
     // Check if filter is active
     if (value === null || value === undefined) return false;
-    if (typeof value === 'string' && value.trim() === '') return false;
+    if (typeof value === "string" && value.trim() === "") return false;
     if (Array.isArray(value) && value.length === 0) return false;
 
     return true;
@@ -114,30 +138,35 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
 
   const activeFilterCount = activeFilters.length;
 
-  const hasAnyActiveFilter = Object.values(filters).some(v => {
+  const hasAnyActiveFilter = Object.values(filters).some((v) => {
     if (v === null || v === undefined) return false;
-    if (typeof v === 'string' && v.trim() === '') return false;
+    if (typeof v === "string" && v.trim() === "") return false;
     if (Array.isArray(v) && v.length === 0) return false;
     return true;
   });
 
   // Resolve filters to display (aggregate from all selected categories and actions)
   const selectedCategories = Array.isArray(filters.category)
-    ? AUDIT_CATEGORIES.filter(c => (filters.category as string[]).includes(c.id))
+    ? AUDIT_CATEGORIES.filter((c) =>
+        (filters.category as string[]).includes(c.id),
+      )
     : [];
 
   const selectedActions = Array.isArray(filters.action)
-    ? selectedCategories.flatMap(c => c.subcategories).filter(s => (filters.action as string[]).includes(s.id))
+    ? selectedCategories
+        .flatMap((c) => c.subcategories)
+        .filter((s) => (filters.action as string[]).includes(s.id))
     : [];
 
   const allApplicableFilters = [
-    ...selectedCategories.flatMap(c => c.filters || []),
-    ...selectedActions.flatMap(s => s.filters || [])
-  ].filter(f => f.searchField !== 'actorSearch');
+    ...selectedCategories.flatMap((c) => c.filters || []),
+    ...selectedActions.flatMap((s) => s.filters || []),
+  ].filter((f) => f.searchField !== "actorSearch");
 
   // Deduplicate filters by searchField
-  const displayFilters = allApplicableFilters.filter((filter, index, self) =>
-    index === self.findIndex((f) => f.searchField === filter.searchField)
+  const displayFilters = allApplicableFilters.filter(
+    (filter, index, self) =>
+      index === self.findIndex((f) => f.searchField === filter.searchField),
   );
 
   const handleReset = (): void => {
@@ -145,32 +174,86 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
   };
 
   const handleGeneralSearchChange = (val: string): void => {
-    handleSearchChange('searchInput', val);
+    handleSearchChange("searchInput", val);
   };
 
-  const handleGeneralSearchSelect = (val: string, type: string | null, isExact?: boolean): void => {
+  const handleGeneralSearchSelect = (
+    val: string,
+    type: string | null,
+    isExact?: boolean,
+    name?: string,
+  ): void => {
+    // Determine new item
+    const newItem = { id: val, name: name || val, type: type || "default" };
+
+    // Check if duplicate (by ID)
+    if (generalSearchObjects.some((item) => item.id === val)) {
+      handleSearchChange("searchInput", ""); // Clear input even if duplicate
+      return;
+    }
+
+    const newObjects = [...generalSearchObjects, newItem];
+    const newSearchInput = newObjects.map((o) => o.id);
+
+    // Determine if all items share the same type
+    const allTypes = new Set(newObjects.map((o) => o.type));
+    const newSearchInputType =
+      allTypes.size === 1 ? newObjects[0].type : undefined;
+
+    // Determine if all items are exact (heuristically, or tracked)
+    // For now, if we have any "default" (text input) type, we might consider unsetting exact?
+    // But existing logic seemed to just take the incoming `isExact`.
+    // Let's stick to the Type fix first.
+
+    // Update state and filters
+    setGeneralSearchObjects(newObjects);
+    handleSearchChange("searchInput", ""); // Clear input text
+
     updateFilters({
-      searchInputIsExact: isExact,
-      searchInputType: type || undefined,
-      searchInput: val
+      searchInputIsExact: isExact, // We still trust the latest action (or we could traverse objects if we stored isExact in them)
+      searchInputType:
+        newSearchInputType === "default" ? undefined : newSearchInputType,
+      searchInput: newSearchInput,
+      generalSearchObjects: newObjects,
+    });
+  };
+
+  const handleGeneralSearchRemove = (id: string): void => {
+    const newObjects = generalSearchObjects.filter((item) => item.id !== id);
+    const newSearchInput = newObjects.map((o) => o.id);
+
+    const allTypes = new Set(newObjects.map((o) => o.type));
+    const newSearchInputType =
+      newObjects.length > 0 && allTypes.size === 1
+        ? newObjects[0].type
+        : undefined;
+
+    setGeneralSearchObjects(newObjects);
+    updateFilters({
+      searchInput: newSearchInput.length > 0 ? newSearchInput : undefined,
+      searchInputType:
+        newSearchInputType === "default" ? undefined : newSearchInputType,
+      generalSearchObjects: newObjects.length > 0 ? newObjects : undefined,
     });
   };
 
   const handleGeneralSearchClear = (): void => {
-    handleSearchChange('searchInput', '');
+    handleSearchChange("searchInput", "");
+    setGeneralSearchObjects([]);
     updateFilters({
-      searchInput: null,
+      searchInput: undefined,
       searchInputIsExact: false,
-      searchInputType: undefined
+      searchInputType: undefined,
+      generalSearchObjects: undefined,
     });
   };
 
   const handleDateFromChange = (date: Date | undefined): void => {
-    updateFilter('dateFrom', date);
+    updateFilter("dateFrom", date);
   };
 
   const handleDateToChange = (date: Date | undefined): void => {
-    updateFilter('dateTo', date);
+    updateFilter("dateTo", date);
   };
 
   const handleToggleExpansion = (): void => {
@@ -178,28 +261,28 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
   };
 
   const handleActorSearchChange = (val: string): void => {
-    handleSearchChange('actorSearch', val);
+    handleSearchChange("actorSearch", val);
   };
 
   const handleCategoryToggle = (id: string): void => {
-    toggleMultiFilter('category', id);
+    toggleMultiFilter("category", id);
   };
 
   const handleCategoryClear = (): void => {
-    updateFilter('category', null);
-    updateFilter('action', null);
+    updateFilter("category", null);
+    updateFilter("action", null);
   };
 
   const handleActionToggle = (id: string): void => {
-    toggleMultiFilter('action', id);
+    toggleMultiFilter("action", id);
   };
 
   const handleActionClear = (): void => {
-    updateFilter('action', null);
+    updateFilter("action", null);
   };
 
   const handlePremadeProfileChange = (id: string): void => {
-    updateFilter('premadeProfile', id);
+    updateFilter("premadeProfile", id);
   };
 
   return (
@@ -223,10 +306,12 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
         <div className={styles.firstFiltersRow}>
           <GeneralSearch
             label="חיפוש כללי (מבצע, יעד, משאב)"
-            value={searchValues.searchInput || ''}
+            value={searchValues.searchInput || ""}
             onChange={handleGeneralSearchChange}
             onSelect={handleGeneralSearchSelect}
             onClear={handleGeneralSearchClear}
+            selectedItems={generalSearchObjects}
+            onRemove={handleGeneralSearchRemove}
           />
 
           <DateFilter
@@ -257,7 +342,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
                 {activeFilterCount}
               </span>
             )}
-            {isExpanded ? <ChevronUp className="w-4 h-4 ml-1" /> : <ChevronDown className="w-4 h-4 ml-1" />}
+            {isExpanded ? (
+              <ChevronUp className="w-4 h-4 ml-1" />
+            ) : (
+              <ChevronDown className="w-4 h-4 ml-1" />
+            )}
           </button>
         </div>
 
@@ -267,7 +356,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
               <SearchFilter
                 label="מזהה/שם המבצע"
                 placeholder="חיפוש לפי מבצע..."
-                value={searchValues.actorSearch || ''}
+                value={searchValues.actorSearch || ""}
                 onChange={handleActorSearchChange}
               />
 
@@ -277,41 +366,55 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
                 selected={(filters.category as string[]) || []}
                 onToggle={handleCategoryToggle}
                 onClear={handleCategoryClear}
-                options={AUDIT_CATEGORIES.map(cat => ({
+                options={AUDIT_CATEGORIES.map((cat) => ({
                   id: cat.id,
                   renderItem: () => <CategoryBadge category={cat.id} />,
-                  renderBadge: () => <CategoryBadge category={cat.id} className="h-6 py-0 px-2" />
+                  renderBadge: () => (
+                    <CategoryBadge
+                      category={cat.id}
+                      className="h-6 py-0 px-2"
+                    />
+                  ),
                 }))}
               />
 
               <MultiSelectFilter
                 label="תת-קטגוריה"
-                placeholder={selectedCategories.length === 0 ? "בחר קטגוריה תחילה" : "כל התת-קטגוריות"}
+                placeholder={
+                  selectedCategories.length === 0
+                    ? "בחר קטגוריה תחילה"
+                    : "כל התת-קטגוריות"
+                }
                 disabled={selectedCategories.length === 0}
                 selected={(filters.action as string[]) || []}
                 onToggle={handleActionToggle}
                 onClear={handleActionClear}
-                options={selectedCategories.flatMap(c => c.subcategories).map(sub => {
-                  const catId = AUDIT_CATEGORIES.find(c => c.subcategories.some(s => s.id === sub.id))?.id || 'USER';
-                  return {
-                    id: sub.id,
-                    renderItem: () => (
-                      <CategoryBadge
-                        category={catId}
-                        label={sub.name}
-                        icon={getActionIcon(sub.id)}
-                      />
-                    ),
-                    renderBadge: () => (
-                      <CategoryBadge
-                        category={catId}
-                        label={getSubcategoryName(sub.id)}
-                        icon={getActionIcon(sub.id)}
-                        className="h-6 py-0 px-2"
-                      />
-                    )
-                  };
-                })}
+                options={selectedCategories
+                  .flatMap((c) => c.subcategories)
+                  .map((sub) => {
+                    const catId =
+                      AUDIT_CATEGORIES.find((c) =>
+                        c.subcategories.some((s) => s.id === sub.id),
+                      )?.id || "USER";
+                    return {
+                      id: sub.id,
+                      renderItem: () => (
+                        <CategoryBadge
+                          category={catId}
+                          label={sub.name}
+                          icon={getActionIcon(sub.id)}
+                        />
+                      ),
+                      renderBadge: () => (
+                        <CategoryBadge
+                          category={catId}
+                          label={getSubcategoryName(sub.id)}
+                          icon={getActionIcon(sub.id)}
+                          className="h-6 py-0 px-2"
+                        />
+                      ),
+                    };
+                  })}
               />
             </div>
 
@@ -320,7 +423,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
               <div className={styles.dynamicFiltersGrid}>
                 {displayFilters.map((filterDef) => (
                   <React.Fragment key={filterDef.searchField}>
-                    {filterDef.searchField === 'premadeProfile' ? (
+                    {filterDef.searchField === "premadeProfile" ? (
                       <ProfileFilter
                         label={filterDef.name}
                         value={filters.premadeProfile || null}
@@ -330,8 +433,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
                     ) : (
                       <SearchFilter
                         label={filterDef.name}
-                        value={searchValues[filterDef.searchField] || ''}
-                        onChange={(val) => handleSearchChange(filterDef.searchField, val)}
+                        value={searchValues[filterDef.searchField] || ""}
+                        onChange={(val) =>
+                          handleSearchChange(filterDef.searchField, val)
+                        }
                         isLoading={isLoading}
                       />
                     )}
@@ -344,4 +449,4 @@ export const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange, 
       </div>
     </div>
   );
-}
+};

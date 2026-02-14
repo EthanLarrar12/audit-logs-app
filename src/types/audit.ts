@@ -1,9 +1,10 @@
-import { AuditEvent, AuditEventPage } from '../../shared/types/audit';
+import { AuditEvent, AuditEventPage } from "../../shared/types/audit";
 
 export type { AuditEvent, AuditEventPage };
 
 export interface AuditFilters {
-  searchInput?: string;
+  searchInput?: string[];
+  generalSearchObjects?: { id: string; name?: string; type: string }[];
   searchInputIsExact?: boolean;
   searchInputType?: string;
   actorSearch?: string;
@@ -16,4 +17,3 @@ export interface AuditFilters {
   dateFrom?: Date;
   dateTo?: Date;
 }
-

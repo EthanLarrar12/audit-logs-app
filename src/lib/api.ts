@@ -19,8 +19,14 @@ export async function fetchAuditEvents({
   params.append("order", "desc");
 
   // Filters mapping (Fixed params according to API spec)
-  if (filters.searchInput) {
-    params.append("searchInput", filters.searchInput);
+  if (filters.searchInput && filters.searchInput.length > 0) {
+    if (Array.isArray(filters.searchInput)) {
+      filters.searchInput.forEach((term) => params.append("searchInput", term));
+    } else {
+      // Fallback or legacy support if needed, though type is string[]
+      params.append("searchInput", filters.searchInput);
+    }
+
     if (filters.searchInputIsExact) {
       params.append("exactSearch", "true");
       if (filters.searchInputType) {

@@ -19,8 +19,15 @@ interface GeneralSearchProps {
   label: string;
   value: string;
   onChange: (val: string) => void;
-  onSelect: (val: string, type: string | null, isExact?: boolean) => void;
+  onSelect: (
+    val: string,
+    type: string | null,
+    isExact?: boolean,
+    name?: string,
+  ) => void;
   onClear: () => void;
+  selectedItems?: { id: string; name?: string; type: string }[];
+  onRemove?: (id: string) => void;
 }
 
 export const GeneralSearch: React.FC<GeneralSearchProps> = ({
@@ -29,7 +36,11 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
   onChange,
   onSelect,
   onClear,
+  selectedItems = [],
+  onRemove,
 }) => {
+  // const [selectedItem, setSelectedItem] = useState<{ ... } | null>(null); // Removed internal state
+
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useSuggestions(value);
@@ -59,6 +70,15 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
       onSelect(value, null, false);
       setIsSuggestionsOpen(false);
     }
+    // Handle backspace to remove last item if input is empty
+    if (
+      e.key === "Backspace" &&
+      !value &&
+      selectedItems.length > 0 &&
+      onRemove
+    ) {
+      onRemove(selectedItems[selectedItems.length - 1].id);
+    }
   };
 
   const handleInputFocus = (): void => {
@@ -73,12 +93,16 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
   };
 
   const handleSelectCurrentValue = (): void => {
-    onSelect(value, null, false);
+    onSelect(value, null, false, value); // Pass value as name too
     setIsSuggestionsOpen(false);
   };
 
-  const handleSelectSuggestion = (id: string, type: string | null): void => {
-    onSelect(id, type, true);
+  const handleSelectSuggestion = (
+    id: string,
+    type: string | null,
+    name?: string,
+  ): void => {
+    onSelect(id, type, true, name);
     setIsSuggestionsOpen(false);
   };
 
@@ -130,7 +154,13 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
     return (
       <div
         className={styles.searchableDropdownItem}
-        onClick={() => handleSelectSuggestion(suggestion.id, suggestion.type)}
+        onClick={() =>
+          handleSelectSuggestion(
+            suggestion.id,
+            suggestion.type,
+            suggestion.name,
+          )
+        }
       >
         <div className="w-full">
           {showHeader && (
@@ -171,29 +201,72 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
   };
 
   const totalCount = suggestions.length + (value ? 1 : 0);
+  const showScrollbar = totalCount > 1;
 
   return (
     <FilterGroup label={label}>
       <Popover open={isSuggestionsOpen} onOpenChange={handlePopoverOpenChange}>
         <PopoverTrigger asChild>
-          <div className={styles.searchContainer}>
-            {isLoading && suggestions.length === 0 ? (
-              <Loader2 className={styles.loader} />
-            ) : (
-              <Search className={styles.searchIcon} />
+          <div
+            className={cn(
+              styles.searchContainer,
+              "flex flex-nowrap items-center h-10 overflow-x-auto overflow-y-hidden scrollbar-none",
             )}
-            <Input
-              className={styles.searchInput}
-              placeholder="הקלידו לחיפוש..."
-              value={value || ""}
-              onChange={handleInputChange}
-              onKeyDown={handleInputKeyDown}
-              onFocus={handleInputFocus}
-            />
-            {value && (
+          >
+            {/* Render Chips */}
+            {selectedItems.map((item) => (
+              <div
+                key={item.id}
+                className="flex items-center flex-shrink-0 p-1 bg-slate-100 rounded-full mr-1 max-w-[200px]"
+              >
+                <CategoryBadge
+                  category={item.type || "default"}
+                  label={item.name || item.id}
+                  className="bg-transparent border-none p-0 pr-1 truncate text-xs"
+                />
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemove && onRemove(item.id);
+                  }}
+                  className="p-0.5 hover:bg-slate-200 rounded-full ml-1"
+                >
+                  <X className="h-3 w-3 text-muted-foreground" />
+                </button>
+              </div>
+            ))}
+
+            {/* Render Input */}
+            <div className="flex-1 min-w-[100px] flex items-center flex-shrink-0 h-full">
+              {isLoading &&
+              suggestions.length === 0 &&
+              !selectedItems.length ? (
+                <Loader2 className={styles.loader} />
+              ) : (
+                selectedItems.length === 0 && (
+                  <Search className={styles.searchIcon} />
+                )
+              )}
+              <Input
+                className={cn(
+                  styles.searchInput,
+                  "h-full min-w-[50px] border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0",
+                )}
+                placeholder={selectedItems.length > 0 ? "" : "הקלידו לחיפוש..."}
+                value={value || ""}
+                onChange={handleInputChange}
+                onKeyDown={handleInputKeyDown}
+                onFocus={handleInputFocus}
+              />
+            </div>
+
+            {(value || selectedItems.length > 0) && (
               <button
                 onClick={handleClearSearch}
-                className={styles.clearSearchButton}
+                className={cn(
+                  styles.clearSearchButton,
+                  "self-center flex-shrink-0 ml-2 relative left-auto top-auto transform-none",
+                )}
               >
                 <X className={styles.clearIcon} />
               </button>
@@ -211,8 +284,11 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
           <div className={styles.searchableDropdownList} dir="rtl">
             {totalCount > 0 ? (
               <Virtuoso
-                className="scrollbar-thin scrollbar-webkit"
-                style={{ height: Math.min(totalCount * 36, 300) }} // Adjust height as needed
+                className={cn({
+                  "scrollbar-thin scrollbar-webkit": showScrollbar,
+                  "overflow-hidden": !showScrollbar,
+                })}
+                style={{ height: Math.min(totalCount * 44, 300) }} // Adjust height as needed
                 totalCount={totalCount}
                 itemContent={renderRow}
                 endReached={() =>

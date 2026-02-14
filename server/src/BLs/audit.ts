@@ -145,57 +145,57 @@ export const getEvents = async (
     }
   }
 
-  if (params.searchInput) {
-    const term = params.searchInput;
-    if (params.exactSearch) {
-      const searchType = params.searchType;
-      if (searchType) {
-        const typeFilters: Record<string, unknown>[] = [];
-        // Only filter by type if relevant. 'USER' type was related to executor but executorType is gone.
-        // Assuming 'searchType' was checking executorType, targetType, or resourceType.
+  if (params.searchInput && params.searchInput.length > 0) {
+    const terms = params.searchInput;
+    const exactSearch = params.exactSearch;
+    const searchType = params.searchType;
 
-        // For executor, we can't check type anymore efficiently unless we infer it (always USER).
-        // Or if the searchType is USER, we check executorId.
-        if (searchType === "USER") {
+    terms.forEach((term) => {
+      if (exactSearch) {
+        if (searchType) {
+          const typeFilters: Record<string, unknown>[] = [];
+
+          if (searchType === "USER") {
+            typeFilters.push({
+              and: [
+                { executorId: { equalTo: term } },
+                { executorType: { equalTo: searchType } },
+              ],
+            });
+          }
+
           typeFilters.push({
             and: [
+              { targetId: { equalTo: term } },
+              { targetType: { equalTo: searchType } },
+            ],
+          });
+          typeFilters.push({
+            and: [
+              { resourceId: { equalTo: term } },
+              { resourceType: { equalTo: searchType } },
+            ],
+          });
+          andFilters.push({ or: typeFilters });
+        } else {
+          andFilters.push({
+            or: [
               { executorId: { equalTo: term } },
-              { executorType: { equalTo: searchType } },
+              { targetId: { equalTo: term } },
+              { resourceId: { equalTo: term } },
             ],
           });
         }
-
-        typeFilters.push({
-          and: [
-            { targetId: { equalTo: term } },
-            { targetType: { equalTo: searchType } },
-          ],
-        });
-        typeFilters.push({
-          and: [
-            { resourceId: { equalTo: term } },
-            { resourceType: { equalTo: searchType } },
-          ],
-        });
-        andFilters.push({ or: typeFilters });
       } else {
         andFilters.push({
           or: [
-            { executorId: { equalTo: term } },
-            { targetId: { equalTo: term } },
-            { resourceId: { equalTo: term } },
+            { executorName: { includesInsensitive: term } },
+            { targetName: { includesInsensitive: term } },
+            { resourceName: { includesInsensitive: term } },
           ],
         });
       }
-    } else {
-      andFilters.push({
-        or: [
-          { executorName: { includesInsensitive: term } },
-          { targetName: { includesInsensitive: term } },
-          { resourceName: { includesInsensitive: term } },
-        ],
-      });
-    }
+    });
   }
 
   if (andFilters.length > 0) {

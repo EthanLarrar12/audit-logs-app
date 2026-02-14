@@ -1,21 +1,21 @@
-import { AuditEvent, AuditEventPage } from '../../../shared/types/audit';
+import { AuditEvent, AuditEventPage } from "../../../shared/types/audit";
 
 export type { AuditEvent, AuditEventPage };
 
 export interface AuditQueryParams {
-    page?: number;
-    from?: string;
-    to?: string;
-    actorUsername?: string;
-    category?: string[];
-    action?: string[];
-    searchInput?: string;
-    searchType?: string;
-    exactSearch?: boolean;
-    actorSearch?: string;
-    targetSearch?: string;
-    resourceSearch?: string;
-    premadeProfile?: string;
-    sort?: 'created_at' | 'action' | 'actor_username' | 'target_name';
-    order?: 'asc' | 'desc';
+  page?: number;
+  from?: string;
+  to?: string;
+  actorUsername?: string;
+  category?: string[];
+  action?: string[];
+  searchInput?: string[];
+  searchType?: string;
+  exactSearch?: boolean;
+  actorSearch?: string;
+  targetSearch?: string;
+  resourceSearch?: string;
+  premadeProfile?: string;
+  sort?: "created_at" | "action" | "actor_username" | "target_name";
+  order?: "asc" | "desc";
 }
