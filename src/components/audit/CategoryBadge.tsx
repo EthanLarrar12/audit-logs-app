@@ -14,6 +14,7 @@ import {
   UserCircle,
   Users,
   Settings,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getCategoryName } from "@/constants/filterOptions";
@@ -24,6 +25,7 @@ interface CategoryBadgeProps {
   label?: string;
   icon?: React.ElementType;
   className?: string;
+  onRemove?: () => void;
 }
 
 type StyleKey = keyof typeof styles;
@@ -122,15 +124,35 @@ export const CategoryBadge: React.FC<CategoryBadgeProps> = ({
   label: customLabel,
   icon: CustomIcon,
   className,
+  onRemove,
 }) => {
   const config = badgeConfig[category] || defaultConfig;
   const label = customLabel || config.label || getCategoryName(category);
   const Icon = CustomIcon || config.icon;
 
   return (
-    <span className={cn(styles.baseBadge, styles[config.styleKey], className)}>
+    <span
+      className={cn(
+        styles.baseBadge,
+        styles[config.styleKey],
+        className,
+        onRemove && "pr-1 cursor-default",
+      )}
+    >
       <Icon className={styles.icon} />
       {label}
+      {onRemove && (
+        <span
+          role="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+          className="hover:bg-black/10 rounded-full p-0.5 ml-1 transition-colors cursor-pointer"
+        >
+          <X className="h-3 w-3" />
+        </span>
+      )}
     </span>
   );
 };
