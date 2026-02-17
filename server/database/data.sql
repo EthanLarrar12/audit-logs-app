@@ -14,25 +14,33 @@ INSERT INTO history.record_data (action_id, changes) VALUES
     ('act_012', '{"before": {"tags": ["tag1"]}, "after": {"tags": ["tag1", "tag2"]}}'),
     ('act_013', '{"before": null, "after": {"value": "new_config"}}'),
     ('act_014', '{"before": {"owner": "user_a"}, "after": {"owner": "user_b"}}'),
-    ('act_015', '{"before": null, "after": {"sync_status": "completed"}}');
+    ('act_015', '{"before": null, "after": {"sync_status": "completed"}}'),
+    ('act_016', '{"before": {"clearance": 2, "rank": "prince"}, "after": {"clearance": 1, "rank": "king"}}'),
+    ('act_017', '{"before": null, "after": {"end_system": "coolSystem"}}');
 
 -- Insert sample data into history.records
-INSERT INTO history.records (action_id, insert_time, executor_id, executor_name, target_id, target_name, resource_id, resource_name, target_type, midur_action, resource_type) VALUES
-    ('act_001', 1709280000000, 'admin_user', 'אברהם אבינו', 'john.doe', 'ג''ון דו', NULL, NULL, 'USER', 'USER_CREATION', NULL),
-    ('act_002', 1709283600000, 'editor_user', 'משה רבנו', 'Entity 1', 'ישות א''', NULL, NULL, 'ENTITY', 'ENTITY_EDIT', NULL),
-    ('act_003', 1709287200000, 'system_service', 'שרת אוטומציה', 'Shos 123', 'שוס 123', 'shos_123', 'מערכת שוס מרכזית', 'SHOS', 'SHOS_CREATION', 'SHOS'),
-    ('act_004', 1709290800000, 'manager_user', 'יוסף הצדיק', 'Tag A', 'תגית אבטחה', NULL, NULL, 'DYNAMIC_TAG', 'DYNAMIC_TAG_EDIT', NULL),
-    ('act_005', 1709294400000, 'admin_user', 'אברהם אבינו', 'All Users Group', 'קבוצת כל המשתמשים', NULL, NULL, 'DISTRIBUTION_GROUP', 'DISTRIBUTION_GROUP_CREATION', NULL),
-    ('act_006', 1709298000000, 'super_admin', 'שלמה המלך', 'jane.smith', 'ג''יין סמית''', NULL, NULL, 'USER', 'USER_DELETION', NULL),
-    ('act_007', 1709301600000, 'group_admin', 'דוד המלך', 'Distribution List A', 'רשימת תפוצה א''', 'john.doe', 'ג''ון דו', 'DISTRIBUTION_GROUP', 'ADD_USER_TO_DISTRIBUTION_GROUP', 'USER'),
-    ('act_008', 1709305200000, 'admin_user', 'אברהם אבינו', 'Admin Profile', 'פרופיל מנהל מערכת', NULL, NULL, 'PROFILE', 'PROFILE_CREATION', NULL),
-    ('act_009', 1709308800000, 'sys_admin', 'יצחק אבינו', 'Legacy System', 'מערכת מורשת', NULL, NULL, 'END_SYSTEM', 'END_SYSTEM_DELETION', NULL),
-    ('act_010', 1709312400000, 'auto_bot', 'בוט סנכרון', 'Entity 999', 'ישות 999', NULL, NULL, 'ENTITY', 'ENTITY_CREATION', NULL),
-    ('act_011', 1709316000000, 'manager_user', 'יוסף הצדיק', 'Shos 456', 'שוס 456', 'new_mgr', 'מנהל חדש', 'SHOS', 'ADD_MANAGER_TO_SHOS', 'USER'),
-    ('act_012', 1709319600000, 'tag_manager', 'מרדכי היהודי', 'Tag B', 'תגית ב''', 'tag2', 'תג דינמי 2', 'DYNAMIC_TAG', 'ADD_VALUE_TO_USER', 'USER'),
-    ('act_013', 1709323200000, 'config_bot', 'בוט הגדרות', 'john.doe', 'ג''ון דו', 'new_config', 'הגדרת מערכת חדשה', 'USER', 'ADD_VALUE_TO_USER', NULL),
-    ('act_014', 1709326800000, 'admin_user', 'אברהם אבינו', 'Profile X', 'פרופיל איקס', 'user_b', 'משתמש ב''', 'PROFILE', 'ADD_USER_TO_PROFILE', 'USER'),
-    ('act_015', 1709330400000, 'sync_service', 'שירות סנכרון', 'jane.doe', 'ג''יין דו', NULL, NULL, 'USER', 'USER_SYNC', NULL);
+INSERT INTO history.records (action_id, insert_time, executor_type, executor_id, executor_name, target_type, target_id, target_name, resource_type, resource_id, resource_name, midur_action) VALUES
+    ('act_001', 1709280000000, 'USER', 'admin_user', 'אברהם אבינו', 'USER', 'john.doe', 'ג''ון דו', NULL, NULL, NULL, 'USER_CREATION'),
+    ('act_002', 1709283600000, 'USER', 'editor_user', 'משה רבנו', 'ENTITY', 'Entity 1', 'ישות א''', NULL, NULL, NULL, 'ENTITY_EDIT'),
+    ('act_003', 1709287200000, 'SYSTEM', 'system_service', 'שרת אוטומציה', 'SHOS', 'Shos 123', 'שוס 123', 'SHOS', 'shos_123', 'מערכת שוס מרכזית', 'SHOS_CREATION'),
+    ('act_004', 1709290800000, 'USER', 'manager_user', 'יוסף הצדיק', 'DYNAMIC_TAG', 'Tag A', 'תגית אבטחה', NULL, NULL, NULL, 'DYNAMIC_TAG_EDIT'),
+    ('act_005', 1709294400000, 'USER', 'admin_user', 'אברהם אבינו', 'DISTRIBUTION_GROUP', 'All Users Group', 'קבוצת כל המשתמשים', NULL, NULL, NULL, 'DISTRIBUTION_GROUP_CREATION'),
+    ('act_006', 1709298000000, 'USER', 'super_admin', 'שלמה המלך', 'USER', 'jane.smith', 'ג''יין סמית''', NULL, NULL, NULL, 'USER_DELETION'),
+    ('act_007', 1709301600000, 'USER', 'group_admin', 'דוד המלך', 'DISTRIBUTION_GROUP', 'Distribution List A', 'רשימת תפוצה א''', 'USER', 'john.doe', 'ג''ון דו', 'ADD_USER_TO_DISTRIBUTION_GROUP'),
+    ('act_008', 1709305200000, 'USER', 'admin_user', 'אברהם אבינו', 'PROFILE', 'Admin Profile', 'פרופיל מנהל מערכת', NULL, NULL, NULL, 'PROFILE_CREATION'),
+    ('act_009', 1709308800000, 'USER', 'sys_admin', 'יצחק אבינו', 'END_SYSTEM', 'Legacy System', 'מערכת מורשת', NULL, NULL, NULL, 'END_SYSTEM_DELETION'),
+    ('act_010', 1709312400000, 'SYSTEM', 'auto_bot', 'בוט סנכרון', 'ENTITY', 'Entity 999', 'ישות 999', NULL, NULL, NULL, 'ENTITY_CREATION'),
+    ('act_011', 1709316000000, 'USER', 'manager_user', 'יוסף הצדיק', 'SHOS', 'Shos 456', 'שוס 456', 'USER', 'new_mgr', 'מנהל חדש', 'ADD_MANAGER_TO_SHOS'),
+    ('act_012', 1709319600000, 'USER', 'tag_manager', 'מרדכי היהודי', 'DYNAMIC_TAG', 'Tag B', 'תגית ב''', 'USER', 'tag2', 'תג דינמי 2', 'ADD_VALUE_TO_USER'),
+    ('act_013', 1709323200000, 'SYSTEM', 'config_bot', 'בוט הגדרות', 'USER', 'john.doe', 'ג''ון דו', NULL, 'new_config', 'הגדרת מערכת חדשה', 'ADD_VALUE_TO_USER'),
+    ('act_014', 1709326800000, 'USER', 'admin_user', 'אברהם אבינו', 'PROFILE', 'Profile X', 'פרופיל איקס', 'USER', 'user_b', 'משתמש ב''', 'ADD_USER_TO_PROFILE'),
+    ('act_015', 1709330400000, 'SYSTEM', 'sync_service', 'שירות סנכרון', 'USER', 'jane.doe', 'ג''יין דו', NULL, NULL, NULL, 'USER_SYNC'),
+    ('act_016', 1709334000000, 'USER', 'ethan', 'פיצפון', 'USER', 'YG', 'יותם', 'PARAMETER', 'clearance:1', 'סיווג: 1', 'ADD_VALUE_TO_USER'),
+    ('act_016', 1709334000000, 'USER', 'ethan', 'פיצפון', 'USER', 'YG', 'יותם', 'PARAMETER', 'clearance:2', 'סיווג: 2', 'REMOVE_VALUE_FROM_USER'),
+    ('act_016', 1709334001000, 'USER', 'ethan', 'פיצפון', 'USER', 'YG', 'יותם', 'PARAMETER', 'rank:king', 'דרגה: מלך', 'ADD_VALUE_TO_USER'),
+    ('act_016', 1709334001000, 'USER', 'ethan', 'פיצפון', 'USER', 'YG', 'יותם', 'PARAMETER', 'rank:prince', 'דרגה: נסיך', 'REMOVE_VALUE_FROM_USER'),
+    ('act_017', 1709334002000, 'USER', 'ethan', 'פיצפון', 'SYSTEM', 'coolSystem', 'מערכת מגניבה', NULL, NULL, NULL, 'END_SYSTEM_CREATION');
+
 
 -- Insert sample data into api.mirage_premade_profiles
 INSERT INTO api.mirage_premade_profiles (id, name) VALUES
@@ -45,7 +53,15 @@ INSERT INTO api.mirage_premade_profile_digital_parameter_values (profile_id, par
     ('prof_001', 'param_display_mode', 'val_dark'),
     ('prof_001', 'param_language', 'val_hebrew'),
     ('prof_001', 'param_notifications', 'val_enabled'),
+    ('prof_001', 'rank', 'king'),
+    ('prof_001', 'rank', 'prince'),
+    ('prof_001', 'clearance', '1'),
     ('prof_002', 'param_display_mode', 'val_light'),
     ('prof_002', 'param_security_level', 'val_high'),
     ('prof_003', 'param_language', 'val_english'),
     ('prof_003', 'param_display_mode', 'val_dark');
+
+INSERT INTO api.mirage_user_premade_profiles (user_id, profile_id) VALUES
+    ('user_001', 'prof_001'),
+    ('user_002', 'prof_002'),
+    ('user_003', 'prof_003');

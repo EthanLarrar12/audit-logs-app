@@ -8,7 +8,7 @@ import { Pool } from "pg";
 import { createAuditRouter } from "./routers/audit";
 
 import { getPerformQuery } from "../sdks/performQuery";
-import { getSTSMiddleware } from "../sdks/getSTSMiddleware";
+import { getSTSMiddleware } from "../sdks/STS";
 import { errorMiddleware } from "../sdks/errorMiddleware";
 import { config } from "./config";
 

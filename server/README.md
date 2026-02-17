@@ -5,12 +5,14 @@ Node.js + Express backend for the Audit Logs application.
 ## Setup
 
 1. Install dependencies:
+
    ```bash
    cd server
    npm install
    ```
 
 2. Start the development server:
+
    ```bash
    npm run dev
    ```
@@ -30,6 +32,7 @@ Node.js + Express backend for the Audit Logs application.
 Retrieve paginated and filtered audit events.
 
 **Query Parameters:**
+
 - `page` (number, default: 1) - Page number
 - `pageSize` (number, default: 50, max: 200) - Items per page
 - `from` (ISO date string) - Start date filter
@@ -44,6 +47,7 @@ Retrieve paginated and filtered audit events.
 - `order` (string: asc|desc, default: desc)
 
 **Response:**
+
 ```json
 {
   "page": 1,
@@ -54,6 +58,7 @@ Retrieve paginated and filtered audit events.
 ```
 
 **Example:**
+
 ```bash
 curl "http://localhost:3001/audit/events?page=1&pageSize=10&outcome=success"
 ```
@@ -63,6 +68,7 @@ curl "http://localhost:3001/audit/events?page=1&pageSize=10&outcome=success"
 Get a single audit event by ID.
 
 **Response:**
+
 ```json
 {
   "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
@@ -76,6 +82,7 @@ Get a single audit event by ID.
 Health check endpoint.
 
 **Response:**
+
 ```json
 {
   "status": "ok",
@@ -86,12 +93,33 @@ Health check endpoint.
 ## Development
 
 The server uses:
+
 - **Express** for the web framework
 - **TypeScript** for type safety
 - **CORS** enabled for frontend requests
 - **Nodemon** for auto-reload during development
 
 Mock data is stored in `src/data/mockData.ts` and contains 15 sample audit events for testing pagination and filtering.
+
+## Permissions Configuration
+
+Category permissions (Target Type permissions) are defined in `server/src/constants/permissions.ts`.
+
+To add a new permitted category:
+
+1.  Add the `MirageObjectType` to the `CATEGORY_PERMISSIONS` object.
+2.  Define the required permissions (e.g., `{ mandatPermissions: ["read"] }`).
+
+Example:
+
+```typescript
+import { MirageObjectType } from "../types/mirage";
+
+export const CATEGORY_PERMISSIONS = {
+  // ... existing permissions
+  [MirageObjectType.ENTITY]: { mandatPermissions: ["read"] },
+};
+```
 
 ## Frontend Integration
 

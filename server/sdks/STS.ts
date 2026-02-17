@@ -24,3 +24,22 @@ export const getSTSMiddleware = () => (req: Request, res: Response, next: NextFu
         next();
     }
 };
+
+
+export const getUserIdFromCookie = (): string => {
+    return 'user_001';
+};
+
+export type Permissions = {
+    [key: string]: string[];
+}
+
+export const isPermitted = (permissions: Permissions) => {
+
+    if (permissions?.mandatPermissions?.includes("read")) {
+        return true;
+    }
+    // return false;
+
+    return true;
+}

@@ -1,128 +1,139 @@
-import { AuditFilters, AuditEventPage } from '@/types/audit';
-
-
+import { AuditFilters, AuditEventPage } from "@/types/audit";
 
 interface FetchAuditEventsParams {
-    page: number;
-    filters: AuditFilters;
+  page: number;
+  filters: AuditFilters;
 }
 
 export async function fetchAuditEvents({
-    page,
-    filters,
+  page,
+  filters,
 }: FetchAuditEventsParams): Promise<AuditEventPage> {
-    const params = new URLSearchParams();
+  const params = new URLSearchParams();
 
-    // Pagination
-    params.append('page', page.toString());
+  // Pagination
+  params.append("page", page.toString());
 
-    // Sorting (Defaulting to created_at desc as per spec default is desc, field created_at seems appropriate)
-    params.append('sort', 'created_at');
-    params.append('order', 'desc');
+  // Sorting (Defaulting to created_at desc as per spec default is desc, field created_at seems appropriate)
+  params.append("sort", "created_at");
+  params.append("order", "desc");
 
-    // Filters mapping (Fixed params according to API spec)
-    if (filters.searchInput) {
-        params.append('searchInput', filters.searchInput);
-        if (filters.searchInputIsExact) {
-            params.append('exactSearch', 'true');
-            if (filters.searchInputType) {
-                params.append('searchType', filters.searchInputType);
-            }
-        }
-    }
-    if (filters.actorSearch) {
-        params.append('actorSearch', filters.actorSearch);
-    }
-    if (filters.targetSearch) {
-        params.append('targetSearch', filters.targetSearch);
-    }
-    if (filters.resourceSearch) {
-        params.append('resourceSearch', filters.resourceSearch);
-    }
-    if (filters.premadeProfile) {
-        params.append('premadeProfile', filters.premadeProfile);
+  // Filters mapping (Fixed params according to API spec)
+  if (filters.searchInput && filters.searchInput.length > 0) {
+    if (Array.isArray(filters.searchInput)) {
+      filters.searchInput.forEach((term) => params.append("searchInput", term));
+    } else {
+      // Fallback or legacy support if needed, though type is string[]
+      params.append("searchInput", filters.searchInput);
     }
 
-    if (filters.actorUsername) {
-        params.append('actorUsername', filters.actorUsername);
+    if (filters.searchInputIsExact) {
+      params.append("exactSearch", "true");
+      if (filters.searchInputType) {
+        params.append("searchType", filters.searchInputType);
+      }
     }
+  }
+  if (filters.actorSearch) {
+    params.append("actorSearch", filters.actorSearch);
+  }
+  if (filters.targetSearch) {
+    params.append("targetSearch", filters.targetSearch);
+  }
+  if (filters.resourceSearch) {
+    params.append("resourceSearch", filters.resourceSearch);
+  }
+  if (filters.premadeProfile) {
+    params.append("premadeProfile", filters.premadeProfile);
+  }
 
-    if (filters.action) {
-        if (Array.isArray(filters.action)) {
-            filters.action.forEach(a => params.append('action', a));
-        } else {
-            params.append('action', filters.action);
-        }
+  if (filters.actorUsername) {
+    params.append("actorUsername", filters.actorUsername);
+  }
+
+  if (filters.action) {
+    if (Array.isArray(filters.action)) {
+      filters.action.forEach((a) => params.append("action", a));
+    } else {
+      params.append("action", filters.action);
     }
+  }
 
+  if (filters.dateFrom) {
+    params.append("from", filters.dateFrom.toISOString());
+  }
 
-    if (filters.dateFrom) {
-        params.append('from', filters.dateFrom.toISOString());
+  if (filters.dateTo) {
+    params.append("to", filters.dateTo.toISOString());
+  }
+
+  if (filters.category) {
+    if (Array.isArray(filters.category)) {
+      filters.category.forEach((c) => params.append("category", c));
+    } else {
+      params.append("category", filters.category);
     }
+  }
 
-    if (filters.dateTo) {
-        params.append('to', filters.dateTo.toISOString());
-    }
+  const response = await fetch(`/audit/events?${params.toString()}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      // 'Authorization': 'Bearer ...' // No auth logic as per constraints.
+    },
+  });
 
-    if (filters.category) {
-        if (Array.isArray(filters.category)) {
-            filters.category.forEach(c => params.append('category', c));
-        } else {
-            params.append('category', filters.category);
-        }
-    }
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+  }
 
-    const response = await fetch(`/audit/events?${params.toString()}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            // 'Authorization': 'Bearer ...' // No auth logic as per constraints.
-        },
-    });
-
-    if (!response.ok) {
-        throw new Error(`API Error: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data;
+  const data = await response.json();
+  return data;
 }
 
 export async function fetchAuditEventById(id: string) {
-    const response = await fetch(`/audit/events/${id}`);
-    if (!response.ok) {
-        if (response.status === 404) {
-            return null;
-        }
-        throw new Error(`API Error: ${response.status}`);
+  const response = await fetch(`/audit/events/${id}`);
+  if (!response.ok) {
+    if (response.status === 404) {
+      return null;
     }
-    return response.json();
+    throw new Error(`API Error: ${response.status}`);
+  }
+  return response.json();
 }
 
-export async function fetchPremadeProfiles(): Promise<{ id: string, name: string }[]> {
-    const response = await fetch(`/audit/premade-profiles`);
-    if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`);
-    }
-    return response.json();
+export async function fetchPremadeProfiles(): Promise<
+  { id: string; name: string }[]
+> {
+  const response = await fetch(`/audit/premade-profiles`);
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.status}`);
+  }
+  return response.json();
 }
 
 export interface SuggestionResult {
-    id: string;
-    name: string | null;
-    type: string; // The category ID (e.g. USER, SHOS, etc.)
+  id: string;
+  name: string | null;
+  type: string; // The category ID (e.g. USER, SHOS, etc.)
 }
 
-export async function fetchSuggestions(term: string): Promise<SuggestionResult[]> {
-    if (!term) return [];
-    try {
-        const response = await fetch(`/audit/suggest?term=${encodeURIComponent(term)}`);
-        if (!response.ok) {
-            throw new Error(`API Error: ${response.status}`);
-        }
-        return response.json();
-    } catch (error) {
-        console.error('Error fetching suggestions:', error);
-        return [];
+export async function fetchSuggestions(
+  term: string,
+  page = 1,
+  limit = 50,
+): Promise<SuggestionResult[]> {
+  if (!term) return [];
+  try {
+    const response = await fetch(
+      `/audit/suggest?term=${encodeURIComponent(term)}&page=${page}&limit=${limit}`,
+    );
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
     }
+    return response.json();
+  } catch (error) {
+    console.error("Error fetching suggestions:", error);
+    return [];
+  }
 }

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -145,4 +145,8 @@
     background: hsl(var(--muted-foreground) / 0.3);
     border-radius: 3px;
   }
+}
+
+.scrollbar-webkit::-webkit-scrollbar-button {
+  display: none;
 }
