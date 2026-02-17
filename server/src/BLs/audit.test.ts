@@ -1,11 +1,13 @@
-import { getEvents, getSuggestions } from "./audit"; // Added getSuggestions
+import { getEvents, getSuggestions } from "./audit";
 import {
   GET_AUDIT_EVENTS_QUERY,
-  GET_SEARCH_FILTERS_QUERY, // Added GET_SEARCH_FILTERS_QUERY
+  GET_SEARCH_FILTERS_QUERY,
 } from "../GQL/auditQueries";
 import { PerformQuery } from "../../sdks/performQuery";
 import { AuditQueryParams } from "../types/audit";
 import { getRlsFilters } from "../utils/auth";
+import { isPermitted } from "../../sdks/STS";
+import { GET_USER_ALLOWED_PARAMETERS_QUERY } from "../GQL/profileQueries";
 
 // Mock dependencies
 jest.mock("../utils/auth", () => ({
@@ -16,8 +18,6 @@ jest.mock("../../sdks/STS", () => ({
   getUserIdFromCookie: jest.fn().mockReturnValue("user-123"),
 }));
 
-import { isPermitted } from "../../sdks/STS";
-import { GET_USER_ALLOWED_PARAMETERS_QUERY } from "../GQL/profileQueries";
 const mockPerformQuery = jest.fn() as unknown as PerformQuery;
 
 describe("getEvents", () => {
@@ -182,9 +182,6 @@ describe("getEvents", () => {
           targetType: {
             in: [
               "USER",
-
-              // "PARAMETER", // Filtered by resourceType now
-              // "ENTITY", // filtered out by default deny
               // ... others filtered out
             ],
           },
@@ -207,7 +204,7 @@ describe("getEvents", () => {
     await getEvents({}, mockPerformQuery, "test-user-id");
     expect(mockPerformQuery).toHaveBeenCalledWith(
       GET_AUDIT_EVENTS_QUERY,
-      expect.objectContaining({ first: 50, offset: 0 }),
+      expect.objectContaining({ first: 10, offset: 0 }),
     );
 
     // Custom params
@@ -352,12 +349,12 @@ describe("Compartmentalization Logic", () => {
       return true;
     });
 
-    // Mock allowed parameters response
+    // Mock allowed parameters response using dynamic context query structure
     (mockPerformQuery as jest.Mock).mockImplementation((query, variables) => {
-      if (query === GET_USER_ALLOWED_PARAMETERS_QUERY) {
+      if (query.includes("AuditFilterContext")) {
         return Promise.resolve({
           data: {
-            allMiragePremadeProfileOwners: {
+            allowedParams: {
               nodes: [
                 {
                   miragePremadeProfileByProfileId: {
@@ -384,14 +381,16 @@ describe("Compartmentalization Logic", () => {
     await getEvents(params, mockPerformQuery, "user-123");
 
     // Verify allowed parameters query was called
-    expect(mockPerformQuery).toHaveBeenCalledWith(
-      GET_USER_ALLOWED_PARAMETERS_QUERY,
-      { userId: "user-123" },
+    const calls = (mockPerformQuery as jest.Mock).mock.calls;
+    const contextCall = calls.find((call) =>
+      call[0].includes("AuditFilterContext"),
+    );
+    expect(contextCall).toBeDefined();
+    expect(contextCall[1]).toEqual(
+      expect.objectContaining({ userId: "user-123" }),
     );
 
     // Verify filter construction
-    const calls = (mockPerformQuery as jest.Mock).mock.calls;
-    // Find call to GET_AUDIT_EVENTS_QUERY
     const auditCall = calls.find((call) => call[0] === GET_AUDIT_EVENTS_QUERY);
     const variables = auditCall[1];
     const filter = variables.filter;
