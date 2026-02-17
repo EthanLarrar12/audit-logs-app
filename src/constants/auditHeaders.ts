@@ -4,6 +4,7 @@ export const AUDIT_HEADERS = {
     ACTION: 'מה הפעולה?',
     TARGET: 'על מי/מה בוצע הפעולה?',
     RESOURCE: 'מה התווסף/נמחק?',
+    EXPORT_TO_EXCEL: 'ייצוא לאקסל',
 } as const;
 
 export const AUDIT_FILTER_LABELS = {

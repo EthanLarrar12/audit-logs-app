@@ -43,7 +43,7 @@ export const styles = makeStyles((t) => ({
     plusChip: `px-1.5 py-0.5 ${t.typography.xs} ${t.typography.medium} ${t.colors.bgBrand} ${t.colors.textInverse} rounded-md shrink-0`,
 
     // Searchable Dropdown
-    searchableDropdownContent: 'p-0 min-w-[320px] max-w-[400px] border shadow-md rounded-md bg-white overflow-hidden',
+    searchableDropdownContent: 'p-0 w-[var(--radix-popover-trigger-width)] border shadow-md rounded-md bg-white overflow-hidden',
     searchableDropdownList: 'max-h-[240px] overflow-auto p-1 scrollbar-thin',
     searchableDropdownItem: `flex items-center justify-between px-3 py-2.5 ${t.typography.sm} rounded-md cursor-pointer hover:bg-slate-50 hover:text-foreground ${t.colors.transition} text-right w-full`,
     searchableDropdownItemSelected: `bg-primary/10 ${t.colors.textBrand} font-medium`,

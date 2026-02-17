@@ -47,10 +47,7 @@ const Index = () => {
           filters={filters}
           onFiltersChange={setFilters}
           onReset={resetFilters}
-          onRefresh={refetch}
-          onExport={handleExport}
           isLoading={isSlowLoading}
-          isRefreshing={isFetching}
         />
 
         {/* Audit table */}
@@ -64,6 +61,7 @@ const Index = () => {
             hasFilters={hasActiveFilters}
             onResetFilters={resetFilters}
             onRefresh={refetch}
+            onExport={handleExport}
           />
         </div>
       </div>
