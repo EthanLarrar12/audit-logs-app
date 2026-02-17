@@ -51,18 +51,6 @@ CREATE TABLE IF NOT EXISTS api.mirage_premade_profile_digital_parameter_values(
     FOREIGN KEY (profile_id) REFERENCES api.mirage_premade_profiles(id)
 );
 
--- Keep in mind the actuall table is a bit different but for this current poject it shouldn't matter
--- TODO: make sure the table actually looks like this
--- TODO: make sure any postgraphile genarated queries work properly with the actual table
-
-CREATE TABLE IF NOT EXISTS api.mirage_premade_profile_digital_parameter_values(
-    profile_id text not null,
-    parameter_id text not null,
-    value_id text not null,
-    PRIMARY KEY (profile_id, parameter_id, value_id),
-    FOREIGN KEY (profile_id) REFERENCES api.mirage_premade_profiles(id)
-);
-
 CREATE TABLE IF NOT EXISTS api.mirage_premade_profile_owners(
     profile_id text,
     user_id text not null,

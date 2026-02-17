@@ -61,7 +61,58 @@ INSERT INTO api.mirage_premade_profile_digital_parameter_values (profile_id, par
     ('prof_003', 'param_language', 'val_english'),
     ('prof_003', 'param_display_mode', 'val_dark');
 
-INSERT INTO api.mirage_user_premade_profiles (user_id, profile_id) VALUES
+INSERT INTO api.mirage_premade_profile_owners (user_id, profile_id) VALUES
     ('user_001', 'prof_001'),
     ('user_002', 'prof_002'),
     ('user_003', 'prof_003');
+
+-- Insert more sample data for pagination testing
+INSERT INTO history.record_data (action_id, changes) VALUES
+    ('act_018', '{"before": null, "after": {"username": "paginate.user1", "role": "user"}}'),
+    ('act_019', '{"before": {"status": "inactive"}, "after": {"status": "active"}}'),
+    ('act_020', '{"before": null, "after": {"group": "Test Group 1"}}'),
+    ('act_021', '{"before": {"level": 1}, "after": {"level": 2}}'),
+    ('act_022', '{"before": null, "after": {"config": "v2"}}'),
+    ('act_023', '{"before": {"owner": "old"}, "after": {"owner": "new"}}'),
+    ('act_024', '{"before": null, "after": {"tag": "security"}}'),
+    ('act_025', '{"before": {"enabled": false}, "after": {"enabled": true}}'),
+    ('act_026', '{"before": null, "after": {"note": "Audit log test"}}'),
+    ('act_027', '{"before": {"quota": 10}, "after": {"quota": 20}}'),
+    ('act_028', '{"before": null, "after": {"alert": "high"}}'),
+    ('act_029', '{"before": {"archived": false}, "after": {"archived": true}}'),
+    ('act_030', '{"before": null, "after": {"system": "backup"}}'),
+    ('act_031', '{"before": {"retention": 30}, "after": {"retention": 60}}'),
+    ('act_032', '{"before": null, "after": {"policy": "strict"}}'),
+    ('act_033', '{"before": {"access": "read"}, "after": {"access": "write"}}'),
+    ('act_034', '{"before": null, "after": {"job": "nightly_sync"}}'),
+    ('act_035', '{"before": {"priority": "low"}, "after": {"priority": "medium"}}'),
+    ('act_036', '{"before": null, "after": {"segment": "A"}}'),
+    ('act_037', '{"before": {"limit": 100}, "after": {"limit": 200}}'),
+    ('act_038', '{"before": null, "after": {"feature": "beta_access"}}'),
+    ('act_039', '{"before": {"mode": "dev"}, "after": {"mode": "prod"}}'),
+    ('act_040', '{"before": null, "after": {"notification": "email"}}');
+
+INSERT INTO history.records (action_id, insert_time, executor_type, executor_id, executor_name, target_type, target_id, target_name, resource_type, resource_id, resource_name, midur_action) VALUES
+    ('act_018', 1709337600000, 'USER', 'tester1', 'בודק ראשון', 'USER', 'user_p1', 'משתמש עמוד 1', NULL, NULL, NULL, 'USER_CREATION'),
+    ('act_019', 1709341200000, 'SYSTEM', 'auto_fix', 'תיקון אוטומטי', 'ENTITY', 'ent_p1', 'ישות עמוד 1', NULL, NULL, NULL, 'ENTITY_EDIT'),
+    ('act_020', 1709344800000, 'USER', 'admin_x', 'מנהל איקס', 'DISTRIBUTION_GROUP', 'group_p1', 'קבוצה בדיקה 1', NULL, NULL, NULL, 'DISTRIBUTION_GROUP_CREATION'),
+    ('act_021', 1709348400000, 'USER', 'manager_y', 'מנהל וואי', 'SHOS', 'shos_p1', 'שוס בדיקה 1', NULL, NULL, NULL, 'SHOS_CREATION'),
+    ('act_022', 1709352000000, 'SYSTEM', 'deploy_bot', 'בוט דיפלוי', 'SYSTEM', 'sys_p1', 'מערכת בדיקה 1', NULL, NULL, NULL, 'END_SYSTEM_CREATION'),
+    ('act_023', 1709355600000, 'USER', 'tester2', 'בודק שני', 'USER', 'user_p2', 'משתמש עמוד 2', NULL, NULL, NULL, 'ADD_VALUE_TO_USER'), -- Was USER_EDIT
+    ('act_024', 1709359200000, 'USER', 'sec_admin', 'מנהל אבטחה', 'DYNAMIC_TAG', 'tag_p1', 'תגית בדיקה 1', NULL, NULL, NULL, 'DYNAMIC_TAG_CREATION'),
+    ('act_025', 1709362800000, 'SYSTEM', 'scheduler', 'מתזמן', 'PROFILE', 'prof_p1', 'פרופיל בדיקה 1', NULL, NULL, NULL, 'PROFILE_EDIT'),
+    ('act_026', 1709366400000, 'USER', 'auditor', 'מבקר מערכת', 'USER', 'user_p3', 'משתמש עמוד 3', NULL, NULL, NULL, 'USER_SYNC'), -- Was NOTE_ADDED
+    ('act_027', 1709370000000, 'USER', 'admin_z', 'מנהל זד', 'ENTITY', 'ent_p2', 'ישות עמוד 2', NULL, NULL, NULL, 'ENTITY_EDIT'),
+    ('act_028', 1709373600000, 'SYSTEM', 'monitor', 'ניטור', 'SHOS', 'shos_p2', 'שוס בדיקה 2', NULL, NULL, NULL, 'SHOS_EDIT'), -- Was ALERT_TRIGGERED
+    ('act_029', 1709377200000, 'USER', 'archiver', 'ארכיונאי', 'DISTRIBUTION_GROUP', 'group_p2', 'קבוצה בדיקה 2', NULL, NULL, NULL, 'DISTRIBUTION_GROUP_DELETION'), -- Was DISTRIBUTION_GROUP_ARCHIVE
+    ('act_030', 1709380800000, 'SYSTEM', 'backup_svc', 'שירות גיבוי', 'SYSTEM', 'sys_p2', 'מערכת בדיקה 2', NULL, NULL, NULL, 'END_SYSTEM_EDIT'), -- Was BACKUP_STARTED
+    ('act_031', 1709384400000, 'USER', 'policy_mgr', 'מנהל מדיניות', 'PROFILE', 'prof_p2', 'פרופיל בדיקה 2', NULL, NULL, NULL, 'PROFILE_EDIT'), -- Was POLICY_UPDATE
+    ('act_032', 1709388000000, 'USER', 'compliance', 'ציות', 'DYNAMIC_TAG', 'tag_p2', 'תגית בדיקה 2', NULL, NULL, NULL, 'DYNAMIC_TAG_EDIT'), -- Was TAG_UPDATE
+    ('act_033', 1709391600000, 'USER', 'dev_lead', 'ראש צוות פיתוח', 'USER', 'user_p4', 'משתמש עמוד 4', NULL, NULL, NULL, 'ADD_VALUE_TO_USER'), -- Was PERMISSION_CHANGE
+    ('act_034', 1709395200000, 'SYSTEM', 'cron', 'קרון', 'SYSTEM', 'sys_p3', 'מערכת בדיקה 3', NULL, NULL, NULL, 'END_SYSTEM_EDIT'), -- Was JOB_STARTED
+    ('act_035', 1709398800000, 'USER', 'pm', 'מנהל מוצר', 'ENTITY', 'ent_p3', 'ישות עמוד 3', NULL, NULL, NULL, 'ENTITY_EDIT'), -- Was PRIORITY_CHANGE
+    ('act_036', 1709402400000, 'USER', 'marketing', 'שיווק', 'DISTRIBUTION_GROUP', 'group_p3', 'קבוצה בדיקה 3', NULL, NULL, NULL, 'DISTRIBUTION_GROUP_EDIT'), -- Was SEGMENT_CHANGE
+    ('act_037', 1709406000000, 'SYSTEM', 'limiter', 'מגביל עומס', 'SHOS', 'shos_p3', 'שוס בדיקה 3', NULL, NULL, NULL, 'SHOS_EDIT'), -- Was LIMIT_UPDATE
+    ('act_038', 1709409600000, 'USER', 'beta_tester', 'בודק בטא', 'PROFILE', 'prof_p3', 'פרופיל בדיקה 3', NULL, NULL, NULL, 'PROFILE_EDIT'), -- Was FEATURE_ENABLE
+    ('act_039', 1709413200000, 'USER', 'ops', 'תפעול', 'SYSTEM', 'sys_p4', 'מערכת בדיקה 4', NULL, NULL, NULL, 'END_SYSTEM_EDIT'), -- Was MODE_SWITCH
+    ('act_040', 1709416800000, 'SYSTEM', 'notifier', 'מערכת התראות', 'USER', 'user_p5', 'משתמש עמוד 5', NULL, NULL, NULL, 'USER_SYNC'); -- Was NOTIFICATION_SENT

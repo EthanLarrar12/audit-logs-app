@@ -4,7 +4,7 @@ export const styles = makeStyles((t) => ({
     trigger: 'w-full h-10 text-sm justify-between text-right px-3',
     triggerWrapper: 'flex-1 flex justify-start overflow-hidden text-right',
     placeholder: t.colors.textSecondary,
-    searchableDropdownContent: 'p-0 min-w-[320px] max-w-[400px] border shadow-md rounded-md bg-white overflow-hidden',
+    searchableDropdownContent: 'p-0 w-[var(--radix-popover-trigger-width)] border shadow-md rounded-md bg-white overflow-hidden',
     searchableDropdownSearch: 'p-1.5 flex items-center gap-2 bg-slate-50 border-none',
     searchableDropdownSearchInput: `h-7 w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 ${t.typography.sm} text-right placeholder:text-muted-foreground`,
     searchableDropdownList: 'max-h-[240px] overflow-auto p-1 scrollbar-thin',

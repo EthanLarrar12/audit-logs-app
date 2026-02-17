@@ -1,7 +1,7 @@
 import { makeStyles } from '@/lib/makeStyles';
 
 export const styles = makeStyles((t) => ({
-    container: 'space-y-2',
+    container: 'h-full flex flex-col space-y-2',
     header: `grid grid-cols-12 gap-4 px-4 py-2 ${t.typography.xs} ${t.typography.medium} ${t.colors.textSecondary} uppercase tracking-wider`,
     headerItemTime: 'col-span-2',
     headerItemUser: 'col-span-2',

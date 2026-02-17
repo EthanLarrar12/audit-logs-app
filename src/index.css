@@ -145,6 +145,27 @@
     background: hsl(var(--muted-foreground) / 0.3);
     border-radius: 3px;
   }
+
+  .scrollbar-stable {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+    direction: ltr; /* Move scrollbar to right */
+    overflow-y: scroll !important; /* Always show scrollbar to prevent layout shift */
+  }
+
+  .scrollbar-stable::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-stable::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-stable::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
+  }
 }
 
 .scrollbar-webkit::-webkit-scrollbar-button {
