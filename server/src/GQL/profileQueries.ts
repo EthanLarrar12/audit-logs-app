@@ -10,7 +10,7 @@
  */
 export const GET_USER_PREMADE_PROFILES_QUERY = `
     query UserPremadeProfiles($userId: String!) {
-        allMirageUserPremadeProfiles(condition: { userId: $userId }) {
+        allMiragePremadeProfileOwners(condition: { userId: $userId }) {
             nodes {
                 miragePremadeProfileByProfileId {
                     id
@@ -40,7 +40,7 @@ export const GET_PROFILE_VALUES_QUERY = `
  */
 export const GET_USER_ALLOWED_PARAMETERS_QUERY = `
     query UserAllowedParameters($userId: String!) {
-        allMirageUserPremadeProfiles(condition: { userId: $userId }) {
+        allMiragePremadeProfileOwners(condition: { userId: $userId }) {
             nodes {
                 miragePremadeProfileByProfileId {
                     miragePremadeProfileDigitalParameterValuesByProfileId {

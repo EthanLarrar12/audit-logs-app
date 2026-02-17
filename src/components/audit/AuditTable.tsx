@@ -56,13 +56,14 @@ export function AuditTable({
         <div className={styles.headerItemResource}>{AUDIT_HEADERS.RESOURCE}</div>
       </div>
 
-      {/* Virtuoso List - Window Scroll Mode */}
+      {/* Virtuoso List - Container Scroll Mode */}
       <Virtuoso
-        useWindowScroll
+        style={{ flex: 1 }}
+        className="scrollbar-stable"
         data={events}
         endReached={() => hasNextPage && !isFetchingNextPage && fetchNextPage()}
         itemContent={(index, event) => (
-          <div className="mb-2">
+          <div className="mb-2" dir="rtl">
             <AuditEventRow key={event.id} event={event} />
           </div>
         )}
