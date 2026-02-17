@@ -1,5 +1,4 @@
 import { useAuditEvents } from '@/hooks/useAuditEvents';
-import { AuditLogHeader } from '@/components/audit/AuditLogHeader';
 import { FilterBar } from '@/components/audit/FilterBar';
 import { AuditTable } from '@/components/audit/AuditTable';
 import { exportToExcel } from '@/lib/exportToExcel';
@@ -10,6 +9,7 @@ const Index = () => {
   const {
     events,
     isLoading,
+    isFetching,
     isFetchingNextPage,
     isSlowLoading,
     filters,
@@ -42,19 +42,15 @@ const Index = () => {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-        {/* Header */}
-        <AuditLogHeader
-          onRefresh={refetch}
-          onExport={handleExport}
-          isLoading={isSlowLoading}
-        />
-
         {/* Filter bar */}
         <FilterBar
           filters={filters}
           onFiltersChange={setFilters}
           onReset={resetFilters}
+          onRefresh={refetch}
+          onExport={handleExport}
           isLoading={isSlowLoading}
+          isRefreshing={isFetching}
         />
 
         {/* Audit table */}

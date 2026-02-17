@@ -152,48 +152,50 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
     };
 
     return (
-      <div
-        className={styles.searchableDropdownItem}
-        onClick={() =>
-          handleSelectSuggestion(
-            suggestion.id,
-            suggestion.type,
-            suggestion.name,
-          )
-        }
-      >
-        <div className="w-full">
-          {showHeader && (
-            <div className="px-1 py-1 text-xs font-semibold text-muted-foreground bg-slate-50 border-b border-t border-slate-100 sticky top-0 z-10 w-full text-right mb-2">
-              {typeLabels[suggestion.type] || suggestion.type}
-            </div>
-          )}
-          <div className="flex items-center gap-2">
-            {actionIcon ? (
-              <div className="flex items-center gap-2">
-                <div className="h-4 w-4 opacity-70 flex items-center justify-center">
-                  {(() => {
-                    const IconComponent = actionIcon;
-                    return <IconComponent className="h-4 w-4 text-slate-500" />;
-                  })()}
+      <div className="w-full">
+        {showHeader && (
+          <div className="px-1 py-1 text-xs font-semibold text-muted-foreground bg-slate-50 border-b border-t border-slate-100 sticky top-0 z-10 w-full text-right mb-2">
+            {typeLabels[suggestion.type] || suggestion.type}
+          </div>
+        )}
+        <div
+          className={styles.searchableDropdownItem}
+          onClick={() =>
+            handleSelectSuggestion(
+              suggestion.id,
+              suggestion.type,
+              suggestion.name,
+            )
+          }
+        >
+          <div className="w-full">
+            <div className="flex items-center gap-2">
+              {actionIcon ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 opacity-70 flex items-center justify-center">
+                    {(() => {
+                      const IconComponent = actionIcon;
+                      return <IconComponent className="h-4 w-4 text-slate-500" />;
+                    })()}
+                  </div>
+                  <span>
+                    {suggestion.name
+                      ? `${suggestion.name} (${suggestion.id})`
+                      : suggestion.id}
+                  </span>
                 </div>
-                <span>
-                  {suggestion.name
-                    ? `${suggestion.name} (${suggestion.id})`
-                    : suggestion.id}
-                </span>
-              </div>
-            ) : (
-              <CategoryBadge
-                category={suggestion.type}
-                label={
-                  suggestion.name
-                    ? `${suggestion.name} (${suggestion.id})`
-                    : suggestion.id
-                }
-                className="bg-transparent border-none p-0 h-auto lowercase"
-              />
-            )}
+              ) : (
+                <CategoryBadge
+                  category={suggestion.type}
+                  label={
+                    suggestion.name
+                      ? `${suggestion.name} (${suggestion.id})`
+                      : suggestion.id
+                  }
+                  className="bg-transparent border-none p-0 h-auto lowercase"
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -239,8 +241,8 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
             {/* Render Input */}
             <div className="flex-1 min-w-[100px] flex items-center flex-shrink-0 h-full">
               {isLoading &&
-              suggestions.length === 0 &&
-              !selectedItems.length ? (
+                suggestions.length === 0 &&
+                !selectedItems.length ? (
                 <Loader2 className={styles.loader} />
               ) : (
                 selectedItems.length === 0 && (
@@ -294,13 +296,14 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
                 endReached={() =>
                   hasNextPage && !isFetchingNextPage && fetchNextPage()
                 }
-                footer={() =>
-                  isFetchingNextPage ? (
-                    <div className="p-2 flex justify-center">
-                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : null
-                }
+                components={{
+                  Footer: () =>
+                    isFetchingNextPage ? (
+                      <div className="p-2 flex justify-center">
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : null,
+                }}
               />
             ) : (
               !isLoading && (

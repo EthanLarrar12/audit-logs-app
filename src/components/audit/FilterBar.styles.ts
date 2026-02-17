@@ -4,6 +4,7 @@ export const styles = makeStyles((t) => ({
     container: `${t.colors.bgCard} ${t.colors.border} rounded-lg p-4 space-y-4 border`,
     expandButton: `flex items-center gap-2 ${t.typography.sm} ${t.typography.medium} ${t.colors.textPrimary} hover:${t.colors.textBrand} ${t.colors.transition}`,
     activeFilterBadge: `mr-1 px-2 py-0.5 ${t.typography.xs} ${t.typography.medium} ${t.colors.bgBrand} ${t.colors.textInverse} rounded-full`,
+    actionButton: `gap-1.5 h-9`,
     resetButton: `${t.colors.textSecondary} hover:${t.colors.textPrimary} gap-1.5`,
     controlsContainer: 'space-y-4 animate-fade-in',
     generalSearchRow: 'w-full',
