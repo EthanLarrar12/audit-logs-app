@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, keepPreviousData } from "@tanstack/react-query";
 import { fetchSuggestions } from "@/lib/api";
 
 export const useSuggestions = (term: string) => {
@@ -14,5 +14,6 @@ export const useSuggestions = (term: string) => {
     },
     enabled: term.length >= 2,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    placeholderData: keepPreviousData,
   });
 };
