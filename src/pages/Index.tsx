@@ -25,7 +25,7 @@ const Index = () => {
   const handleExport = () => {
     try {
       // TODO: Ideally fetch all filtered data for export, currently exporting visible page.
-      exportToExcel(events);
+      exportToExcel(events, filters);
       toast({
         title: 'הייצוא הושלם',
         description: 'קובץ האקסל הורד בהצלחה.',

@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { AUDIT_HEADERS } from "@/constants/auditHeaders";
 import { Loader2 } from "lucide-react";
 import { Virtuoso, Components } from "react-virtuoso"; // Added imports
 import { AuditEvent } from "@/types/audit";
@@ -48,11 +49,11 @@ export function AuditTable({
     <div className={styles.container}>
       {/* Table header */}
       <div className={styles.header}>
-        <div className={styles.headerItemTime}>תאריך ושעה</div>
-        <div className={styles.headerItemUser}>מי ביצע את הפעולה?</div>
-        <div className={styles.headerItemAction}>מה הפעולה?</div>
-        <div className={styles.headerItemTarget}>על מי/מה בוצע הפעולה?</div>
-        <div className={styles.headerItemResource}>מה התווסף/נמחק?</div>
+        <div className={styles.headerItemTime}>{AUDIT_HEADERS.TIME}</div>
+        <div className={styles.headerItemUser}>{AUDIT_HEADERS.ACTOR}</div>
+        <div className={styles.headerItemAction}>{AUDIT_HEADERS.ACTION}</div>
+        <div className={styles.headerItemTarget}>{AUDIT_HEADERS.TARGET}</div>
+        <div className={styles.headerItemResource}>{AUDIT_HEADERS.RESOURCE}</div>
       </div>
 
       {/* Virtuoso List - Window Scroll Mode */}
