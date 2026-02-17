@@ -76,7 +76,8 @@ export const getAuditRoutes = (performQuery: PerformQuery) => {
     next,
   ): Promise<void> => {
     try {
-      const profiles = await getPremadeProfiles(performQuery);
+      const userId = getUserIdFromCookie();
+      const profiles = await getPremadeProfiles(performQuery, userId);
       res.status(StatusCodes.OK).json(profiles);
     } catch (error) {
       next(error);
