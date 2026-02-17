@@ -5,12 +5,17 @@
 /**
  * Query to fetch all premade profiles
  */
-export const GET_PREMADE_PROFILES_QUERY = `
-    query PremadeProfiles {
-        allMiragePremadeProfiles(orderBy: NAME_ASC) {
+/**
+ * Query to fetch all premade profiles for a specific user
+ */
+export const GET_USER_PREMADE_PROFILES_QUERY = `
+    query UserPremadeProfiles($userId: String!) {
+        allMirageUserPremadeProfiles(condition: { userId: $userId }) {
             nodes {
-                id
-                name
+                miragePremadeProfileByProfileId {
+                    id
+                    name
+                }
             }
         }
     }
@@ -23,6 +28,7 @@ export const GET_PROFILE_VALUES_QUERY = `
     query ProfileValues($condition: MiragePremadeProfileDigitalParameterValueCondition) {
         allMiragePremadeProfileDigitalParameterValues(condition: $condition) {
             nodes {
+                parameterId
                 valueId
             }
         }
@@ -34,7 +40,7 @@ export const GET_PROFILE_VALUES_QUERY = `
  */
 export const GET_USER_ALLOWED_PARAMETERS_QUERY = `
     query UserAllowedParameters($userId: String!) {
-        allMiragePremadeProfileOwners(condition: { userId: $userId }) {
+        allMirageUserPremadeProfiles(condition: { userId: $userId }) {
             nodes {
                 miragePremadeProfileByProfileId {
                     miragePremadeProfileDigitalParameterValuesByProfileId {
