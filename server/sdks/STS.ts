@@ -35,5 +35,11 @@ export type Permissions = {
 }
 
 export const isPermitted = (permissions: Permissions) => {
+
+    if (permissions?.mandatPermissions?.includes("read")) {
+        return true;
+    }
+    // return false;
+
     return true;
 }

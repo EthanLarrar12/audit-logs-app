@@ -1,10 +1,11 @@
-import { useEffect, useRef } from 'react';
-import { Loader2 } from 'lucide-react';
-import { AuditEvent } from '@/types/audit';
-import { AuditEventRow } from './AuditEventRow';
-import { AuditTableSkeleton } from './AuditTableSkeleton';
-import { EmptyState } from './EmptyState';
-import { styles } from './AuditTable.styles';
+import { useRef } from "react";
+import { Loader2 } from "lucide-react";
+import { Virtuoso, Components } from "react-virtuoso"; // Added imports
+import { AuditEvent } from "@/types/audit";
+import { AuditEventRow } from "./AuditEventRow";
+import { AuditTableSkeleton } from "./AuditTableSkeleton";
+import { EmptyState } from "./EmptyState";
+import { styles } from "./AuditTable.styles";
 
 interface AuditTableProps {
   events: AuditEvent[];
@@ -27,24 +28,7 @@ export function AuditTable({
   onResetFilters,
   onRefresh,
 }: AuditTableProps) {
-  const observerTarget = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
-    }
-
-    return () => observer.disconnect();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  // No manual IntersectionObserver needed with Virtuoso
 
   if (isLoading) {
     return <AuditTableSkeleton rows={5} />;
@@ -71,17 +55,24 @@ export function AuditTable({
         <div className={styles.headerItemResource}>מה התווסף/נמחק?</div>
       </div>
 
-      {/* Event rows */}
-      <div className={styles.rowsContainer}>
-        {events.map((event) => (
-          <AuditEventRow key={event.id} event={event} />
-        ))}
-
-        {/* Sentinel for infinite scroll */}
-        <div ref={observerTarget} className={styles.sentinel}>
-          {isFetchingNextPage && <Loader2 className={styles.loader} />}
-        </div>
-      </div>
+      {/* Virtuoso List - Window Scroll Mode */}
+      <Virtuoso
+        useWindowScroll
+        data={events}
+        endReached={() => hasNextPage && !isFetchingNextPage && fetchNextPage()}
+        itemContent={(index, event) => (
+          <div className="mb-2">
+            <AuditEventRow key={event.id} event={event} />
+          </div>
+        )}
+        components={{
+          Footer: () => (
+            <div className={styles.sentinel}>
+              {isFetchingNextPage && <Loader2 className={styles.loader} />}
+            </div>
+          ),
+        }}
+      />
     </div>
   );
 }

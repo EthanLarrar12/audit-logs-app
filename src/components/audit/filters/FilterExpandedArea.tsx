@@ -65,13 +65,6 @@ export const FilterExpandedArea: React.FC<FilterExpandedAreaProps> = ({
   return (
     <>
       <div className={styles.firstFiltersRow}>
-        <SearchFilter
-          label="מזהה/שם המבצע"
-          placeholder="חיפוש לפי מבצע..."
-          value={searchValues.actorSearch || ""}
-          onChange={handleActorSearchChange}
-        />
-
         <MultiSelectFilter
           label="קטגוריה"
           placeholder="כל הקטגוריות"

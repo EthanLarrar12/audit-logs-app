@@ -65,9 +65,6 @@ export const AUDIT_CATEGORIES: Category[] = [
     {
         id: 'USER',
         name: 'משתמש',
-        filters: [
-            { name: "מזהה/שם המשתמש שבוצע עליו את הפעולה", searchField: "targetSearch" },
-        ],
         subcategories: [
             { id: 'USER_CREATION', name: 'יצירת משתמש', type: ActionType.CREATE },
             { id: 'USER_DELETION', name: 'מחיקה משתמש', type: ActionType.DELETE },

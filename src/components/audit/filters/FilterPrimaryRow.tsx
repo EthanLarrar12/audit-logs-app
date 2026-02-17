@@ -35,7 +35,7 @@ export const FilterPrimaryRow: React.FC<FilterPrimaryRowProps> = ({
   return (
     <div className={styles.firstFiltersRow}>
       <GeneralSearch
-        label="חיפוש כללי (מבצע, יעד, משאב)"
+        label="חיפוש כללי (שם/מזהה/מייל)"
         value={searchValues.searchInput || ""}
         onChange={handleGeneralSearchChange}
         onSelect={handleGeneralSearchSelect}

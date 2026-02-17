@@ -24,7 +24,8 @@ describe("getEvents", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (getRlsFilters as jest.Mock).mockReturnValue(null);
-    (isPermitted as jest.Mock).mockReturnValue(true); // Default to permitted for existing tests
+    // Default to permitted for existing tests
+    (isPermitted as jest.Mock).mockImplementation(() => true);
     (mockPerformQuery as jest.Mock).mockResolvedValue({
       data: {
         allRecords: {
@@ -35,9 +36,20 @@ describe("getEvents", () => {
     });
   });
 
+  const DEFAULT_TARGET_TYPE_FILTER = {
+    targetType: {
+      in: [
+        "USER",
+        // "PARAMETER", // Filtered by resourceType now
+        // "ENTITY", // filtered out by default deny
+        // ... others filtered out
+      ],
+    },
+  };
+
   it("should construct correct filter for free text search (names only)", async () => {
     const params: AuditQueryParams = {
-      searchInput: "test-term",
+      searchInput: ["test-term"],
       exactSearch: false,
     };
 
@@ -48,6 +60,7 @@ describe("getEvents", () => {
       expect.objectContaining({
         filter: {
           and: [
+            DEFAULT_TARGET_TYPE_FILTER,
             {
               or: [
                 { executorName: { includesInsensitive: "test-term" } },
@@ -63,7 +76,7 @@ describe("getEvents", () => {
 
   it("should construct correct filter for suggestion search (USER type)", async () => {
     const params: AuditQueryParams = {
-      searchInput: "user-123",
+      searchInput: ["user-123"],
       exactSearch: true,
       searchType: "USER",
     };
@@ -76,6 +89,7 @@ describe("getEvents", () => {
 
     const expectedFilter = {
       and: [
+        DEFAULT_TARGET_TYPE_FILTER,
         {
           or: [
             {
@@ -106,7 +120,7 @@ describe("getEvents", () => {
 
   it("should construct correct filter for suggestion search (Other type)", async () => {
     const params: AuditQueryParams = {
-      searchInput: "resource-123",
+      searchInput: ["resource-123"],
       exactSearch: true,
       searchType: "RESOURCE_TYPE",
     };
@@ -119,6 +133,7 @@ describe("getEvents", () => {
 
     const expectedFilter = {
       and: [
+        DEFAULT_TARGET_TYPE_FILTER,
         {
           or: [
             {
@@ -144,7 +159,7 @@ describe("getEvents", () => {
   it("should combine multiple filters", async () => {
     const params: AuditQueryParams = {
       actorSearch: "actor-123",
-      searchInput: "search-term",
+      searchInput: ["search-term"],
       exactSearch: false,
     };
 
@@ -164,6 +179,17 @@ describe("getEvents", () => {
           ],
         },
         {
+          targetType: {
+            in: [
+              "USER",
+
+              // "PARAMETER", // Filtered by resourceType now
+              // "ENTITY", // filtered out by default deny
+              // ... others filtered out
+            ],
+          },
+        },
+        {
           or: [
             { executorName: { includesInsensitive: "search-term" } },
             { targetName: { includesInsensitive: "search-term" } },
@@ -174,6 +200,33 @@ describe("getEvents", () => {
     };
 
     expect(JSON.stringify(filter)).toEqual(JSON.stringify(expectedFilter));
+  });
+
+  it("should use correct pagination limits", async () => {
+    // Default 50
+    await getEvents({}, mockPerformQuery, "test-user-id");
+    expect(mockPerformQuery).toHaveBeenCalledWith(
+      GET_AUDIT_EVENTS_QUERY,
+      expect.objectContaining({ first: 50, offset: 0 }),
+    );
+
+    // Custom params
+    await getEvents(
+      { page: 2, pageSize: 25 },
+      mockPerformQuery,
+      "test-user-id",
+    );
+    expect(mockPerformQuery).toHaveBeenCalledWith(
+      GET_AUDIT_EVENTS_QUERY,
+      expect.objectContaining({ first: 25, offset: 25 }),
+    );
+
+    // Max limit cap
+    await getEvents({ pageSize: 500 }, mockPerformQuery, "test-user-id");
+    expect(mockPerformQuery).toHaveBeenCalledWith(
+      GET_AUDIT_EVENTS_QUERY,
+      expect.objectContaining({ first: 200 }),
+    );
   });
 });
 
@@ -200,8 +253,9 @@ describe("getSuggestions", () => {
     const result = await getSuggestions({ term }, mockPerformQuery);
 
     expect(mockPerformQuery).toHaveBeenCalledWith(GET_SEARCH_FILTERS_QUERY, {
-      searchValues: term,
+      searchTerm: term,
       resultLimit: 50,
+      resultOffset: 0,
     });
 
     expect(result).toEqual([
@@ -256,7 +310,7 @@ describe("Compartmentalization Logic", () => {
     const variables = calls[0][1];
     const filter = variables.filter;
 
-    // Should include filter to exclude PARAMETER
+    // Should include filter to exclude PARAMETER by resourceType
     expect(JSON.stringify(filter)).toContain(
       JSON.stringify({ resourceType: { notEqualTo: "PARAMETER" } }),
     );
@@ -264,9 +318,10 @@ describe("Compartmentalization Logic", () => {
 
   it("should allow all parameters if user has update permissions", async () => {
     (isPermitted as jest.Mock).mockImplementation((args) => {
-      if (args.profilePermissions.includes("read")) return true;
-      if (args.profilePermissions.includes("update")) return true;
-      return false;
+      if (args?.profilePermissions?.includes("read")) return true;
+      if (args?.profilePermissions?.includes("update")) return true;
+      // Default allow for other permissions in this test context
+      return true;
     });
 
     const params: AuditQueryParams = {};
@@ -278,7 +333,10 @@ describe("Compartmentalization Logic", () => {
     // Should NOT include filter to exclude PARAMETER
     // And should not query allowed parameters
     if (variables.filter) {
-      expect(JSON.stringify(variables.filter)).not.toContain("PARAMETER");
+      // We expect NO restriction on PARAMETER resourceType
+      expect(JSON.stringify(variables.filter)).not.toContain(
+        JSON.stringify({ resourceType: { notEqualTo: "PARAMETER" } }),
+      );
     }
     expect(mockPerformQuery).not.toHaveBeenCalledWith(
       GET_USER_ALLOWED_PARAMETERS_QUERY,
@@ -288,9 +346,10 @@ describe("Compartmentalization Logic", () => {
 
   it("should filter by allowed parameters if user has read but not update permissions", async () => {
     (isPermitted as jest.Mock).mockImplementation((args) => {
-      if (args.profilePermissions.includes("read")) return true;
-      if (args.profilePermissions.includes("update")) return false;
-      return false;
+      if (args?.profilePermissions?.includes("read")) return true;
+      if (args?.profilePermissions?.includes("update")) return false;
+      // Default allow for others
+      return true;
     });
 
     // Mock allowed parameters response

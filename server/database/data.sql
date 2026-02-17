@@ -15,7 +15,8 @@ INSERT INTO history.record_data (action_id, changes) VALUES
     ('act_013', '{"before": null, "after": {"value": "new_config"}}'),
     ('act_014', '{"before": {"owner": "user_a"}, "after": {"owner": "user_b"}}'),
     ('act_015', '{"before": null, "after": {"sync_status": "completed"}}'),
-    ('act_016', '{"before": {"clearance": 2, "rank": "prince"}, "after": {"clearance": 1, "rank": "king"}}');
+    ('act_016', '{"before": {"clearance": 2, "rank": "prince"}, "after": {"clearance": 1, "rank": "king"}}'),
+    ('act_017', '{"before": null, "after": {"end_system": "coolSystem"}}');
 
 -- Insert sample data into history.records
 INSERT INTO history.records (action_id, insert_time, executor_type, executor_id, executor_name, target_type, target_id, target_name, resource_type, resource_id, resource_name, midur_action) VALUES
@@ -37,7 +38,8 @@ INSERT INTO history.records (action_id, insert_time, executor_type, executor_id,
     ('act_016', 1709334000000, 'USER', 'ethan', 'פיצפון', 'USER', 'YG', 'יותם', 'PARAMETER', 'clearance:1', 'סיווג: 1', 'ADD_VALUE_TO_USER'),
     ('act_016', 1709334000000, 'USER', 'ethan', 'פיצפון', 'USER', 'YG', 'יותם', 'PARAMETER', 'clearance:2', 'סיווג: 2', 'REMOVE_VALUE_FROM_USER'),
     ('act_016', 1709334001000, 'USER', 'ethan', 'פיצפון', 'USER', 'YG', 'יותם', 'PARAMETER', 'rank:king', 'דרגה: מלך', 'ADD_VALUE_TO_USER'),
-    ('act_016', 1709334001000, 'USER', 'ethan', 'פיצפון', 'USER', 'YG', 'יותם', 'PARAMETER', 'rank:prince', 'דרגה: נסיך', 'REMOVE_VALUE_FROM_USER');
+    ('act_016', 1709334001000, 'USER', 'ethan', 'פיצפון', 'USER', 'YG', 'יותם', 'PARAMETER', 'rank:prince', 'דרגה: נסיך', 'REMOVE_VALUE_FROM_USER'),
+    ('act_017', 1709334002000, 'USER', 'ethan', 'פיצפון', 'SYSTEM', 'coolSystem', 'מערכת מגניבה', NULL, NULL, NULL, 'END_SYSTEM_CREATION');
 
 
 -- Insert sample data into api.mirage_premade_profiles
@@ -51,6 +53,9 @@ INSERT INTO api.mirage_premade_profile_digital_parameter_values (profile_id, par
     ('prof_001', 'param_display_mode', 'val_dark'),
     ('prof_001', 'param_language', 'val_hebrew'),
     ('prof_001', 'param_notifications', 'val_enabled'),
+    ('prof_001', 'rank', 'king'),
+    ('prof_001', 'rank', 'prince'),
+    ('prof_001', 'clearance', '1'),
     ('prof_002', 'param_display_mode', 'val_light'),
     ('prof_002', 'param_security_level', 'val_high'),
     ('prof_003', 'param_language', 'val_english'),

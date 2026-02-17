@@ -53,7 +53,10 @@ export const MultiSelectFilter: React.FC<MultiSelectFilterProps> = ({
           <div
             className={cn(
               styles.trigger,
-              "flex items-center justify-between w-full h-auto min-h-10 p-1 border rounded-md cursor-pointer hover:bg-slate-50 transition-colors",
+              "flex items-center justify-between w-full h-auto min-h-10 p-1 border rounded-md transition-colors bg-white shadow-sm",
+              !disabled
+                ? "cursor-pointer hover:bg-slate-50"
+                : "opacity-50 pointer-events-none bg-slate-100 cursor-not-allowed",
             )}
             role="combobox"
             dir="rtl"

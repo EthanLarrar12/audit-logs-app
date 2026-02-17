@@ -21,9 +21,11 @@ import {
 import { PerformQuery } from "../../sdks/performQuery";
 import { getRlsFilters } from "../utils/auth";
 import { BadGatewayException } from "../../sdks/exceptions";
-import { isPermitted } from "../../sdks/STS"; // Added STS import
+import { isPermitted, Permissions } from "../../sdks/STS"; // Added STS import
 import { GET_USER_ALLOWED_PARAMETERS_QUERY } from "../GQL/profileQueries"; // Added query import
 import { parseUserAllowedParametersResponse } from "../parsers/profileParser"; // Added parser import
+import { MirageObjectType } from "../types/mirage"; // Added MirageObjectType import
+import { CATEGORY_PERMISSIONS } from "../constants/permissions"; // Added permissions import
 
 /**
  * Business logic layer for audit events
@@ -63,45 +65,26 @@ export const getEvents = async (
     });
   }
 
-  // Compartmentalization Logic
-  const canReadParams = isPermitted({ profilePermissions: ["read"] });
-  const canUpdateParams = isPermitted({ profilePermissions: ["update"] });
+  // Compartmentalization Logic for Parameters is now handled in the allowed categories section
 
-  if (!canReadParams) {
-    // User cannot see parameters at all
-    andFilters.push({
-      resourceType: { notEqualTo: "PARAMETER" },
-    });
-    // Note: If targetType can be PARAMETER, we might need to filter that too.
-    // Assuming resourceType is the primary indicator for now as per schema.
-  } else if (!canUpdateParams) {
-    // User can read parameters but only allowed ones
-    const allowedParamsResult = await performQuery(
-      GET_USER_ALLOWED_PARAMETERS_QUERY,
-      { userId },
-    );
-    const allowedParams = parseUserAllowedParametersResponse(
-      allowedParamsResult as Record<string, unknown>,
-    );
-    const allowedIds = allowedParams.map((p) => p.valueId);
+  // --- Category (Target Type) Permission Check ---
 
-    if (allowedIds.length > 0) {
-      andFilters.push({
-        and: [
-          { resourceType: { equalTo: "PARAMETER" } },
-          { resourceId: { in: allowedIds } },
-        ],
-      });
-    } else {
-      // If no allowed parameters, hide all parameters
-      andFilters.push({
-        resourceType: { notEqualTo: "PARAMETER" },
-      });
+  // --- Category (Target Type) Permission Check ---
+
+  // Permissions are defined in server/src/constants/permissions.ts
+  // Default behavior is DENY if not listed there
+
+  const allowedCategories: MirageObjectType[] = [];
+
+  for (const type of Object.values(MirageObjectType)) {
+    const requiredPermissions = CATEGORY_PERMISSIONS[type];
+    if (requiredPermissions) {
+      if (isPermitted(requiredPermissions)) {
+        allowedCategories.push(type);
+      }
     }
   }
-  if (params.category && params.category.length > 0) {
-    andFilters.push({ targetType: { in: params.category } });
-  }
+
   if (params.action && params.action.length > 0) {
     andFilters.push({ midurAction: { in: params.action } });
   }
@@ -114,6 +97,73 @@ export const getEvents = async (
         { executorType: { equalTo: "USER" } },
       ],
     });
+  }
+
+  // --- Parameter (Resource Type) Permission Check ---
+  const canReadParams = isPermitted({ profilePermissions: ["read"] });
+  if (!canReadParams) {
+    // User cannot read parameters at all -> Exclude all parameters
+    andFilters.push({
+      resourceType: { notEqualTo: MirageObjectType.PARAMETER },
+    });
+  } else {
+    const canUpdateParams = isPermitted({ profilePermissions: ["update"] });
+    if (!canUpdateParams) {
+      // User can read but not update -> Restrict to allowed parameters
+      const allowedParamsResult = await performQuery(
+        GET_USER_ALLOWED_PARAMETERS_QUERY,
+        { userId },
+      );
+      const allowedParams = parseUserAllowedParametersResponse(
+        allowedParamsResult as Record<string, unknown>,
+      );
+      const allowedIds = allowedParams.map((p) => p.valueId);
+
+      if (allowedIds.length > 0) {
+        andFilters.push({
+          or: [
+            { resourceType: { notEqualTo: MirageObjectType.PARAMETER } },
+            {
+              and: [
+                { resourceType: { equalTo: MirageObjectType.PARAMETER } },
+                { resourceId: { in: allowedIds } },
+              ],
+            },
+          ],
+        });
+      } else {
+        // Can read params but has no allowed IDs -> Exclude all parameters
+        andFilters.push({
+          resourceType: { notEqualTo: MirageObjectType.PARAMETER },
+        });
+      }
+    }
+  }
+
+  // Apply the allowed categories filter
+  // If user provided a specific category filter, we must intersect it with allowedCategories
+  if (params.category && params.category.length > 0) {
+    const requestedCategories = params.category;
+    // Strict filtering: Only allow if explicitly requested AND permitted
+    const permittedRequestedCategories = requestedCategories.filter((c) =>
+      allowedCategories.includes(c as MirageObjectType),
+    );
+
+    if (permittedRequestedCategories.length === 0) {
+      // User requested categories they are not allowed to see
+      // Return a filter that matches nothing
+      andFilters.push({ targetId: { equalTo: "___NONE___" } });
+    } else {
+      andFilters.push({ targetType: { in: permittedRequestedCategories } });
+    }
+  } else {
+    // User did not request a specific category, so we restrict to ALL allowed categories
+    // This ensures they don't see unauthorized types in the general list
+    if (allowedCategories.length === 0) {
+      andFilters.push({ targetId: { equalTo: "___NONE___" } });
+    } else {
+      andFilters.push({ targetType: { in: allowedCategories } });
+    }
   }
 
   if (params.targetSearch) {
@@ -203,7 +253,8 @@ export const getEvents = async (
   }
 
   // 2. Pagination & Sorting
-  const first = 10; // Default page size
+  const rawPageSize = params.pageSize || 10; // Default to 10 (reverted per user request)
+  const first = rawPageSize > 200 ? 200 : rawPageSize; // Max 200
   const offset = ((params.page || 1) - 1) * first;
 
   let orderBy = "INSERT_TIME_DESC"; // Default sort
