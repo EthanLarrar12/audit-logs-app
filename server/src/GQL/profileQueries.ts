@@ -22,14 +22,39 @@ export const GET_USER_PREMADE_PROFILES_QUERY = `
 `;
 
 /**
+ * Fragment to fetch digital parameter values for a specific premade profile
+ */
+export const PROFILE_VALUES_FRAGMENT = `
+    allMiragePremadeProfileDigitalParameterValues(condition: $condition) {
+        nodes {
+            parameterId
+            valueId
+        }
+    }
+`;
+
+/**
  * Query to fetch digital parameter values for a specific premade profile
  */
 export const GET_PROFILE_VALUES_QUERY = `
     query ProfileValues($condition: MiragePremadeProfileDigitalParameterValueCondition) {
-        allMiragePremadeProfileDigitalParameterValues(condition: $condition) {
-            nodes {
-                parameterId
-                valueId
+        ${PROFILE_VALUES_FRAGMENT}
+    }
+`;
+
+/**
+ * Fragment to fetch all allowed parameters for a user
+ */
+export const USER_ALLOWED_PARAMETERS_FRAGMENT = `
+    allMiragePremadeProfileOwners(condition: { userId: $userId }) {
+        nodes {
+            miragePremadeProfileByProfileId {
+                miragePremadeProfileDigitalParameterValuesByProfileId {
+                    nodes {
+                        parameterId
+                        valueId
+                    }
+                }
             }
         }
     }
@@ -40,17 +65,6 @@ export const GET_PROFILE_VALUES_QUERY = `
  */
 export const GET_USER_ALLOWED_PARAMETERS_QUERY = `
     query UserAllowedParameters($userId: String!) {
-        allMiragePremadeProfileOwners(condition: { userId: $userId }) {
-            nodes {
-                miragePremadeProfileByProfileId {
-                    miragePremadeProfileDigitalParameterValuesByProfileId {
-                        nodes {
-                            parameterId
-                            valueId
-                        }
-                    }
-                }
-            }
-        }
+        ${USER_ALLOWED_PARAMETERS_FRAGMENT}
     }
 `;

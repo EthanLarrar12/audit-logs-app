@@ -1,4 +1,22 @@
-import { AuditFilters, AuditEventPage } from "@/types/audit";
+import { AuditFilters, AuditEventPage, FilterField } from "@/types/audit";
+
+enum ApiQueryParam {
+  PAGE = "page",
+  SORT = "sort",
+  ORDER = "order",
+  SEARCH_INPUT = "searchInput",
+  EXACT_SEARCH = "exactSearch",
+  SEARCH_TYPE = "searchType",
+  ACTOR_SEARCH = "actorSearch",
+  TARGET_SEARCH = "targetSearch",
+  RESOURCE_SEARCH = "resourceSearch",
+  PREMADE_PROFILE = "premadeProfile",
+  ACTOR_USERNAME = "actorUsername",
+  ACTION = "action",
+  DATE_FROM = "from",
+  DATE_TO = "to",
+  CATEGORY = "category",
+}
 
 interface FetchAuditEventsParams {
   page: number;
@@ -12,66 +30,102 @@ export async function fetchAuditEvents({
   const params = new URLSearchParams();
 
   // Pagination
-  params.append("page", page.toString());
+  params.append(ApiQueryParam.PAGE, page.toString());
 
   // Sorting (Defaulting to created_at desc as per spec default is desc, field created_at seems appropriate)
-  params.append("sort", "created_at");
-  params.append("order", "desc");
+  params.append(ApiQueryParam.SORT, "created_at");
+  params.append(ApiQueryParam.ORDER, "desc");
 
   // Filters mapping (Fixed params according to API spec)
-  if (filters.searchInput && filters.searchInput.length > 0) {
-    if (Array.isArray(filters.searchInput)) {
-      filters.searchInput.forEach((term) => params.append("searchInput", term));
+  if (
+    filters[FilterField.SEARCH_INPUT] &&
+    filters[FilterField.SEARCH_INPUT].length > 0
+  ) {
+    if (Array.isArray(filters[FilterField.SEARCH_INPUT])) {
+      filters[FilterField.SEARCH_INPUT].forEach((term) =>
+        params.append(ApiQueryParam.SEARCH_INPUT, term),
+      );
     } else {
       // Fallback or legacy support if needed, though type is string[]
-      params.append("searchInput", filters.searchInput);
+      params.append(
+        ApiQueryParam.SEARCH_INPUT,
+        filters[FilterField.SEARCH_INPUT],
+      );
     }
 
-    if (filters.searchInputIsExact) {
-      params.append("exactSearch", "true");
-      if (filters.searchInputType) {
-        params.append("searchType", filters.searchInputType);
+    if (filters[FilterField.SEARCH_INPUT_IS_EXACT]) {
+      params.append(ApiQueryParam.EXACT_SEARCH, "true");
+      if (filters[FilterField.SEARCH_INPUT_TYPE]) {
+        params.append(
+          ApiQueryParam.SEARCH_TYPE,
+          filters[FilterField.SEARCH_INPUT_TYPE],
+        );
       }
     }
   }
-  if (filters.actorSearch) {
-    params.append("actorSearch", filters.actorSearch);
+  if (filters[FilterField.ACTOR_SEARCH]) {
+    params.append(
+      ApiQueryParam.ACTOR_SEARCH,
+      filters[FilterField.ACTOR_SEARCH],
+    );
   }
-  if (filters.targetSearch) {
-    params.append("targetSearch", filters.targetSearch);
+  if (filters[FilterField.TARGET_SEARCH]) {
+    params.append(
+      ApiQueryParam.TARGET_SEARCH,
+      filters[FilterField.TARGET_SEARCH],
+    );
   }
-  if (filters.resourceSearch) {
-    params.append("resourceSearch", filters.resourceSearch);
+  if (filters[FilterField.RESOURCE_SEARCH]) {
+    params.append(
+      ApiQueryParam.RESOURCE_SEARCH,
+      filters[FilterField.RESOURCE_SEARCH],
+    );
   }
-  if (filters.premadeProfile) {
-    params.append("premadeProfile", filters.premadeProfile);
+  if (filters[FilterField.PREMADE_PROFILE]) {
+    params.append(
+      ApiQueryParam.PREMADE_PROFILE,
+      filters[FilterField.PREMADE_PROFILE],
+    );
   }
 
-  if (filters.actorUsername) {
-    params.append("actorUsername", filters.actorUsername);
+  if (filters[FilterField.ACTOR_USERNAME]) {
+    params.append(
+      ApiQueryParam.ACTOR_USERNAME,
+      filters[FilterField.ACTOR_USERNAME],
+    );
   }
 
-  if (filters.action) {
-    if (Array.isArray(filters.action)) {
-      filters.action.forEach((a) => params.append("action", a));
+  if (filters[FilterField.ACTION]) {
+    if (Array.isArray(filters[FilterField.ACTION])) {
+      filters[FilterField.ACTION].forEach((a) =>
+        params.append(ApiQueryParam.ACTION, a),
+      );
     } else {
-      params.append("action", filters.action);
+      params.append(ApiQueryParam.ACTION, filters[FilterField.ACTION]);
     }
   }
 
-  if (filters.dateFrom) {
-    params.append("from", filters.dateFrom.toISOString());
+  if (filters[FilterField.DATE_FROM]) {
+    params.append(
+      ApiQueryParam.DATE_FROM,
+      filters[FilterField.DATE_FROM].toISOString(),
+    );
   }
 
-  if (filters.dateTo) {
-    params.append("to", filters.dateTo.toISOString());
+  if (filters[FilterField.DATE_TO]) {
+    params.append(
+      ApiQueryParam.DATE_TO,
+      filters[FilterField.DATE_TO].toISOString(),
+    );
   }
 
-  if (filters.category) {
-    if (Array.isArray(filters.category)) {
-      filters.category.forEach((c) => params.append("category", c));
+  if (filters[FilterField.CATEGORY]) {
+    if (Array.isArray(filters[FilterField.CATEGORY])) {
+      filters[FilterField.CATEGORY].forEach((c) =>
+        params.append(ApiQueryParam.CATEGORY, c),
+      );
     } else {
-      params.append("category", filters.category);
+      params.append(ApiQueryParam.CATEGORY, filters[FilterField.CATEGORY]);
     }
   }
 

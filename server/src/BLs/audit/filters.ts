@@ -16,6 +16,12 @@ import {
 /**
  * Build the PostGraphile filter object based on query parameters and permissions
  */
+import { FilterContextBuilder } from "./filterContext";
+import {
+  PROFILE_VALUES_FRAGMENT,
+  USER_ALLOWED_PARAMETERS_FRAGMENT,
+} from "../../GQL/profileQueries";
+
 export const buildAuditFilters = async (
   params: AuditQueryParams,
   performQuery: PerformQuery,
@@ -23,6 +29,124 @@ export const buildAuditFilters = async (
 ): Promise<Record<string, unknown>> => {
   const filter: Record<string, unknown> = {};
   const andFilters: Record<string, unknown>[] = [];
+  const contextBuilder = new FilterContextBuilder();
+
+  // --- Register Context Requirements ---
+
+  // 1. Parameter Permission Check
+  // We need to know if the user is allowed to see parameters, and if so, which ones.
+  // The decision logic is partly synchronous (isPermitted check) and partly async (fetching allowed params).
+  // To keep it modular, we'll just check if we need to fetch data.
+  const canReadParams = isPermitted({ profilePermissions: ["read"] });
+  const canUpdateParams = isPermitted({ profilePermissions: ["update"] });
+  const shouldFetchAllowedParams = canReadParams && !canUpdateParams;
+
+  if (shouldFetchAllowedParams) {
+    contextBuilder.addFragment(
+      "allowedParams",
+      USER_ALLOWED_PARAMETERS_FRAGMENT,
+    );
+    contextBuilder.addVariable("userId", "String!", userId);
+  }
+
+  // 2. Premade Profile
+  if (params.premadeProfile) {
+    contextBuilder.addFragment("premadeProfileValues", PROFILE_VALUES_FRAGMENT);
+    contextBuilder.addVariable(
+      "condition",
+      "MiragePremadeProfileDigitalParameterValueCondition",
+      { profileId: params.premadeProfile },
+    );
+  }
+
+  // --- Execute Context Query ---
+  let contextData: Record<string, any> = {};
+  if (contextBuilder.hasFragments()) {
+    const query = contextBuilder.buildQuery();
+    const variables = contextBuilder.getVariables();
+    const result = (await performQuery(query, variables)) as Record<
+      string,
+      any
+    >;
+
+    if (result.errors) {
+      throw new Error(
+        `GraphQL Errors in Filter Context: ${result.errors
+          .map((e: any) => e.message)
+          .join(", ")}`,
+      );
+    }
+    contextData = result.data || {};
+  }
+
+  // --- Apply Filters based on Context ---
+
+  // 1. Parameter Permission Filter
+  if (!canReadParams) {
+    andFilters.push({
+      resourceType: { notEqualTo: MirageObjectType.PARAMETER },
+    });
+  } else if (!canUpdateParams) {
+    // We fetched allowed params
+    if (contextData.allowedParams) {
+      const allowedParams = parseUserAllowedParametersResponse({
+        data: {
+          allMirageUserPremadeProfiles: contextData.allowedParams,
+        },
+      } as any);
+      const allowedIds = allowedParams.map((p) => p.valueId);
+
+      if (allowedIds.length > 0) {
+        andFilters.push({
+          or: [
+            { resourceType: { notEqualTo: MirageObjectType.PARAMETER } },
+            {
+              and: [
+                { resourceType: { equalTo: MirageObjectType.PARAMETER } },
+                { resourceId: { in: allowedIds } },
+              ],
+            },
+          ],
+        });
+      } else {
+        andFilters.push({
+          resourceType: { notEqualTo: MirageObjectType.PARAMETER },
+        });
+      }
+    }
+  }
+
+  // 2. Premade Profile Filter
+  if (params.premadeProfile) {
+    if (contextData.premadeProfileValues) {
+      const values = parseProfileValuesResponse({
+        data: {
+          allMiragePremadeProfileDigitalParameterValues:
+            contextData.premadeProfileValues,
+        },
+      } as any);
+
+      if (values.length > 0) {
+        const resourceIds = values.map((v) => {
+          if (v.parameterId) {
+            return `${v.parameterId}:${v.valueId}`;
+          }
+          return v.valueId;
+        });
+
+        andFilters.push({
+          resourceId: { in: resourceIds },
+        });
+      } else {
+        andFilters.push({ resourceId: { equalTo: "___NONE___" } });
+      }
+    } else {
+      // Should not happen if logic is correct, but safe fallback
+      // actually if we requested it but got nothing, it means empty result probably
+    }
+  }
+
+  // --- Synchronous Checks (unchanged) ---
 
   // Apply RLS Filters
   const rls = getRlsFilters(userId);
@@ -104,72 +228,6 @@ export const buildAuditFilters = async (
       andFilters.push({ targetId: { equalTo: "___NONE___" } });
     } else {
       andFilters.push({ targetType: { in: allowedCategories } });
-    }
-  }
-
-  // --- Parameter (Resource Type) Permission Check ---
-  const canReadParams = isPermitted({ profilePermissions: ["read"] });
-  if (!canReadParams) {
-    andFilters.push({
-      resourceType: { notEqualTo: MirageObjectType.PARAMETER },
-    });
-  } else {
-    const canUpdateParams = isPermitted({ profilePermissions: ["update"] });
-    if (!canUpdateParams) {
-      const allowedParamsResult = await performQuery(
-        GET_USER_ALLOWED_PARAMETERS_QUERY,
-        { userId },
-      );
-      const allowedParams = parseUserAllowedParametersResponse(
-        allowedParamsResult as Record<string, unknown>,
-      );
-      const allowedIds = allowedParams.map((p) => p.valueId);
-
-      if (allowedIds.length > 0) {
-        andFilters.push({
-          or: [
-            { resourceType: { notEqualTo: MirageObjectType.PARAMETER } },
-            {
-              and: [
-                { resourceType: { equalTo: MirageObjectType.PARAMETER } },
-                { resourceId: { in: allowedIds } },
-              ],
-            },
-          ],
-        });
-      } else {
-        andFilters.push({
-          resourceType: { notEqualTo: MirageObjectType.PARAMETER },
-        });
-      }
-    }
-  }
-
-  // --- Premade Profile Filter ---
-  if (params.premadeProfile) {
-    const profileValuesResult = (await performQuery(GET_PROFILE_VALUES_QUERY, {
-      condition: { profileId: params.premadeProfile },
-    })) as Record<string, unknown>;
-
-    const values = parseProfileValuesResponse(profileValuesResult);
-
-    if (values.length > 0) {
-      // Map logic: if parameterId exists, it's a PARAMETER, so use parameterId:valueId
-      // Otherwise, it might be another type (not fully specified in schema but safe to assume valueId)
-      // Since the requirement is specifically "we want the resource or target type PARAMETER and the id to be parameter_id:value_id"
-
-      const resourceIds = values.map((v) => {
-        if (v.parameterId) {
-          return `${v.parameterId}:${v.valueId}`;
-        }
-        return v.valueId;
-      });
-
-      andFilters.push({
-        resourceId: { in: resourceIds },
-      });
-    } else {
-      andFilters.push({ resourceId: { equalTo: "___NONE___" } });
     }
   }
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { AuditFilters } from "@/types/audit";
+import { AuditFilters, FilterField } from "@/types/audit";
 import { AUDIT_CATEGORIES } from "@/constants/filterOptions";
 import { fetchPremadeProfiles } from "@/lib/api";
 
@@ -8,6 +8,46 @@ interface UseFilterLogicProps {
   onFiltersChange: (filters: AuditFilters) => void;
   onReset: () => void;
 }
+
+// Helper to determine valid dynamic filters based on selections
+const getValidFilters = (currentFilters: AuditFilters): Set<string> => {
+  const selectedCategoryIds = (currentFilters.category as string[]) || [];
+  const selectedActionIds = (currentFilters.action as string[]) || [];
+
+  const validFields = new Set<string>();
+
+  // Add fields from selected categories
+  const activeCategories = AUDIT_CATEGORIES.filter((c) =>
+    selectedCategoryIds.includes(c.id),
+  );
+  activeCategories.forEach((cat) => {
+    cat.filters?.forEach((f) => validFields.add(f.searchField));
+  });
+
+  // Add fields from valid subcategories of selected categories
+  // Note: We filter subcategories by actions AND check if they belong to active categories
+  const activeSubcategories = activeCategories
+    .flatMap((c) => c.subcategories)
+    .filter((s) => selectedActionIds.includes(s.id));
+
+  activeSubcategories.forEach((sub) => {
+    sub.filters?.forEach((f) => validFields.add(f.searchField));
+  });
+
+  return validFields;
+};
+
+// Helper to get ALL possible dynamic fields to know what to clear
+const getAllDynamicFields = (): Set<string> => {
+  const allFields = new Set<string>();
+  AUDIT_CATEGORIES.forEach((cat) => {
+    cat.filters?.forEach((f) => allFields.add(f.searchField));
+    cat.subcategories.forEach((sub) => {
+      sub.filters?.forEach((f) => allFields.add(f.searchField));
+    });
+  });
+  return allFields;
+};
 
 export const useFilterLogic = ({
   filters,
@@ -88,6 +128,53 @@ export const useFilterLogic = ({
     setSearchValues((prev) => ({ ...prev, [field]: value }));
   }, []);
 
+  const cleanupInvalidFilters = useCallback((currentFilters: AuditFilters) => {
+    const validFields = getValidFilters(currentFilters);
+    const allFields = getAllDynamicFields();
+    const cleanedFilters = { ...currentFilters };
+    let hasChanges = false;
+
+    allFields.forEach((field) => {
+      if (!validFields.has(field)) {
+        // If the field is present and invalid, clear it
+        const key = field as keyof AuditFilters;
+        if (field === FilterField.CATEGORY || field === FilterField.ACTION) {
+          // Array fields
+          if (
+            Array.isArray(cleanedFilters[field]) &&
+            cleanedFilters[field]!.length > 0
+          ) {
+            delete cleanedFilters[field];
+            hasChanges = true;
+          }
+        } else if (
+          field === FilterField.DATE_FROM ||
+          field === FilterField.DATE_TO
+        ) {
+          // Date fields
+          if (cleanedFilters[field]) {
+            delete cleanedFilters[field];
+            hasChanges = true;
+          }
+        } else if (field === FilterField.SEARCH_INPUT_IS_EXACT) {
+          // Boolean fields
+          if (cleanedFilters[field] !== undefined) {
+            delete cleanedFilters[field];
+            hasChanges = true;
+          }
+        } else {
+          // String fields (default)
+          if (cleanedFilters[key]) {
+            delete cleanedFilters[key]; // Delete is type safe for optional properties
+            hasChanges = true;
+          }
+        }
+      }
+    });
+
+    return { filters: cleanedFilters, hasChanges };
+  }, []);
+
   const toggleMultiFilter = useCallback(
     (field: "category" | "action", value: string) => {
       const current = (filters[field] as string[]) || [];
@@ -121,9 +208,11 @@ export const useFilterLogic = ({
         }
       }
 
-      onFiltersChange(newFilters);
+      // Generic cleanup for any invalid dynamic filters
+      const { filters: finalFilters } = cleanupInvalidFilters(newFilters);
+      onFiltersChange(finalFilters);
     },
-    [filters, onFiltersChange],
+    [filters, onFiltersChange, cleanupInvalidFilters],
   );
 
   const activeFilters = Object.entries(filters).filter(([key, value]) => {
@@ -247,8 +336,10 @@ export const useFilterLogic = ({
     [toggleMultiFilter],
   );
   const handleCategoryClear = useCallback(() => {
-    onFiltersChange({ ...filters, category: null, action: null });
-  }, [filters, onFiltersChange]);
+    const newFilters = { ...filters, category: null, action: null };
+    const { filters: finalFilters } = cleanupInvalidFilters(newFilters);
+    onFiltersChange(finalFilters);
+  }, [filters, onFiltersChange, cleanupInvalidFilters]);
   const handleActionToggle = useCallback(
     (id: string) => toggleMultiFilter("action", id),
     [toggleMultiFilter],
