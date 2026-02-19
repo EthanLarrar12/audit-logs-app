@@ -290,7 +290,17 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
                   "scrollbar-thin scrollbar-webkit": showScrollbar,
                   "overflow-hidden": !showScrollbar,
                 })}
-                style={{ height: Math.min(totalCount * 44, 300) }} // Adjust height as needed
+                style={{
+                  height: Math.min(
+                    (value ? 45 : 0) + // Height for "Search for..." option
+                    suggestions.reduce((acc, curr, index) => {
+                      const prev = index > 0 ? suggestions[index - 1] : null;
+                      const hasHeader = !prev || curr.type !== prev.type;
+                      return acc + 44 + (hasHeader ? 28 : 0); // Item height + header height
+                    }, 0),
+                    300
+                  )
+                }}
                 totalCount={totalCount}
                 itemContent={renderRow}
                 endReached={() =>
