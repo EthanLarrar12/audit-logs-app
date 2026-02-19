@@ -250,7 +250,7 @@ describe("getSuggestions", () => {
     const result = await getSuggestions({ term }, mockPerformQuery);
 
     expect(mockPerformQuery).toHaveBeenCalledWith(GET_SEARCH_FILTERS_QUERY, {
-      searchTerm: term,
+      searchValue: term,
       resultLimit: 50,
       resultOffset: 0,
     });

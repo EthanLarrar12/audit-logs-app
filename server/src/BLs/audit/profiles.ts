@@ -32,7 +32,7 @@ export const getSuggestions = async (
   const offset = (page - 1) * limit;
 
   const result = await performQuery(GET_SEARCH_FILTERS_QUERY, {
-    searchTerm: params.term,
+    searchValue: params.term,
     resultLimit: limit,
     resultOffset: offset,
   });

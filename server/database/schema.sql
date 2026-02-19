@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS api.mirage_premade_profile_owners(
 -- This is a mock function with the same name and parameters as the real function
 -- It is used for testing purposes
 CREATE OR REPLACE FUNCTION history.get_search_filters(
-    search_term TEXT,
+    search_value TEXT,
     result_limit INTEGER DEFAULT 10,
     result_offset INTEGER DEFAULT 0
 )
@@ -84,7 +84,7 @@ BEGIN
         (
             SELECT executor_id::TEXT AS id, executor_name AS name, executor_type AS type
             FROM history.records
-            WHERE executor_name ILIKE '%' || search_term || '%'
+            WHERE executor_name ILIKE '%' || search_value || '%'
             ORDER BY executor_type, executor_name, executor_id
             LIMIT fetch_max
         )
@@ -92,7 +92,7 @@ BEGIN
         (
             SELECT target_id::TEXT AS id, target_name AS name, target_type AS type
             FROM history.records
-            WHERE target_name ILIKE '%' || search_term || '%'
+            WHERE target_name ILIKE '%' || search_value || '%'
             ORDER BY target_type, target_name, target_id
             LIMIT fetch_max
         )
@@ -100,7 +100,7 @@ BEGIN
         (
             SELECT resource_id::TEXT AS id, resource_name AS name, resource_type AS type
             FROM history.records
-            WHERE resource_name ILIKE '%' || search_term || '%'
+            WHERE resource_name ILIKE '%' || search_value || '%'
             ORDER BY resource_type, resource_name, resource_id
             LIMIT fetch_max
         )

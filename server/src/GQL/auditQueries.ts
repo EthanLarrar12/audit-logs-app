@@ -92,8 +92,8 @@ export const GET_SUGGESTIONS_QUERY = `
  * Query to fetch search filters via DB function
  */
 export const GET_SEARCH_FILTERS_QUERY = `
-    query GetSearchFilters($searchTerm: String!, $resultLimit: Int!, $resultOffset: Int!) {
-        getSearchFilters(searchTerm: $searchTerm, resultLimit: $resultLimit, resultOffset: $resultOffset) {
+    query GetSearchFilters($searchValue: String!, $resultLimit: Int!, $resultOffset: Int!) {
+        getSearchFilters(searchValue: $searchValue, resultLimit: $resultLimit, resultOffset: $resultOffset) {
             nodes {
                 id
                 name
