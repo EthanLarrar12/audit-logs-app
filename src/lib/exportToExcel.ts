@@ -13,7 +13,7 @@ export async function exportToExcel(
 ) {
   // Create workbook and worksheet
   const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet('יומן ביקורת', {
+  const worksheet = workbook.addWorksheet('היסטוריית_פעולות', {
     views: [{ rightToLeft: true }]
   });
 
@@ -180,7 +180,7 @@ export async function exportToExcel(
   const buffer = await workbook.xlsx.writeBuffer();
 
   // Create blob and save
-  const exportFilename = filename || `יומן_ביקורת_${format(new Date(), 'yyyy-MM-dd_HH-mm')}.xlsx`;
+  const exportFilename = filename || `היסטוריית_פעולות_${format(new Date(), 'yyyy-MM-dd_HH-mm')}.xlsx`;
   const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   saveAs(blob, exportFilename);
 }

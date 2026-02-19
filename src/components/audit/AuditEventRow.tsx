@@ -7,6 +7,7 @@ import { CategoryBadge } from './CategoryBadge';
 import { cn } from '@/lib/utils';
 import { getSubcategoryName, getActionIcon } from '@/constants/filterOptions';
 import { styles } from './AuditEventRow.styles';
+import { StateDiff } from './StateDiff';
 
 interface AuditEventRowProps {
   event: AuditEvent;
@@ -130,23 +131,11 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
 
           {/* State changes */}
           {(event.before_state || event.after_state) && (
-            <div className={styles.stateChangesGrid}>
-              {event.before_state && (
-                <div className={styles.stateSection}>
-                  <h4 className={styles.detailsHeader}>מצב קודם</h4>
-                  <pre className={styles.jsonPre} dir="ltr">
-                    {JSON.stringify(event.before_state, null, 2)}
-                  </pre>
-                </div>
-              )}
-              {event.after_state && (
-                <div className={styles.stateSection}>
-                  <h4 className={styles.detailsHeader}>מצב נוכחי</h4>
-                  <pre className={styles.jsonPre} dir="ltr">
-                    {JSON.stringify(event.after_state, null, 2)}
-                  </pre>
-                </div>
-              )}
+            <div className="mt-4">
+              <h4 className={styles.detailsHeader}>שינויים במצב</h4>
+              <div className="mt-2 border rounded-md p-4 bg-white/50">
+                <StateDiff before={event.before_state} after={event.after_state} />
+              </div>
             </div>
           )}
 

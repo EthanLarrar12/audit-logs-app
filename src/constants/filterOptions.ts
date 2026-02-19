@@ -66,17 +66,17 @@ export const AUDIT_CATEGORIES: Category[] = [
         id: 'USER',
         name: 'משתמש',
         subcategories: [
-            { id: 'USER_CREATION', name: 'יצירת משתמש', type: ActionType.CREATE },
-            { id: 'USER_DELETION', name: 'מחיקה משתמש', type: ActionType.DELETE },
-            { id: 'USER_SYNC', name: 'סינכרון משתמש', type: ActionType.SYNC },
+            { id: 'MANDAT_USER_CREATED', name: 'יצירת משתמש', type: ActionType.CREATE },
+            { id: 'MANDAT_USER_DELETED', name: 'מחיקה משתמש', type: ActionType.DELETE },
+            { id: 'MANDAT_USER_SYNCED', name: 'סינכרון משתמש', type: ActionType.SYNC },
             {
-                id: 'ADD_VALUE_TO_USER',
+                id: 'MANDAT_USER_PROFILE_DG_PARAMS_ADDED',
                 name: 'הוספת תכונה למשתמש',
                 type: ActionType.ADD_VALUE,
                 filters: [PREMADE_PROFILE_FILTER]
             },
             {
-                id: 'REMOVE_VALUE_FROM_USER',
+                id: 'MANDAT_USER_PROFILE_DG_PARAMS_REMOVED',
                 name: 'הסרת תכונה מהמשתמש',
                 type: ActionType.REMOVE_VALUE,
                 filters: [PREMADE_PROFILE_FILTER]

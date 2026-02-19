@@ -6,7 +6,7 @@ The audit logs application now supports URL-based filtering. You can set default
 
 ### Category & Action (Multi-select)
 - `category` - Filter by one or more categories, comma-separated (e.g., `USER`, `USER,ENTITY`)
-- `action` - Filter by one or more subcategories/actions, comma-separated (e.g., `USER_SYNC`, `USER_SYNC,ENTITY_CREATION`)
+- `action` - Filter by one or more subcategories/actions, comma-separated (e.g., `MANDAT_USER_SYNCED`, `MANDAT_USER_SYNCED,ENTITY_CREATION`)
 
 ### Search Fields
 - `search` - General search input
@@ -29,7 +29,7 @@ http://localhost:5173/?category=USER,ENTITY
 
 ### Filter by multiple categories and actions
 ```
-http://localhost:5173/?category=USER,ENTITY&action=USER_SYNC,ENTITY_CREATION
+http://localhost:5173/?category=USER,ENTITY&action=MANDAT_USER_SYNCED,ENTITY_CREATION
 ```
 
 ### Filter by premade profile
@@ -49,7 +49,7 @@ http://localhost:5173/?actorSearch=jane.doe
 
 ### Combined filters
 ```
-http://localhost:5173/?category=USER&action=USER_SYNC&dateFrom=2026-01-01T00:00:00.000Z&actorSearch=jane.doe
+http://localhost:5173/?category=USER&action=MANDAT_USER_SYNCED&dateFrom=2026-01-01T00:00:00.000Z&actorSearch=jane.doe
 ```
 
 ## Features

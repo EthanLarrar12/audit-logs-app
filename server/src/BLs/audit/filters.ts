@@ -175,7 +175,7 @@ export const buildAuditFilters = async (
 
   // Action
   if (params.action && params.action.length > 0) {
-    andFilters.push({ midurAction: { in: params.action } });
+    andFilters.push({ historyAction: { in: params.action } });
   }
 
   // Search Inputs (OR logic)
@@ -277,6 +277,9 @@ export const buildAuditFilters = async (
             { executorName: { includesInsensitive: term } },
             { targetName: { includesInsensitive: term } },
             { resourceName: { includesInsensitive: term } },
+            { executorId: { includesInsensitive: term } },
+            { targetId: { includesInsensitive: term } },
+            { resourceId: { includesInsensitive: term } },
           ],
         });
       }

@@ -29,7 +29,7 @@ export const GET_AUDIT_EVENTS_QUERY = `
                 category: targetType
                 actorId: executorId
                 actorUsername: executorName
-                action: midurAction
+                action: historyAction
                 resourceName
                 resourceId: resourceId
                 targetId: targetId
@@ -54,7 +54,7 @@ export const GET_AUDIT_EVENT_BY_ID_QUERY = `
             category: targetType
             actorId: executorId
             actorUsername: executorName
-            action: midurAction
+            action: historyAction
             resourceName: resourceName
             resourceId: resourceId
             targetId: targetId
