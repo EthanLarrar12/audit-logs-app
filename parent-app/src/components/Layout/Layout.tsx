@@ -1,11 +1,6 @@
-import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import './Layout.css';
-
-const AUDIT_URL = 'http://localhost:8000';
-
-
 interface NavItem {
     to: string;
     icon: string;
@@ -31,11 +26,6 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
     const { pathname } = useLocation();
     const title = PAGE_TITLES[pathname] ?? 'Management Portal';
-    const isAudit = pathname === '/audit';
-
-    // Lazy-mount: only load the iframe on first visit, then keep it alive
-    const [auditLoaded, setAuditLoaded] = useState(false);
-    if (isAudit && !auditLoaded) setAuditLoaded(true);
 
     return (
         <div className="layout">
@@ -86,19 +76,9 @@ export function Layout({ children }: LayoutProps) {
                     </div>
                 </header>
 
-                <main className="main__content" style={{ display: isAudit ? 'none' : 'flex' }}>
+                <main className="main__content">
                     {children}
                 </main>
-
-                {/* Lazy-mounted iframe — stays in DOM once loaded, hidden when off /audit */}
-                {auditLoaded && (
-                    <iframe
-                        className="audit-iframe"
-                        src={AUDIT_URL}
-                        title="Audit Logs"
-                        style={{ display: isAudit ? 'block' : 'none' }}
-                    />
-                )}
             </div>
         </div>
     );

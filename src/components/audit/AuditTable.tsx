@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCw } from "lucide-react";
 import { Virtuoso, Components } from "react-virtuoso"; // Added imports
 import { AuditEvent } from "@/types/audit";
+import excelIcon from "@/assets/exportToExcel.svg";
 import { AuditEventRow } from "./AuditEventRow";
 import { AuditTableSkeleton } from "./AuditTableSkeleton";
 import { EmptyState } from "./EmptyState";
@@ -78,7 +79,7 @@ export function AuditTable({
           onClick={onExport}
           className="flex items-center gap-2 hover:bg-muted/50"
         >
-          <img src="/exportToExcel.svg" className="w-4 h-4" />
+          <img src={excelIcon} className="w-4 h-4" />
           {AUDIT_HEADERS.EXPORT_TO_EXCEL}
         </Button>
       </div>

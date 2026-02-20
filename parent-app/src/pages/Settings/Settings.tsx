@@ -5,7 +5,7 @@ export function Settings() {
     const [notifications, setNotifications] = useState(true);
     const [darkMode, setDarkMode] = useState(true);
     const [twoFactor, setTwoFactor] = useState(false);
-    const [auditUrl, setAuditUrl] = useState('http://localhost:8000');
+    const [auditUrl, setAuditUrl] = useState('http://localhost:3001/assets/webComponent.js');
 
     return (
         <div className="settings">
@@ -66,8 +66,8 @@ export function Settings() {
 
                 <div className="settings__row">
                     <div className="settings__row-label">
-                        <span className="settings__row-name">Audit Logs URL</span>
-                        <span className="settings__row-desc">URL of the embedded audit logs application</span>
+                        <span className="settings__row-name">Audit Logs Script URL</span>
+                        <span className="settings__row-desc">URL of the embedded audit logs web component script</span>
                     </div>
                     <input
                         className="settings__input"

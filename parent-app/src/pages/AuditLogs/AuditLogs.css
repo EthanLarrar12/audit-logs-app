@@ -8,10 +8,10 @@
     overflow: hidden;
 }
 
-.audit-logs__iframe {
+.audit-logs-app-container {
     flex: 1;
     width: 100%;
     border: none;
     display: block;
-    background: hsl(222, 47%, 7%);
+    background: var(--color-surface);
 }

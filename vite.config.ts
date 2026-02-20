@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => {
     server: {
       host: "::",
       port: 8000,
+      cors: true,
       proxy: {
         '/audit': {
           target: proxyTarget,
@@ -25,6 +26,24 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
         },
       },
+    },
+    build: {
+      cssCodeSplit: false,
+      rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, 'index.html'),
+          webComponent: path.resolve(__dirname, 'src/web-component.tsx'),
+        },
+        output: {
+          entryFileNames: "assets/[name].js",
+          assetFileNames: (assetInfo) => {
+            if (assetInfo.name && assetInfo.name.endsWith('.css')) {
+              return 'assets/webComponent.css';
+            }
+            return 'assets/[name].[ext]';
+          },
+        }
+      }
     },
     plugins: [react()],
     resolve: {

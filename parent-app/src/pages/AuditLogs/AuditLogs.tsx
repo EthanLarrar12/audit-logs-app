@@ -1,7 +1,40 @@
+import { useEffect } from 'react';
 import './AuditLogs.css';
 
-// The iframe is rendered persistently in Layout.tsx (lazy-mounted, CSS-hidden when off-route).
-// This page intentionally renders nothing — it just signals the route is active.
+declare global {
+    namespace JSX {
+        interface IntrinsicElements {
+            'audit-logs-app': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & { basename?: string };
+        }
+    }
+}
+
+const AUDIT_SCRIPT_URL = 'http://localhost:3001/assets/webComponent.js';
+
 export function AuditLogs() {
-    return <div className="audit-logs-placeholder" />;
+    useEffect(() => {
+        if (!document.querySelector(`script[src="${AUDIT_SCRIPT_URL}"]`)) {
+            const script = document.createElement('script');
+            script.type = 'module';
+            script.src = AUDIT_SCRIPT_URL;
+            document.head.appendChild(script);
+
+            const cssUrl = AUDIT_SCRIPT_URL.replace('.js', '.css');
+            if (!document.querySelector(`link[href="${cssUrl}"]`)) {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = cssUrl;
+                document.head.appendChild(link);
+            }
+        }
+    }, []);
+
+    return (
+        <div className="audit-logs">
+            <audit-logs-app
+                basename="/audit"
+                className="audit-logs-app-container"
+            />
+        </div>
+    );
 }
