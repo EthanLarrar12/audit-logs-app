@@ -1,0 +1,62 @@
+/* ============================================================
+   Global CSS — Management Portal
+   ============================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Color palette */
+  --color-bg:           hsl(222, 47%, 7%);
+  --color-surface:      hsl(222, 47%, 10%);
+  --color-surface-2:    hsl(222, 47%, 13%);
+  --color-border:       hsl(222, 47%, 18%);
+  --color-accent:       hsl(214, 100%, 60%);
+  --color-accent-hover: hsl(214, 100%, 55%);
+  --color-accent-muted: hsl(214, 100%, 60%, 0.12);
+  --color-text:         hsl(220, 20%, 92%);
+  --color-text-muted:   hsl(220, 10%, 55%);
+  --color-success:      hsl(142, 71%, 45%);
+  --color-warning:      hsl(38, 92%, 60%);
+  --color-danger:       hsl(0, 84%, 60%);
+
+  /* Sizing */
+  --sidebar-width: 240px;
+  --topbar-height: 60px;
+  --radius:        8px;
+
+  /* Transitions */
+  --transition: 0.18s ease;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--color-border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }

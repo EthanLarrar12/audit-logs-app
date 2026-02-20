@@ -1,0 +1,233 @@
+/* Dashboard styles */
+
+.dashboard {
+    padding: 28px 32px;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+/* ── Header ── */
+.dashboard__header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.4px;
+}
+
+.dashboard__header p {
+    font-size: 13.5px;
+    color: var(--color-text-muted);
+    margin-top: 4px;
+}
+
+/* ── Stat cards ── */
+.dashboard__stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.stat-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color var(--transition), transform var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    border-radius: 12px 12px 0 0;
+}
+
+.stat-card--blue::before {
+    background: var(--color-accent);
+}
+
+.stat-card--green::before {
+    background: var(--color-success);
+}
+
+.stat-card--yellow::before {
+    background: var(--color-warning);
+}
+
+.stat-card--red::before {
+    background: var(--color-danger);
+}
+
+.stat-card:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+}
+
+.stat-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.stat-card__label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-card__icon {
+    font-size: 18px;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--color-surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-card__value {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -1px;
+    line-height: 1;
+}
+
+.stat-card__change {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.stat-card__change.up {
+    color: var(--color-success);
+}
+
+.stat-card__change.down {
+    color: var(--color-danger);
+}
+
+/* ── Activity feed ── */
+.dashboard__bottom {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    flex: 1;
+    min-height: 0;
+}
+
+.panel {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow: hidden;
+}
+
+.panel__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow-y: auto;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-item__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+}
+
+.activity-item__text {
+    flex: 1;
+    min-width: 0;
+}
+
+.activity-item__action {
+    font-size: 13px;
+    color: var(--color-text);
+    line-height: 1.4;
+}
+
+.activity-item__action strong {
+    font-weight: 600;
+}
+
+.activity-item__time {
+    font-size: 11px;
+    color: var(--color-text-muted);
+    margin-top: 2px;
+}
+
+/* ── Quick links ── */
+.quick-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.quick-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    font-size: 13px;
+    color: var(--color-text);
+    text-decoration: none;
+    transition: border-color var(--transition), background var(--transition);
+    cursor: pointer;
+}
+
+.quick-link:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent-muted);
+    color: var(--color-accent);
+}
+
+.quick-link__icon {
+    font-size: 16px;
+}
+
+.quick-link__arrow {
+    margin-left: auto;
+    color: var(--color-text-muted);
+    font-size: 12px;
+}
