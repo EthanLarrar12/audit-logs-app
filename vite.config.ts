@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => {
   const proxyTarget = env.PROXY_TARGET;
 
   return {
+    base: '/audit/',
     server: {
       host: "::",
       port: 8000,

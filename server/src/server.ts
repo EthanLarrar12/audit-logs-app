@@ -67,7 +67,7 @@ app.get(
 
 // Serve static files from the React app
 const clientBuildPath = path.join(__dirname, "../../dist");
-app.use(express.static(clientBuildPath));
+app.use('/audit', express.static(clientBuildPath));
 
 // Initialize and start server
 const startServer = async (): Promise<void> => {
@@ -82,7 +82,7 @@ const startServer = async (): Promise<void> => {
 
     // The "catchall" handler: for any request that doesn't
     // match one above, send back React's index.html file.
-    app.get("/", (req, res) => {
+    app.get("/audit", (req, res) => {
       res.sendFile(path.join(clientBuildPath, "index.html"));
     });
 

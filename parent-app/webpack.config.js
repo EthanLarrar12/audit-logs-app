@@ -48,18 +48,6 @@ module.exports = {
             '/audit': {
                 target: 'http://localhost:3001',
                 changeOrigin: true
-            },
-            '/graphql': {
-                target: 'http://localhost:3001',
-                changeOrigin: true
-            },
-            '/assets': {
-                target: 'http://localhost:3001',
-                changeOrigin: true
-            },
-            '/src': {
-                target: 'http://localhost:3001',
-                changeOrigin: true
             }
         }
     }

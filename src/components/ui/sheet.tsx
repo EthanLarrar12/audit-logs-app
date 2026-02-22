@@ -4,7 +4,7 @@ import { X } from "lucide-react";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { useShadowContainer } from "@/lib/shadow-Root-Context";
+import { useShadowContainer, useShadowInteractOutside } from "@/lib/shadow-Root-Context";
 
 const Sheet = SheetPrimitive.Root;
 
@@ -61,16 +61,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
         <SheetPrimitive.Content
           ref={ref}
           className={cn(sheetVariants({ side }), className)}
-          onInteractOutside={(e) => {
-            const target = e.detail.originalEvent.target as HTMLElement;
-            if (target.closest?.('.audit-logs-wrapper')) {
-              const path = e.detail.originalEvent.composedPath();
-              if (typeof ref !== 'function' && ref?.current && path.includes(ref.current as any)) {
-                e.preventDefault();
-              }
-            }
-            props.onInteractOutside?.(e);
-          }}
+          onInteractOutside={useShadowInteractOutside(ref, props.onInteractOutside)}
           {...props}
         >
           {children}

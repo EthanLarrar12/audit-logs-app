@@ -8,6 +8,7 @@ import excelIcon from "@/assets/exportToExcel.svg";
 import { AuditEventRow } from "./AuditEventRow";
 import { AuditTableSkeleton } from "./AuditTableSkeleton";
 import { EmptyState } from "./EmptyState";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { styles } from "./AuditTable.styles";
 
 interface AuditTableProps {
@@ -61,30 +62,43 @@ export function AuditTable({
 
   return (
     <div className={styles.container}>
-      <div className="flex justify-between items-center px-4 py-2 border-b bg-card">
-        <Button
-          variant="default"
-          size="sm"
-          onClick={handleRefresh}
-          className="gap-1.5 h-9"
-          disabled={isLoading || isSpinning}
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${isSpinning ? 'animate-spin' : ''}`} />
-          רענון
-        </Button>
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onExport}
-          className="flex items-center gap-2 hover:bg-muted/50"
-        >
-          <img src={excelIcon} className="w-4 h-4" />
-          {AUDIT_HEADERS.EXPORT_TO_EXCEL}
-        </Button>
-      </div>
       {/* Table header */}
       <div className={styles.header}>
+        <div className={styles.actionContainer}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleRefresh}
+                className="w-7 h-7"
+                disabled={isLoading || isSpinning}
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isSpinning ? 'animate-spin' : ''}`} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>רענון</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={onExport}
+                className="w-7 h-7"
+              >
+                <img src={excelIcon} className="w-3.5 h-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{AUDIT_HEADERS.EXPORT_TO_EXCEL}</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+
         <div className={styles.headerItemTime}>{AUDIT_HEADERS.TIME}</div>
         <div className={styles.headerItemUser}>{AUDIT_HEADERS.ACTOR}</div>
         <div className={styles.headerItemAction}>{AUDIT_HEADERS.ACTION}</div>
