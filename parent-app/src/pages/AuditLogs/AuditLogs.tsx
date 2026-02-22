@@ -8,8 +8,7 @@ declare global {
         }
     }
 }
-
-const AUDIT_SCRIPT_URL = 'http://localhost:3001/assets/webComponent.js';
+const AUDIT_SCRIPT_URL = '/assets/webComponent.js';
 
 export function AuditLogs() {
     useEffect(() => {

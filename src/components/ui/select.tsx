@@ -75,6 +75,16 @@ const SelectContent = React.forwardRef<
           className,
         )}
         position={position}
+        onPointerDownOutside={(e) => {
+          const target = e.detail.originalEvent.target as HTMLElement;
+          if (target.closest?.('.audit-logs-wrapper')) {
+            const path = e.detail.originalEvent.composedPath();
+            if (typeof ref !== 'function' && ref?.current && path.includes(ref.current as any)) {
+              e.preventDefault();
+            }
+          }
+          props.onPointerDownOutside?.(e);
+        }}
         {...props}
       >
         <SelectScrollUpButton />

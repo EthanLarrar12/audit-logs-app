@@ -58,7 +58,21 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
     return (
       <SheetPortal container={container as HTMLElement}>
         <SheetOverlay />
-        <SheetPrimitive.Content ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
+        <SheetPrimitive.Content
+          ref={ref}
+          className={cn(sheetVariants({ side }), className)}
+          onInteractOutside={(e) => {
+            const target = e.detail.originalEvent.target as HTMLElement;
+            if (target.closest?.('.audit-logs-wrapper')) {
+              const path = e.detail.originalEvent.composedPath();
+              if (typeof ref !== 'function' && ref?.current && path.includes(ref.current as any)) {
+                e.preventDefault();
+              }
+            }
+            props.onInteractOutside?.(e);
+          }}
+          {...props}
+        >
           {children}
           <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity data-[state=open]:bg-secondary hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
             <X className="h-4 w-4" />
