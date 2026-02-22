@@ -1,5 +1,6 @@
-import { useNavigate } from 'react-router-dom';
-import './Dashboard.css';
+import { useHistory } from 'react-router-dom';
+import React from 'react';
+import { Grid, Card, CardContent, Typography, Button, Box } from '@material-ui/core';
 
 const STATS = [
     { label: 'Total Events', value: '24,821', change: '+12% vs last month', up: true, icon: '📋', variant: 'blue' },
@@ -23,61 +24,79 @@ const QUICK_LINKS = [
 ];
 
 export function Dashboard() {
-    const navigate = useNavigate();
+    const history = useHistory();
 
     return (
-        <div className="dashboard">
-            <div className="dashboard__header">
-                <h1>Welcome back, Admin</h1>
-                <p>Here's what's happening in your system today.</p>
-            </div>
+        <Box p={3}>
+            <Box mb={3}>
+                <Typography variant="h4" component="h1" gutterBottom>Welcome back, Admin</Typography>
+                <Typography variant="body1" color="textSecondary">Here's what's happening in your system today.</Typography>
+            </Box>
 
-            {/* Stat cards */}
-            <div className="dashboard__stats">
+            <Grid container spacing={3} style={{ marginBottom: '24px' }}>
                 {STATS.map((s) => (
-                    <div key={s.label} className={`stat-card stat-card--${s.variant}`}>
-                        <div className="stat-card__top">
-                            <span className="stat-card__label">{s.label}</span>
-                            <div className="stat-card__icon">{s.icon}</div>
-                        </div>
-                        <div className="stat-card__value">{s.value}</div>
-                        <span className={`stat-card__change ${s.up ? 'up' : 'down'}`}>
-                            {s.up ? '▲' : '▼'} {s.change}
-                        </span>
-                    </div>
+                    <Grid item xs={12} sm={6} md={3} key={s.label}>
+                        <Card>
+                            <CardContent>
+                                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                                    <Typography color="textSecondary" variant="subtitle2">{s.label}</Typography>
+                                    <Typography variant="h5">{s.icon}</Typography>
+                                </Box>
+                                <Typography variant="h4" component="div">{s.value}</Typography>
+                                <Typography variant="body2" style={{ color: s.up ? 'green' : 'red', marginTop: '8px' }}>
+                                    {s.up ? '▲' : '▼'} {s.change}
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
                 ))}
-            </div>
+            </Grid>
 
-            {/* Activity + Quick links */}
-            <div className="dashboard__bottom">
-                <div className="panel">
-                    <div className="panel__title">Recent Activity</div>
-                    <div className="activity-list">
-                        {ACTIVITY.map((a, i) => (
-                            <div key={i} className="activity-item">
-                                <div className="activity-item__dot" style={{ background: a.color }} />
-                                <div className="activity-item__text">
-                                    <div className="activity-item__action">{a.action}</div>
-                                    <div className="activity-item__time">{a.time}</div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+            <Grid container spacing={3}>
+                <Grid item xs={12} md={8}>
+                    <Card style={{ height: '100%' }}>
+                        <CardContent>
+                            <Typography variant="h6" gutterBottom>Recent Activity</Typography>
+                            <Box mt={2}>
+                                {ACTIVITY.map((a, i) => (
+                                    <Box key={i} display="flex" alignItems="flex-start" mb={2}>
+                                        <Box width={12} height={12} borderRadius="50%" bgcolor={a.color} mt={1} mr={2} flexShrink={0} />
+                                        <Box>
+                                            <Typography variant="body2">{a.action}</Typography>
+                                            <Typography variant="caption" color="textSecondary">{a.time}</Typography>
+                                        </Box>
+                                    </Box>
+                                ))}
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
 
-                <div className="panel">
-                    <div className="panel__title">Quick Links</div>
-                    <div className="quick-links">
-                        {QUICK_LINKS.map((l) => (
-                            <button key={l.to} className="quick-link" onClick={() => navigate(l.to)}>
-                                <span className="quick-link__icon">{l.icon}</span>
-                                {l.label}
-                                <span className="quick-link__arrow">›</span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </div>
+                <Grid item xs={12} md={4}>
+                    <Card style={{ height: '100%' }}>
+                        <CardContent>
+                            <Typography variant="h6" gutterBottom>Quick Links</Typography>
+                            <Box display="flex" flexDirection="column" mt={2}>
+                                {QUICK_LINKS.map((l) => (
+                                    <Button
+                                        key={l.to}
+                                        variant="outlined"
+                                        fullWidth
+                                        onClick={() => history.push(l.to)}
+                                        style={{ justifyContent: 'flex-start', marginBottom: '8px' }}
+                                        startIcon={<span style={{ marginRight: '8px' }}>{l.icon}</span>}
+                                    >
+                                        <Box display="flex" justifyContent="space-between" width="100%" alignItems="center">
+                                            <span>{l.label}</span>
+                                            <span>›</span>
+                                        </Box>
+                                    </Button>
+                                ))}
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
+        </Box>
     );
 }

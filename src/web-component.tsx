@@ -1,6 +1,6 @@
 import { createRoot, Root } from "react-dom/client";
 import App from "./App.tsx";
-import "./index.css";
+import styles from "./index.css?inline";
 
 class AuditLogsApp extends HTMLElement {
     private root: Root | null = null;
@@ -10,8 +10,22 @@ class AuditLogsApp extends HTMLElement {
         this.setAttribute('dir', 'rtl');
         const basename = this.getAttribute('basename') || '/';
 
-        this.root = createRoot(this);
-        this.root.render(<App basename={basename} />);
+        const shadow = this.attachShadow({ mode: "open" });
+
+        const styleSheet = document.createElement("style");
+        styleSheet.textContent = styles;
+        shadow.appendChild(styleSheet);
+
+        const mountPoint = document.createElement("div");
+        mountPoint.className = "audit-logs-wrapper";
+        mountPoint.style.width = '100%';
+        mountPoint.style.height = '100%';
+        mountPoint.style.display = 'flex';
+        mountPoint.style.flexDirection = 'column';
+        shadow.appendChild(mountPoint);
+
+        this.root = createRoot(mountPoint);
+        this.root.render(<App basename={basename} shadowContainer={mountPoint} />);
     }
 
     disconnectedCallback() {

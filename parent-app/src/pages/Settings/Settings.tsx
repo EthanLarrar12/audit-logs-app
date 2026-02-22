@@ -1,5 +1,8 @@
-import { useState } from 'react';
-import './Settings.css';
+import React, { useState } from 'react';
+import {
+    Box, Typography, Paper, Switch,
+    FormControlLabel, TextField, Button, Divider
+} from '@material-ui/core';
 
 export function Settings() {
     const [notifications, setNotifications] = useState(true);
@@ -8,81 +11,84 @@ export function Settings() {
     const [auditUrl, setAuditUrl] = useState('http://localhost:3001/assets/webComponent.js');
 
     return (
-        <div className="settings">
-            <div className="settings__header">
-                <h1>Settings</h1>
-                <p>Manage your portal preferences and system configuration.</p>
-            </div>
+        <Box p={3} maxWidth={800} mx="auto">
+            <Box mb={4}>
+                <Typography variant="h4" component="h1" gutterBottom>Settings</Typography>
+                <Typography variant="body1" color="textSecondary">
+                    Manage your portal preferences and system configuration.
+                </Typography>
+            </Box>
 
-            {/* Preferences */}
-            <section className="settings__section">
-                <div className="settings__section-title">Preferences</div>
+            <Paper>
+                {/* Preferences */}
+                <Box p={3}>
+                    <Typography variant="h6" gutterBottom>Preferences</Typography>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" my={2}>
+                        <Box>
+                            <Typography variant="subtitle1">Email Notifications</Typography>
+                            <Typography variant="body2" color="textSecondary">Receive alerts for critical events</Typography>
+                        </Box>
+                        <FormControlLabel
+                            control={<Switch checked={notifications} onChange={(e) => setNotifications(e.target.checked)} color="primary" />}
+                            label=""
+                        />
+                    </Box>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" my={2}>
+                        <Box>
+                            <Typography variant="subtitle1">Dark Mode</Typography>
+                            <Typography variant="body2" color="textSecondary">Use dark theme across the portal</Typography>
+                        </Box>
+                        <FormControlLabel
+                            control={<Switch checked={darkMode} onChange={(e) => setDarkMode(e.target.checked)} color="primary" />}
+                            label=""
+                        />
+                    </Box>
+                </Box>
 
-                <div className="settings__row">
-                    <div className="settings__row-label">
-                        <span className="settings__row-name">Email Notifications</span>
-                        <span className="settings__row-desc">Receive alerts for critical events</span>
-                    </div>
-                    <label className="toggle">
-                        <input type="checkbox" checked={notifications} onChange={(e) => setNotifications(e.target.checked)} />
-                        <span className="toggle__track" />
-                        <span className="toggle__thumb" />
-                    </label>
-                </div>
+                <Divider />
 
-                <div className="settings__row">
-                    <div className="settings__row-label">
-                        <span className="settings__row-name">Dark Mode</span>
-                        <span className="settings__row-desc">Use dark theme across the portal</span>
-                    </div>
-                    <label className="toggle">
-                        <input type="checkbox" checked={darkMode} onChange={(e) => setDarkMode(e.target.checked)} />
-                        <span className="toggle__track" />
-                        <span className="toggle__thumb" />
-                    </label>
-                </div>
-            </section>
+                {/* Security */}
+                <Box p={3}>
+                    <Typography variant="h6" gutterBottom>Security</Typography>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" my={2}>
+                        <Box>
+                            <Typography variant="subtitle1">Two-Factor Authentication</Typography>
+                            <Typography variant="body2" color="textSecondary">Add an extra layer of security to your account</Typography>
+                        </Box>
+                        <FormControlLabel
+                            control={<Switch checked={twoFactor} onChange={(e) => setTwoFactor(e.target.checked)} color="primary" />}
+                            label=""
+                        />
+                    </Box>
+                </Box>
 
-            {/* Security */}
-            <section className="settings__section">
-                <div className="settings__section-title">Security</div>
+                <Divider />
 
-                <div className="settings__row">
-                    <div className="settings__row-label">
-                        <span className="settings__row-name">Two-Factor Authentication</span>
-                        <span className="settings__row-desc">Add an extra layer of security to your account</span>
-                    </div>
-                    <label className="toggle">
-                        <input type="checkbox" checked={twoFactor} onChange={(e) => setTwoFactor(e.target.checked)} />
-                        <span className="toggle__track" />
-                        <span className="toggle__thumb" />
-                    </label>
-                </div>
-            </section>
+                {/* Integrations */}
+                <Box p={3}>
+                    <Typography variant="h6" gutterBottom>Integrations</Typography>
+                    <Box my={3}>
+                        <Typography variant="subtitle1" gutterBottom>Audit Logs Script URL</Typography>
+                        <Typography variant="body2" color="textSecondary" gutterBottom>
+                            URL of the embedded audit logs web component script
+                        </Typography>
+                        <TextField
+                            fullWidth
+                            variant="outlined"
+                            size="small"
+                            value={auditUrl}
+                            onChange={(e) => setAuditUrl(e.target.value)}
+                            margin="normal"
+                        />
+                    </Box>
+                </Box>
+            </Paper>
 
-            {/* Integrations */}
-            <section className="settings__section">
-                <div className="settings__section-title">Integrations</div>
-
-                <div className="settings__row">
-                    <div className="settings__row-label">
-                        <span className="settings__row-name">Audit Logs Script URL</span>
-                        <span className="settings__row-desc">URL of the embedded audit logs web component script</span>
-                    </div>
-                    <input
-                        className="settings__input"
-                        type="text"
-                        value={auditUrl}
-                        onChange={(e) => setAuditUrl(e.target.value)}
-                    />
-                </div>
-            </section>
-
-            <div>
-                <button className="settings__save">
-                    💾 Save Changes
-                </button>
-            </div>
-        </div>
+            <Box mt={4} display="flex" justifyContent="flex-end">
+                <Button variant="contained" color="primary" startIcon={<span>💾</span>}>
+                    Save Changes
+                </Button>
+            </Box>
+        </Box>
     );
 }
