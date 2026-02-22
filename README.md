@@ -1,3 +1,12 @@
+# Audit Logs App
+
+This project includes utility scripts for managing and applying code changes:
+
+- **`zip_changes.py`**: Identifies all modified and added files compared to the `main` branch and bundles them into a `changes.zip` archive, preserving the directory structure.
+- **`apply_changes.py`**: Extracts and applies files from a zip archive safely back to their respective paths, ensuring existing folders are not replaced by files.
+
+---
+
 # Welcome to your Lovable project
 
 ## Project info
