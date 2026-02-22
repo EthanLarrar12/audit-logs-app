@@ -40,7 +40,7 @@ export const auditEventsQuerySchema = z.object({
  * Zod schema for audit event ID parameter
  */
 export const auditEventIdParamSchema = z.object({
-  id: z.string().uuid("Invalid event ID format"),
+  id: z.string().min(1, "Invalid event ID format"),
 });
 
 /**

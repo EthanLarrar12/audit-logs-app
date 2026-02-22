@@ -34,9 +34,6 @@ export const GET_AUDIT_EVENTS_QUERY = `
                 resourceId: resourceId
                 targetId: targetId
                 targetName
-                recordDatumByActionId {
-                    changes
-                }
             }
         }
     }
@@ -46,7 +43,7 @@ export const GET_AUDIT_EVENTS_QUERY = `
  * Query to fetch a single audit event by ID
  */
 export const GET_AUDIT_EVENT_BY_ID_QUERY = `
-    query EventById($id: UUID!) {
+    query EventById($id: BigInt!) {
         recordById(id: $id) {
             id
             actionId
