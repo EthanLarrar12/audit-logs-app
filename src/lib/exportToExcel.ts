@@ -134,9 +134,7 @@ export async function exportToExcel(
       border: { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } }
     } as const;
 
-    // @ts-ignore
     cell1.style = { ...cell1.style, ...headerStyle };
-    // @ts-ignore
     cell2.style = { ...cell2.style, ...headerStyle };
   }
 

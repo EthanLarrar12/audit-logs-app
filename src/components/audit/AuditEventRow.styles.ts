@@ -36,4 +36,8 @@ export const styles = makeStyles((t) => ({
     stateSection: 'space-y-2',
     jsonPre: `${t.typography.xs} ${t.colors.bgSecondary} p-3 rounded-md overflow-auto max-h-32 scrollbar-thin`,
     contextSection: 'space-y-2',
+    loadingContainer: 'flex justify-center py-6',
+    loadingIcon: 'w-6 h-6 animate-spin text-muted-foreground',
+    stateChangesSection: 'mt-4',
+    stateDiffWrapper: 'mt-2 border rounded-md p-4 bg-white/50',
 }));

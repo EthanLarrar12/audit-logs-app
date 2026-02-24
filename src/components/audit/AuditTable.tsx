@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCw } from "lucide-react";
 import { Virtuoso, Components } from "react-virtuoso"; // Added imports
 import { AuditEvent } from "@/types/audit";
+import { cn } from "@/lib/utils";
 import excelIcon from "@/assets/exportToExcel.svg";
 import { AuditEventRow } from "./AuditEventRow";
 import { AuditTableSkeleton } from "./AuditTableSkeleton";
@@ -71,10 +72,10 @@ export function AuditTable({
                 variant="outline"
                 size="icon"
                 onClick={handleRefresh}
-                className="w-7 h-7"
+                className={styles.iconButton}
                 disabled={isLoading || isSpinning}
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${isSpinning ? 'animate-spin' : ''}`} />
+                <RefreshCw className={cn(styles.icon, isSpinning && styles.spinningIcon)} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -88,9 +89,9 @@ export function AuditTable({
                 variant="outline"
                 size="icon"
                 onClick={onExport}
-                className="w-7 h-7"
+                className={styles.iconButton}
               >
-                <img src={excelIcon} className="w-3.5 h-3.5" />
+                <img src={excelIcon} className={styles.icon} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -108,12 +109,11 @@ export function AuditTable({
 
       {/* Virtuoso List - Container Scroll Mode */}
       <Virtuoso
-        style={{ flex: 1 }}
-        className="scrollbar-stable"
+        className={styles.virtuoso}
         data={events}
         endReached={() => hasNextPage && !isFetchingNextPage && fetchNextPage()}
         itemContent={(index, event) => (
-          <div className="mb-2" dir="rtl">
+          <div className={styles.rowWrapper} dir="rtl">
             <AuditEventRow key={event.id} event={event} />
           </div>
         )}
