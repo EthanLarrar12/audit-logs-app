@@ -345,8 +345,10 @@ export const useFilterLogic = ({
     [toggleMultiFilter],
   );
   const handleActionClear = useCallback(() => {
-    updateFilter("action", null);
-  }, [updateFilter]);
+    const newFilters = { ...filters, action: null };
+    const { filters: finalFilters } = cleanupInvalidFilters(newFilters);
+    onFiltersChange(finalFilters);
+  }, [filters, onFiltersChange, cleanupInvalidFilters]);
   const handlePremadeProfileChange = useCallback(
     (id: string) => updateFilter("premadeProfile", id),
     [updateFilter],
