@@ -18,12 +18,12 @@ interface GraphQLAuditNode {
   resourceId?: string;
   targetId: string;
   targetName: string;
-  targetType: any;
-  resourceType: any;
+  targetType: string | null;
+  resourceType: string | null;
   recordDatumByActionId?: {
     changes?: {
-      before?: any;
-      after?: any;
+      before?: Record<string, unknown>;
+      after?: Record<string, unknown>;
     };
   };
 }

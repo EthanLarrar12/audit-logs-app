@@ -8,6 +8,7 @@ import { AuditQueryParams } from "../types/audit";
 import { getRlsFilters } from "../utils/auth";
 import { isPermitted } from "../../sdks/STS";
 import { GET_USER_ALLOWED_PARAMETERS_QUERY } from "../GQL/profileQueries";
+import { GraphQLFilter } from "../types/graphql";
 
 // Mock dependencies
 jest.mock("../utils/auth", () => ({
@@ -36,7 +37,7 @@ describe("getEvents", () => {
     });
   });
 
-  const DEFAULT_TARGET_TYPE_FILTER = {
+  const DEFAULT_TARGET_TYPE_FILTER: GraphQLFilter = {
     targetType: {
       in: [
         "USER",

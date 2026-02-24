@@ -12,6 +12,16 @@ import {
   parseProfileValuesResponse,
   parseUserAllowedParametersResponse,
 } from "../../parsers/profileParser";
+import {
+  GraphQLError,
+  GraphQLUserAllowedParametersResponse,
+  GraphQLProfileValuesResponse,
+} from "../../parsers/profileParser.types";
+import {
+  GraphQLFilter,
+  GraphQLFilterVariable,
+  GraphQLContextResult,
+} from "../../types/graphql";
 
 /**
  * Build the PostGraphile filter object based on query parameters and permissions
@@ -26,9 +36,9 @@ export const buildAuditFilters = async (
   params: AuditQueryParams,
   performQuery: PerformQuery,
   userId: string,
-): Promise<Record<string, unknown>> => {
-  const filter: Record<string, unknown> = {};
-  const andFilters: Record<string, unknown>[] = [];
+): Promise<GraphQLFilterVariable> => {
+  const filter: GraphQLFilterVariable = {};
+  const andFilters: GraphQLFilter[] = [];
   const contextBuilder = new FilterContextBuilder();
 
   // --- Register Context Requirements ---
@@ -59,20 +69,19 @@ export const buildAuditFilters = async (
     );
   }
 
-  // --- Execute Context Query ---
-  let contextData: Record<string, any> = {};
+  let contextData: Record<string, unknown> = {};
   if (contextBuilder.hasFragments()) {
     const query = contextBuilder.buildQuery();
     const variables = contextBuilder.getVariables();
-    const result = (await performQuery(query, variables)) as Record<
-      string,
-      any
-    >;
+    const result = (await performQuery(
+      query,
+      variables,
+    )) as GraphQLContextResult;
 
     if (result.errors) {
       throw new Error(
         `GraphQL Errors in Filter Context: ${result.errors
-          .map((e: any) => e.message)
+          .map((e: GraphQLError) => e.message)
           .join(", ")}`,
       );
     }
@@ -91,9 +100,12 @@ export const buildAuditFilters = async (
     if (contextData.allowedParams) {
       const allowedParams = parseUserAllowedParametersResponse({
         data: {
-          allMirageUserPremadeProfiles: contextData.allowedParams,
+          allMiragePremadeProfileOwners:
+            contextData.allowedParams as NonNullable<
+              GraphQLUserAllowedParametersResponse["data"]
+            >["allMiragePremadeProfileOwners"],
         },
-      } as any);
+      });
       const allowedIds = allowedParams.map((p) => p.valueId);
 
       if (allowedIds.length > 0) {
@@ -122,9 +134,11 @@ export const buildAuditFilters = async (
       const values = parseProfileValuesResponse({
         data: {
           allMiragePremadeProfileDigitalParameterValues:
-            contextData.premadeProfileValues,
+            contextData.premadeProfileValues as NonNullable<
+              GraphQLProfileValuesResponse["data"]
+            >["allMiragePremadeProfileDigitalParameterValues"],
         },
-      } as any);
+      });
 
       if (values.length > 0) {
         const resourceIds = values.map((v) => {

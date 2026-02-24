@@ -4,6 +4,7 @@ import { PerformQuery } from "../../sdks/performQuery";
 import { AuditQueryParams } from "../types/audit";
 import { getRlsFilters } from "../utils/auth";
 import { isPermitted } from "../../sdks/STS";
+import { GraphQLFilter } from "../types/graphql";
 
 // Mock dependencies
 jest.mock("../utils/auth", () => ({
@@ -34,10 +35,7 @@ describe("Category Compartmentalization", () => {
   it("should exclude USER category if mandatPermission read is missing", async () => {
     (isPermitted as jest.Mock).mockImplementation((params) => {
       // Check if permission check is for USER category
-      if (
-        params.mandatPermission &&
-        params.mandatPermission.includes("read")
-      ) {
+      if (params.mandatPermission && params.mandatPermission.includes("read")) {
         return false;
       }
       return false;
@@ -55,7 +53,7 @@ describe("Category Compartmentalization", () => {
     // Find the targetType filter
     const andFilters = filter.and;
     const targetTypeFilter = andFilters.find(
-      (f: any) => f.targetId && f.targetId.equalTo === "___NONE___",
+      (f: GraphQLFilter) => f.targetId && f.targetId.equalTo === "___NONE___",
     );
 
     expect(targetTypeFilter).toBeDefined();
@@ -74,7 +72,7 @@ describe("Category Compartmentalization", () => {
 
     const andFilters = filter.and;
     const targetTypeFilter = andFilters.find(
-      (f: any) => f.targetType && f.targetType.in,
+      (f: GraphQLFilter) => f.targetType && f.targetType.in,
     );
 
     expect(targetTypeFilter).toBeDefined();
@@ -96,9 +94,8 @@ describe("Category Compartmentalization", () => {
     const filter = variables.filter;
 
     const andFilters = filter.and;
-    // Should match targetType: { equalTo: "___NONE___" }
     const noneFilter = andFilters.find(
-      (f: any) => f.targetId && f.targetId.equalTo === "___NONE___",
+      (f: GraphQLFilter) => f.targetId && f.targetId.equalTo === "___NONE___",
     );
     expect(noneFilter).toBeDefined();
   });
@@ -116,7 +113,7 @@ describe("Category Compartmentalization", () => {
 
     const andFilters = filter.and;
     const targetTypeFilter = andFilters.find(
-      (f: any) => f.targetType && f.targetType.in,
+      (f: GraphQLFilter) => f.targetType && f.targetType.in,
     );
 
     // Should strictly contain ONLY the requested category
@@ -142,7 +139,7 @@ describe("Category Compartmentalization", () => {
     const andFilters = filter.and;
 
     const allowedTypeFilter = andFilters.find(
-      (f: any) => f.targetType && f.targetType.in,
+      (f: GraphQLFilter) => f.targetType && f.targetType.in,
     );
 
     expect(allowedTypeFilter).toBeDefined();

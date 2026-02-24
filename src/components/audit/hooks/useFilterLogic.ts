@@ -237,7 +237,7 @@ export const useFilterLogic = ({
 
   const activeFilterCount = activeFilters.length;
   const hasAnyActiveFilter = Object.values(filters).some((v) => {
-    if (v === null || v === undefined) return false;
+    if (v === null || v === undefined || v === false) return false;
     if (typeof v === "string" && v.trim() === "") return false;
     if (Array.isArray(v) && v.length === 0) return false;
     return true;
