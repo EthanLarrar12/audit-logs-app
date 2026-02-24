@@ -5,14 +5,12 @@ import {
 } from "../GQL/auditQueries";
 import { PerformQuery } from "../../sdks/performQuery";
 import { AuditQueryParams } from "../types/audit";
-import { getRlsFilters } from "../utils/auth";
 import { isPermitted } from "../../sdks/STS";
 import { GET_USER_ALLOWED_PARAMETERS_QUERY } from "../GQL/profileQueries";
+import { GraphQLFilter } from "../types/graphql";
 
 // Mock dependencies
-jest.mock("../utils/auth", () => ({
-  getRlsFilters: jest.fn(),
-}));
+
 jest.mock("../../sdks/STS", () => ({
   isPermitted: jest.fn(),
   getUserIdFromCookie: jest.fn().mockReturnValue("user-123"),
@@ -23,7 +21,6 @@ const mockPerformQuery = jest.fn() as unknown as PerformQuery;
 describe("getEvents", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (getRlsFilters as jest.Mock).mockReturnValue(null);
     // Default to permitted for existing tests
     (isPermitted as jest.Mock).mockImplementation(() => true);
     (mockPerformQuery as jest.Mock).mockResolvedValue({

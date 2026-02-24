@@ -3,7 +3,6 @@ import { FilterContextBuilder } from "../filterContext";
 import { CategoryFilterHandler } from "./types";
 import { MirageObjectType } from "../../../types/mirage";
 import { isPermitted } from "../../../../sdks/STS";
-import { getRlsFilters } from "../../../utils/auth";
 import { FilterContextData } from "../filterContextTypes";
 import { USER_ALLOWED_PARAMETERS_FRAGMENT } from "../../../GQL/profileQueries";
 import { parseUserAllowedParametersResponse } from "../../../parsers/profileParser";
@@ -55,7 +54,9 @@ export const UserFilterHandler: CategoryFilterHandler = {
             allMiragePremadeProfileOwners: contextData.allowedParams,
           },
         });
-        const allowedIds = allowedParams.map((p) => `${p.parameterId}:${p.valueId}`);
+        const allowedIds = allowedParams.map(
+          (p) => `${p.parameterId}:${p.valueId}`,
+        );
 
         if (allowedIds.length > 0) {
           userAndFilters.push({

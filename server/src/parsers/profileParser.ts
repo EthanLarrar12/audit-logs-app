@@ -2,45 +2,20 @@
  * Parser utilities for transforming GraphQL responses for premade profiles to domain models
  */
 
-interface GraphQLPremadeProfileNode {
-  id: string;
-  name: string;
-}
-
-interface GraphQLUserPremadeProfilesResponse {
-  data?: {
-    allMiragePremadeProfileOwners?: {
-      nodes: Array<{
-        miragePremadeProfileByProfileId: {
-          id: string;
-          name: string;
-        };
-      }>;
-    };
-  };
-  errors?: Array<{ message: string }>;
-}
-
-interface GraphQLProfileValueNode {
-  parameterId: string;
-  valueId: string;
-}
-
-interface GraphQLProfileValuesResponse {
-  data?: {
-    allMiragePremadeProfileDigitalParameterValues?: {
-      nodes: GraphQLProfileValueNode[];
-    };
-  };
-  errors?: Array<{ message: string }>;
-}
+import {
+  GraphQLUserPremadeProfilesResponse,
+  GraphQLProfileValuesResponse,
+  GraphQLUserAllowedParametersResponse,
+  PremadeProfile,
+  ProfileParameterValue,
+} from "./profileParser.types";
 
 /**
  * Parse the premade profiles response
  */
 export function parsePremadeProfilesResponse(
   response: GraphQLUserPremadeProfilesResponse,
-): { id: string; name: string }[] {
+): PremadeProfile[] {
   // Handle errors
   if (response.errors && response.errors.length > 0) {
     throw new Error(
@@ -63,7 +38,7 @@ export function parsePremadeProfilesResponse(
  */
 export function parseProfileValuesResponse(
   response: GraphQLProfileValuesResponse,
-): { parameterId: string; valueId: string }[] {
+): ProfileParameterValue[] {
   // Handle errors
   if (response.errors && response.errors.length > 0) {
     throw new Error(
@@ -82,30 +57,12 @@ export function parseProfileValuesResponse(
   return response.data.allMiragePremadeProfileDigitalParameterValues.nodes;
 }
 
-interface GraphQLUserAllowedParametersResponse {
-  data?: {
-    allMiragePremadeProfileOwners?: {
-      nodes: Array<{
-        miragePremadeProfileByProfileId?: {
-          miragePremadeProfileDigitalParameterValuesByProfileId?: {
-            nodes: Array<{
-              parameterId: string;
-              valueId: string;
-            }>;
-          };
-        };
-      }>;
-    };
-  };
-  errors?: Array<{ message: string }>;
-}
-
 /**
  * Parse the user allowed digital parameter values response
  */
 export function parseUserAllowedParametersResponse(
   response: GraphQLUserAllowedParametersResponse,
-): { parameterId: string; valueId: string }[] {
+): ProfileParameterValue[] {
   // Handle errors
   if (response.errors && response.errors.length > 0) {
     throw new Error(
@@ -119,7 +76,7 @@ export function parseUserAllowedParametersResponse(
   }
 
   const { nodes } = response.data.allMiragePremadeProfileOwners;
-  const allowedParams: { parameterId: string; valueId: string }[] = [];
+  const allowedParams: ProfileParameterValue[] = [];
 
   nodes.forEach((ownerNode) => {
     const profileRequest = ownerNode.miragePremadeProfileByProfileId;

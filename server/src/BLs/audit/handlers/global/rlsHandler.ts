@@ -1,7 +1,6 @@
 import { AuditQueryParams } from "../../../../types/audit";
 import { FilterContextData } from "../../filterContextTypes";
 import { GlobalFilterHandler } from "./types";
-import { getRlsFilters } from "../../../../utils/auth";
 
 export const RlsGlobalHandler: GlobalFilterHandler = {
   isApplicable() {
@@ -13,7 +12,6 @@ export const RlsGlobalHandler: GlobalFilterHandler = {
     contextData: FilterContextData,
     userId: string,
   ) {
-    const rls = getRlsFilters(userId);
-    return rls ? rls : null;
+    return null;
   },
 };
