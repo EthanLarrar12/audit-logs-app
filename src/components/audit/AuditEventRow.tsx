@@ -142,16 +142,16 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
           </div>
 
           {isFetchingDetails ? (
-            <div className="flex justify-center py-6">
-              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            <div className={styles.loadingContainer}>
+              <Loader2 className={styles.loadingIcon} />
             </div>
           ) : (
             <>
               {/* State changes */}
               {(beforeState || afterState) && (
-                <div className="mt-4">
+                <div className={styles.stateChangesSection}>
                   <h4 className={styles.detailsHeader}>שינויים במצב</h4>
-                  <div className="mt-2 border rounded-md p-4 bg-white/50">
+                  <div className={styles.stateDiffWrapper}>
                     <StateDiff before={beforeState} after={afterState} />
                   </div>
                 </div>

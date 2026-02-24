@@ -321,8 +321,8 @@ describe("Compartmentalization Logic", () => {
 
   it("should allow all parameters if user has update permissions", async () => {
     (isPermitted as jest.Mock).mockImplementation((args) => {
-      if (args?.profilePermissions?.includes("read")) return true;
-      if (args?.profilePermissions?.includes("update")) return true;
+      if (args?.profilePermission?.includes("read")) return true;
+      if (args?.profilePermission?.includes("update")) return true;
       // Default allow for other permissions in this test context
       return true;
     });
@@ -349,8 +349,8 @@ describe("Compartmentalization Logic", () => {
 
   it("should filter by allowed parameters if user has read but not update permissions", async () => {
     (isPermitted as jest.Mock).mockImplementation((args) => {
-      if (args?.profilePermissions?.includes("read")) return true;
-      if (args?.profilePermissions?.includes("update")) return false;
+      if (args?.profilePermission?.includes("read")) return true;
+      if (args?.profilePermission?.includes("update")) return false;
       // Default allow for others
       return true;
     });

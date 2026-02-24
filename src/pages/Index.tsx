@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { useAuditEvents } from '@/hooks/useAuditEvents';
 import { FilterBar } from '@/components/audit/FilterBar';
 import { AuditTable } from '@/components/audit/AuditTable';
 import { exportToExcel } from '@/lib/exportToExcel';
+import { fetchAllAuditEvents } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { styles } from './Index.styles';
 
@@ -20,12 +22,19 @@ const Index = () => {
     refetch,
   } = useAuditEvents();
 
-  const hasActiveFilters = Object.values(filters).some((v) => v !== null);
+  const [isExporting, setIsExporting] = useState(false);
 
-  const handleExport = () => {
+  const hasActiveFilters = Object.values(filters).some((v) => {
+    if (Array.isArray(v)) return v.length > 0;
+    if (typeof v === 'string') return v.trim().length > 0;
+    return v !== null && v !== undefined;
+  });
+
+  const handleExport = async () => {
     try {
-      // TODO: Ideally fetch all filtered data for export, currently exporting visible page.
-      exportToExcel(events, filters);
+      setIsExporting(true);
+      const allEvents = await fetchAllAuditEvents(filters);
+      exportToExcel(allEvents, filters);
       toast({
         title: 'הייצוא הושלם',
         description: 'קובץ האקסל הורד בהצלחה.',
@@ -36,6 +45,8 @@ const Index = () => {
         description: 'לא ניתן היה לייצא את הנתונים. נסה שוב.',
         variant: 'destructive',
       });
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -62,6 +73,7 @@ const Index = () => {
             onResetFilters={resetFilters}
             onRefresh={refetch}
             onExport={handleExport}
+            isExporting={isExporting}
           />
         </div>
       </div>

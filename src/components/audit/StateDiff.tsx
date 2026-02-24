@@ -1,85 +1,119 @@
-import React from 'react';
-import { getDiff } from '@/utils/diffUtils';
+import { getDiff, DeepDiffResult } from '@/utils/diffUtils';
+import { styles } from './StateDiff.styles';
 
 interface StateDiffProps {
-    before?: Record<string, any> | null;
-    after?: Record<string, any> | null;
+    before?: Record<string, unknown> | null;
+    after?: Record<string, unknown> | null;
 }
 
 export const StateDiff: React.FC<StateDiffProps> = ({ before, after }) => {
     if (!before && !after) return null;
 
-    const diff = getDiff(before, after);
+    const diff = getDiff(before, after) as Record<string, DeepDiffResult>;
 
-    const renderObject = (obj: Record<string, any>, type: 'before' | 'after') => {
+    const renderValue = (key: string, diffNode: DeepDiffResult, type: 'before' | 'after', depth: number = 0) => {
+        let dynamicClass = styles.textDefault;
+        let prefix = "  ";
+
+        const { type: diffType, children, arrayItems, oldValue, newValue } = diffNode;
+
+        if (type === 'before') {
+            if (diffType === 'removed') {
+                dynamicClass = styles.removed;
+                prefix = "- ";
+            } else if (diffType === 'updated') {
+                dynamicClass = styles.updated;
+                prefix = "~ ";
+            }
+        } else {
+            if (diffType === 'added') {
+                dynamicClass = styles.added;
+                prefix = "+ ";
+            } else if (diffType === 'updated') {
+                dynamicClass = styles.updated;
+                prefix = "~ ";
+            }
+        }
+
+        const valueToDisplay = type === 'before' ? oldValue : newValue;
+
+        if (diffType === 'nested') {
+            if (children) {
+                return (
+                    <li key={key} className={styles.listItem}>
+                        <div className="w-full">
+                            <div className={styles.propertyRow}>
+                                <span className={styles.prefix}>  </span>
+                                <span className={styles.key}>{key}:</span>
+                            </div>
+                            <ul className={styles.nestedLine}>
+                                {Object.entries(children).map(([childKey, childNode]) =>
+                                    renderValue(childKey, childNode, type, depth + 1)
+                                )}
+                            </ul>
+                        </div>
+                    </li>
+                );
+            }
+            if (arrayItems) {
+                return (
+                    <li key={key} className={styles.listItem}>
+                        <div className="w-full">
+                            <div className={styles.propertyRow}>
+                                <span className={styles.prefix}>  </span>
+                                <span className={styles.key}>{key}: [</span>
+                            </div>
+                            <ul className={styles.nestedLine}>
+                                {arrayItems.map((childNode, index) =>
+                                    renderValue(`${index}`, childNode, type, depth + 1)
+                                )}
+                            </ul>
+                            <div className={styles.propertyRow}>
+                                <span className={styles.prefix}>  </span>
+                                <span className={styles.key}>]</span>
+                            </div>
+                        </div>
+                    </li>
+                );
+            }
+        }
+
+        // Only show relevant side for added/removed
+        if (type === 'before' && diffType === 'added') return null;
+        if (type === 'after' && diffType === 'removed') return null;
+        if (valueToDisplay === undefined) return null;
+
         return (
-            <div className="font-mono text-xs bg-slate-50 rounded p-2 border border-slate-200 overflow-auto">
-                <ul className="list-none m-0 p-0">
-                    {Object.entries(obj).map(([key, value]) => {
-                        let className = "p-1 rounded mb-1 whitespace-pre-wrap break-all flex";
-                        let prefix = "";
-                        let bgClass = "";
-                        let textClass = "text-slate-600";
+            <li key={key} className={`${styles.listItem} ${dynamicClass}`}>
+                <span className={styles.prefix}>{prefix}</span>
+                <span>
+                    <span className={styles.key}>{key}:</span> {
+                        typeof valueToDisplay === 'object' && valueToDisplay !== null
+                            ? JSON.stringify(valueToDisplay, null, 2)
+                            : String(valueToDisplay)
+                    }
+                </span>
+            </li>
+        );
+    };
 
-                        if (type === 'before') {
-                            if (key in diff.removed) {
-                                bgClass = "bg-red-100 border-l-2 border-red-400";
-                                textClass = "text-red-800";
-                                prefix = "- ";
-                            } else if (key in diff.updated) {
-                                bgClass = "bg-yellow-100 border-l-2 border-yellow-400";
-                                textClass = "text-yellow-800";
-                                prefix = "~ ";
-                            } else {
-                                prefix = "  ";
-                            }
-                        } else {
-                            if (key in diff.added) {
-                                bgClass = "bg-green-100 border-l-2 border-green-400";
-                                textClass = "text-green-800";
-                                prefix = "+ ";
-                            } else if (key in diff.updated) {
-                                bgClass = "bg-yellow-100 border-l-2 border-yellow-400";
-                                textClass = "text-yellow-800";
-                                prefix = "~ ";
-                            } else {
-                                prefix = "  ";
-                            }
-                        }
-
-                        return (
-                            <li key={key} className={`${className} ${bgClass} ${textClass}`}>
-                                <span className="font-semibold select-none opacity-50 mr-2 min-w-[12px]">{prefix}</span>
-                                <span>
-                                    <span className="font-bold">{key}:</span> {JSON.stringify(value, null, 2)}
-                                </span>
-                            </li>
-                        );
-                    })}
-                </ul>
+    const renderSection = (title: string, data: Record<string, DeepDiffResult>, type: 'before' | 'after') => {
+        return (
+            <div className={styles.section}>
+                <h4 className={styles.sectionTitle}>{title}</h4>
+                <div className={styles.objectContainer}>
+                    <ul className={styles.list}>
+                        {Object.entries(data).map(([key, node]) => renderValue(key, node, type))}
+                    </ul>
+                </div>
             </div>
         );
     };
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs" dir="ltr">
-            {before && Object.keys(before).length > 0 && (
-                <div className="space-y-1">
-                    <h4 className="font-semibold text-slate-500 uppercase tracking-wider text-[10px]">מצב קודם</h4>
-                    {renderObject(before, 'before')}
-                </div>
-            )}
-            {after && Object.keys(after).length > 0 && (
-                <div className="space-y-1">
-                    <h4 className="font-semibold text-slate-500 uppercase tracking-wider text-[10px]">מצב חדש</h4>
-                    {renderObject(after, 'after')}
-                </div>
-            )}
-            {(!before || Object.keys(before).length === 0) && (!after || Object.keys(after).length === 0) && (
-                <div className="text-sm text-slate-500 italic col-span-2">
-                    אין נתונים להצגה
-                </div>
-            )}
+        <div className={styles.container} dir="ltr">
+            {renderSection('מצב קודם', diff, 'before')}
+            {renderSection('מצב חדש', diff, 'after')}
         </div>
     );
 };

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
-export const getSTSMiddleware = () => (req: Request, res: Response, next: NextFunction) => {
+export const getSTSMiddleware = ({ }) => (req: Request, res: Response, next: NextFunction) => {
     try {
         const cookieName = 'sts_token';
 
@@ -36,7 +36,7 @@ export type Permissions = {
 
 export const isPermitted = (permissions: Permissions) => {
 
-    if (permissions?.mandatPermissions?.includes("read")) {
+    if (permissions?.mandatPermission?.includes("read")) {
         return true;
     }
     // return false;

@@ -190,3 +190,10 @@ INSERT INTO history.record_data (action_id, changes) VALUES
 
 INSERT INTO history.records (action_id, insert_time, executor_type, executor_id, executor_name, target_type, target_id, target_name, resource_type, resource_id, resource_name, history_action) VALUES
     ('act_big_001', 1709420400000, 'USER', 'tester_big', 'בודק גדול', 'USER', 'complex_user', 'משתמש מורכב', NULL, NULL, NULL, 'MANDAT_USER_PROFILE_DG_PARAMS_ADDED');
+
+INSERT INTO history.record_data (action_id, changes) VALUES
+    ('act_array_001', '{"before": {"tags": ["A", "B", "C"]}, "after": {"tags": ["C", "A", "B"]}}');
+
+INSERT INTO history.records (action_id, insert_time, executor_type, executor_id, executor_name, target_type, target_id, target_name, resource_type, resource_id, resource_name, history_action) VALUES
+    ('act_array_001', 1709424000000, 'USER', 'tester_array', 'בודק מערכים', 'USER', 'array_user', 'משתמש מערך', NULL, NULL, NULL, 'MANDAT_USER_PROFILE_DG_PARAMS_ADDED');
+

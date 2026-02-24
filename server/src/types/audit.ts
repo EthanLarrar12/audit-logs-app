@@ -1,4 +1,4 @@
-import { AuditEvent, AuditEventPage } from "../../../shared/types/audit";
+import { AuditEvent, AuditEventPage } from "../shared/types/audit";
 
 export type { AuditEvent, AuditEventPage };
 

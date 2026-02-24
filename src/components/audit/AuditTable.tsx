@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCw } from "lucide-react";
 import { Virtuoso, Components } from "react-virtuoso"; // Added imports
 import { AuditEvent } from "@/types/audit";
+import { cn } from "@/lib/utils";
 import excelIcon from "@/assets/exportToExcel.svg";
 import { AuditEventRow } from "./AuditEventRow";
 import { AuditTableSkeleton } from "./AuditTableSkeleton";
@@ -22,6 +23,7 @@ interface AuditTableProps {
 
   onRefresh: () => void;
   onExport: () => void;
+  isExporting: boolean;
 }
 
 export function AuditTable({
@@ -35,6 +37,7 @@ export function AuditTable({
 
   onRefresh,
   onExport,
+  isExporting,
 }: AuditTableProps) {
   // No manual IntersectionObserver needed with Virtuoso
 
@@ -71,10 +74,10 @@ export function AuditTable({
                 variant="outline"
                 size="icon"
                 onClick={handleRefresh}
-                className="w-7 h-7"
+                className={styles.iconButton}
                 disabled={isLoading || isSpinning}
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${isSpinning ? 'animate-spin' : ''}`} />
+                <RefreshCw className={cn(styles.icon, isSpinning && styles.spinningIcon)} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -84,17 +87,24 @@ export function AuditTable({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={onExport}
-                className="w-7 h-7"
-              >
-                <img src={excelIcon} className="w-3.5 h-3.5" />
-              </Button>
+              <div className="inline-block"> {/* Wrap in div to allow tooltip on disabled button */}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={onExport}
+                  className={styles.iconButton}
+                  disabled={!hasFilters || isExporting}
+                >
+                  {isExporting ? (
+                    <Loader2 className={cn(styles.icon, "animate-spin")} />
+                  ) : (
+                    <img src={excelIcon} className={cn(styles.icon, (!hasFilters || isExporting) && "opacity-50")} />
+                  )}
+                </Button>
+              </div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{AUDIT_HEADERS.EXPORT_TO_EXCEL}</p>
+              <p>{isExporting ? 'מייצא נתונים...' : (hasFilters ? AUDIT_HEADERS.EXPORT_TO_EXCEL : 'יש לבחור סינון לפחות אחד כדי לייצא')}</p>
             </TooltipContent>
           </Tooltip>
         </div>
@@ -108,12 +118,11 @@ export function AuditTable({
 
       {/* Virtuoso List - Container Scroll Mode */}
       <Virtuoso
-        style={{ flex: 1 }}
-        className="scrollbar-stable"
+        className={styles.virtuoso}
         data={events}
         endReached={() => hasNextPage && !isFetchingNextPage && fetchNextPage()}
         itemContent={(index, event) => (
-          <div className="mb-2" dir="rtl">
+          <div className={styles.rowWrapper} dir="rtl">
             <AuditEventRow key={event.id} event={event} />
           </div>
         )}

@@ -1,4 +1,5 @@
-import { AuditFilters, AuditEventPage, FilterField } from "@/types/audit";
+import { AuditFilters, AuditEvent, AuditEventPage, FilterField } from "@/types/audit";
+import { MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE } from "../../server/src/shared/auditConstants";
 
 enum ApiQueryParam {
   PAGE = "page",
@@ -20,23 +21,69 @@ enum ApiQueryParam {
 
 interface FetchAuditEventsParams {
   page: number;
+  pageSize?: number;
   filters: AuditFilters;
+}
+
+/**
+ * Custom fetch wrapper that includes credentials, handles retries, and manages 401 redirection.
+ */
+async function fetchWithCreds(
+  input: string | URL | Request,
+  init?: RequestInit,
+  retries = 3,
+): Promise<Response> {
+  const options: RequestInit = {
+    ...init,
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      ...init?.headers,
+    },
+  };
+
+  try {
+    const response = await fetch(input, options);
+
+    // Handle 401 Unauthorized - redirect to /auth
+    if (response.status === 401) {
+      window.location.href = `/auth?comeback=${encodeURIComponent(window.location.href)}`;
+      return new Promise(() => { }); // Stop further execution
+    }
+
+    // Handle 5xx Server Errors with retries
+    if (response.status >= 500 && retries > 0) {
+      console.warn(`Retrying due to server error ${response.status}... (${retries} attempts left)`);
+      return fetchWithCreds(input, init, retries - 1);
+    }
+
+    return response;
+  } catch (error) {
+    // Handle Network Errors with retries
+    if (retries > 0) {
+      console.warn(`Retrying due to network error... (${retries} attempts left)`, error);
+      return fetchWithCreds(input, init, retries - 1);
+    }
+    throw error;
+  }
 }
 
 export async function fetchAuditEvents({
   page,
+  pageSize = DEFAULT_PAGE_SIZE,
   filters,
 }: FetchAuditEventsParams): Promise<AuditEventPage> {
   const params = new URLSearchParams();
 
   // Pagination
   params.append(ApiQueryParam.PAGE, page.toString());
+  params.append("pageSize", pageSize.toString());
 
-  // Sorting (Defaulting to created_at desc as per spec default is desc, field created_at seems appropriate)
+  // Sorting
   params.append(ApiQueryParam.SORT, "created_at");
   params.append(ApiQueryParam.ORDER, "desc");
 
-  // Filters mapping (Fixed params according to API spec)
+  // Filters mapping
   if (
     filters[FilterField.SEARCH_INPUT] &&
     filters[FilterField.SEARCH_INPUT].length > 0
@@ -46,7 +93,6 @@ export async function fetchAuditEvents({
         params.append(ApiQueryParam.SEARCH_INPUT, term),
       );
     } else {
-      // Fallback or legacy support if needed, though type is string[]
       params.append(
         ApiQueryParam.SEARCH_INPUT,
         filters[FilterField.SEARCH_INPUT],
@@ -129,24 +175,43 @@ export async function fetchAuditEvents({
     }
   }
 
-  const response = await fetch(`/audit/events?${params.toString()}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      // 'Authorization': 'Bearer ...' // No auth logic as per constraints.
-    },
-  });
+  const response = await fetchWithCreds(`/audit/events?${params.toString()}`);
 
   if (!response.ok) {
     throw new Error(`API Error: ${response.status} ${response.statusText}`);
   }
 
-  const data = await response.json();
-  return data;
+  return response.json();
+}
+
+/**
+ * Fetches all audit events matching the filters by iterating through pages.
+ */
+export async function fetchAllAuditEvents(filters: AuditFilters): Promise<AuditEvent[]> {
+  const allEvents: AuditEvent[] = [];
+  let currentPage = 1;
+  const PAGE_SIZE = MAX_PAGE_SIZE;
+
+  while (true) {
+    const response = await fetchAuditEvents({
+      page: currentPage,
+      pageSize: PAGE_SIZE,
+      filters,
+    });
+
+    allEvents.push(...response.items);
+
+    if (response.items.length < PAGE_SIZE) {
+      break;
+    }
+    currentPage++;
+  }
+
+  return allEvents;
 }
 
 export async function fetchAuditEventById(id: string) {
-  const response = await fetch(`/audit/events/${id}`);
+  const response = await fetchWithCreds(`/audit/events/${id}`);
   if (!response.ok) {
     if (response.status === 404) {
       return null;
@@ -159,7 +224,7 @@ export async function fetchAuditEventById(id: string) {
 export async function fetchPremadeProfiles(): Promise<
   { id: string; name: string }[]
 > {
-  const response = await fetch(`/audit/premade-profiles`);
+  const response = await fetchWithCreds(`/audit/premade-profiles`);
   if (!response.ok) {
     throw new Error(`API Error: ${response.status}`);
   }
@@ -169,7 +234,7 @@ export async function fetchPremadeProfiles(): Promise<
 export interface SuggestionResult {
   id: string;
   name: string | null;
-  type: string; // The category ID (e.g. USER, SHOS, etc.)
+  type: string;
 }
 
 export async function fetchSuggestions(
@@ -179,7 +244,7 @@ export async function fetchSuggestions(
 ): Promise<SuggestionResult[]> {
   if (!term) return [];
   try {
-    const response = await fetch(
+    const response = await fetchWithCreds(
       `/audit/suggest?term=${encodeURIComponent(term)}&page=${page}&limit=${limit}`,
     );
     if (!response.ok) {

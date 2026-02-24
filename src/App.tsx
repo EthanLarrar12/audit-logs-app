@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 
+import { styles } from "./App.styles";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -14,7 +16,7 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <div className="audit-logs-wrapper h-full w-full flex-1 flex flex-col min-h-0">
+  <div className={styles.wrapper}>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />

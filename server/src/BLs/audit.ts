@@ -15,6 +15,7 @@ import {
   getPremadeProfiles as getPremadeProfilesFromBL,
   getSuggestions as getSuggestionsFromBL,
 } from "./audit/profiles";
+import { MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE } from "../shared/auditConstants";
 
 /**
  * Business logic layer for audit events
@@ -33,8 +34,8 @@ export const getEvents = async (
   const filters = await buildAuditFilters(params, performQuery, userId);
 
   // 2. Pagination & Sorting
-  const rawPageSize = params.pageSize || 10;
-  const first = rawPageSize > 200 ? 200 : rawPageSize;
+  const rawPageSize = Number(params.pageSize) || DEFAULT_PAGE_SIZE;
+  const first = rawPageSize > MAX_PAGE_SIZE ? MAX_PAGE_SIZE : rawPageSize;
   const offset = ((params.page || 1) - 1) * first;
 
   let orderBy = "INSERT_TIME_DESC";
