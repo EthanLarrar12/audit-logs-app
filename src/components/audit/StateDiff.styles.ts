@@ -16,4 +16,6 @@ export const styles = makeStyles((t) => ({
     added: "bg-green-100 border-l-2 border-green-400 text-green-800",
     updated: "bg-yellow-100 border-l-2 border-yellow-400 text-yellow-800",
     textDefault: "text-slate-600",
+    nestedLine: "border-l border-slate-200 ml-2 pl-2",
+    propertyRow: "flex items-start",
 }));
