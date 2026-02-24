@@ -1,4 +1,5 @@
-import { AuditFilters, AuditEventPage, FilterField } from "@/types/audit";
+import { AuditFilters, AuditEvent, AuditEventPage, FilterField } from "@/types/audit";
+import { MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE } from "../../server/src/shared/auditConstants";
 
 enum ApiQueryParam {
   PAGE = "page",
@@ -20,17 +21,20 @@ enum ApiQueryParam {
 
 interface FetchAuditEventsParams {
   page: number;
+  pageSize?: number;
   filters: AuditFilters;
 }
 
 export async function fetchAuditEvents({
   page,
+  pageSize = DEFAULT_PAGE_SIZE,
   filters,
 }: FetchAuditEventsParams): Promise<AuditEventPage> {
   const params = new URLSearchParams();
 
   // Pagination
   params.append(ApiQueryParam.PAGE, page.toString());
+  params.append("pageSize", pageSize.toString());
 
   // Sorting (Defaulting to created_at desc as per spec default is desc, field created_at seems appropriate)
   params.append(ApiQueryParam.SORT, "created_at");
@@ -143,6 +147,32 @@ export async function fetchAuditEvents({
 
   const data = await response.json();
   return data;
+}
+
+/**
+ * Fetches all audit events matching the filters by iterating through pages.
+ */
+export async function fetchAllAuditEvents(filters: AuditFilters): Promise<AuditEvent[]> {
+  const allEvents: AuditEvent[] = [];
+  let currentPage = 1;
+  const PAGE_SIZE = MAX_PAGE_SIZE;
+
+  while (true) {
+    const response = await fetchAuditEvents({
+      page: currentPage,
+      pageSize: PAGE_SIZE,
+      filters,
+    });
+
+    allEvents.push(...response.items);
+
+    if (response.items.length < PAGE_SIZE) {
+      break;
+    }
+    currentPage++;
+  }
+
+  return allEvents;
 }
 
 export async function fetchAuditEventById(id: string) {

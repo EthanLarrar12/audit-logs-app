@@ -23,6 +23,7 @@ interface AuditTableProps {
 
   onRefresh: () => void;
   onExport: () => void;
+  isExporting: boolean;
 }
 
 export function AuditTable({
@@ -36,6 +37,7 @@ export function AuditTable({
 
   onRefresh,
   onExport,
+  isExporting,
 }: AuditTableProps) {
   // No manual IntersectionObserver needed with Virtuoso
 
@@ -85,17 +87,24 @@ export function AuditTable({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={onExport}
-                className={styles.iconButton}
-              >
-                <img src={excelIcon} className={styles.icon} />
-              </Button>
+              <div className="inline-block"> {/* Wrap in div to allow tooltip on disabled button */}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={onExport}
+                  className={styles.iconButton}
+                  disabled={!hasFilters || isExporting}
+                >
+                  {isExporting ? (
+                    <Loader2 className={cn(styles.icon, "animate-spin")} />
+                  ) : (
+                    <img src={excelIcon} className={cn(styles.icon, (!hasFilters || isExporting) && "opacity-50")} />
+                  )}
+                </Button>
+              </div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{AUDIT_HEADERS.EXPORT_TO_EXCEL}</p>
+              <p>{isExporting ? 'מייצא נתונים...' : (hasFilters ? AUDIT_HEADERS.EXPORT_TO_EXCEL : 'יש לבחור סינון לפחות אחד כדי לייצא')}</p>
             </TooltipContent>
           </Tooltip>
         </div>

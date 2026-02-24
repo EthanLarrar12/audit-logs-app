@@ -5,6 +5,7 @@ import { AuditEvent, AuditFilters } from '@/types/audit';
 import { useDelayedLoading } from './useDelayedLoading';
 import { fetchAuditEvents } from '@/lib/api';
 import { useUrlFilters } from './useUrlFilters';
+import { DEFAULT_PAGE_SIZE } from '../../server/src/shared/auditConstants';
 
 interface UseAuditEventsReturn {
   events: AuditEvent[];
@@ -21,7 +22,7 @@ interface UseAuditEventsReturn {
   refetch: () => void;
 }
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
 export const useAuditEvents = (): UseAuditEventsReturn => {
   const { getFiltersFromUrl, syncFiltersToUrl } = useUrlFilters();

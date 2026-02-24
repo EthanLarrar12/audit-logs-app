@@ -5,6 +5,7 @@ import { z } from "zod";
  */
 export const auditEventsQuerySchema = z.object({
   page: z.coerce.number().int().min(1).optional().default(1),
+  pageSize: z.coerce.number().int().min(1).optional().default(10),
   from: z.string().datetime().optional(),
   to: z.string().datetime().optional(),
   actorUsername: z.string().optional(),
