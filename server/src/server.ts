@@ -25,7 +25,6 @@ export const pgPool = new Pool({
 app.use(cors()); // Enable CORS for frontend requests
 app.use(express.json());
 app.use(cookieParser());
-app.use(getSTSMiddleware());
 
 // PostGraphile Middleware
 const pluginHook = makePluginHook([
@@ -68,6 +67,12 @@ app.get(
 // Serve static files from the React app
 const clientBuildPath = path.join(__dirname, "../../dist");
 app.use('/audit', express.static(clientBuildPath));
+
+app.use(getSTSMiddleware({
+  stsUri: config.STS_URL,
+  serverUri: config.SERVER_URL,
+  applicationRedirectUri: config.APPLICATION_REDIRECT_URL,
+}));
 
 // Initialize and start server
 const startServer = async (): Promise<void> => {

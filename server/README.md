@@ -108,7 +108,7 @@ Category permissions (Target Type permissions) are defined in `server/src/consta
 To add a new permitted category:
 
 1.  Add the `MirageObjectType` to the `CATEGORY_PERMISSIONS` object.
-2.  Define the required permissions (e.g., `{ mandatPermissions: ["read"] }`).
+2.  Define the required permissions (e.g., `{ mandatPermission: ["read"] }`).
 
 Example:
 
@@ -117,7 +117,7 @@ import { MirageObjectType } from "../types/mirage";
 
 export const CATEGORY_PERMISSIONS = {
   // ... existing permissions
-  [MirageObjectType.ENTITY]: { mandatPermissions: ["read"] },
+  [MirageObjectType.ENTITY]: { mandatPermission: ["read"] },
 };
 ```
 

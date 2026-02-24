@@ -37,8 +37,8 @@ export const buildAuditFilters = async (
   // We need to know if the user is allowed to see parameters, and if so, which ones.
   // The decision logic is partly synchronous (isPermitted check) and partly async (fetching allowed params).
   // To keep it modular, we'll just check if we need to fetch data.
-  const canReadParams = isPermitted({ profilePermissions: ["read"] });
-  const canUpdateParams = isPermitted({ profilePermissions: ["update"] });
+  const canReadParams = isPermitted({ profilePermission: ["read"] });
+  const canUpdateParams = isPermitted({ profilePermission: ["update"] });
   const shouldFetchAllowedParams = canReadParams && !canUpdateParams;
 
   if (shouldFetchAllowedParams) {

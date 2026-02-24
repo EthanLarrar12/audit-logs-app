@@ -58,7 +58,7 @@ export const getAuditRoutes = (performQuery: PerformQuery) => {
       const event: AuditEvent | null = await getEventById(id, performQuery);
 
       if (!event) {
-        throw new NotFoundException();
+        throw new NotFoundException(`No event found with ID: ${id}`);
       }
 
       res.status(StatusCodes.OK).json(event);

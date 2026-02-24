@@ -31,12 +31,12 @@ describe("Category Compartmentalization", () => {
     });
   });
 
-  it("should exclude USER category if mandatPermissions read is missing", async () => {
+  it("should exclude USER category if mandatPermission read is missing", async () => {
     (isPermitted as jest.Mock).mockImplementation((params) => {
       // Check if permission check is for USER category
       if (
-        params.mandatPermissions &&
-        params.mandatPermissions.includes("read")
+        params.mandatPermission &&
+        params.mandatPermission.includes("read")
       ) {
         return false;
       }
@@ -61,7 +61,7 @@ describe("Category Compartmentalization", () => {
     expect(targetTypeFilter).toBeDefined();
   });
 
-  it("should include USER category if mandatPermissions read is present", async () => {
+  it("should include USER category if mandatPermission read is present", async () => {
     (isPermitted as jest.Mock).mockReturnValue(true);
 
     const params: AuditQueryParams = {};
@@ -83,7 +83,7 @@ describe("Category Compartmentalization", () => {
 
   it("should block specific category request if not permitted", async () => {
     (isPermitted as jest.Mock).mockImplementation((params) => {
-      if (params.mandatPermissions) return false;
+      if (params.mandatPermission) return false;
       return true;
     });
 
