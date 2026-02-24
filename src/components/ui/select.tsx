@@ -3,7 +3,6 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { useShadowContainer, useShadowInteractOutside } from "@/lib/shadow-Root-Context";
 
 const Select = SelectPrimitive.Root;
 
@@ -63,9 +62,8 @@ const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
 >(({ className, children, position = "popper", ...props }, ref) => {
-  const container = useShadowContainer();
   return (
-    <SelectPrimitive.Portal container={container as HTMLElement}>
+    <SelectPrimitive.Portal>
       <SelectPrimitive.Content
         ref={ref}
         className={cn(
@@ -75,7 +73,6 @@ const SelectContent = React.forwardRef<
           className,
         )}
         position={position}
-        onPointerDownOutside={useShadowInteractOutside(ref, props.onPointerDownOutside)}
         {...props}
       >
         <SelectScrollUpButton />

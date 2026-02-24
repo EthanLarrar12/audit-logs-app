@@ -4,7 +4,6 @@ import { X } from "lucide-react";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { useShadowContainer, useShadowInteractOutside } from "@/lib/shadow-Root-Context";
 
 const Sheet = SheetPrimitive.Root;
 
@@ -54,14 +53,12 @@ interface SheetContentProps
 
 const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Content>, SheetContentProps>(
   ({ side = "right", className, children, ...props }, ref) => {
-    const container = useShadowContainer();
     return (
-      <SheetPortal container={container as HTMLElement}>
+      <SheetPortal>
         <SheetOverlay />
         <SheetPrimitive.Content
           ref={ref}
           className={cn(sheetVariants({ side }), className)}
-          onInteractOutside={useShadowInteractOutside(ref, props.onInteractOutside)}
           {...props}
         >
           {children}
