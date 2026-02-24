@@ -47,7 +47,7 @@ async function fetchWithCreds(
 
     // Handle 401 Unauthorized - redirect to /auth
     if (response.status === 401) {
-      window.location.href = "/auth";
+      window.location.href = `/auth?comeback=${encodeURIComponent(window.location.href)}`;
       return new Promise(() => { }); // Stop further execution
     }
 
