@@ -2,7 +2,6 @@ import * as React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
 import { cn } from "@/lib/utils";
-import { useShadowContainer } from "@/lib/shadow-Root-Context";
 
 const TooltipProvider = TooltipPrimitive.Provider;
 
@@ -14,9 +13,8 @@ const TooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
 >(({ className, sideOffset = 4, ...props }, ref) => {
-  const container = useShadowContainer();
   return (
-    <TooltipPrimitive.Portal container={container as HTMLElement}>
+    <TooltipPrimitive.Portal>
       <TooltipPrimitive.Content
         ref={ref}
         sideOffset={sideOffset}
