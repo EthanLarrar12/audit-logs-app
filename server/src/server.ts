@@ -69,9 +69,9 @@ const clientBuildPath = path.join(__dirname, "../../dist");
 app.use('/audit', express.static(clientBuildPath));
 
 app.use(getSTSMiddleware({
-  stsUri: config.STS_URL,
-  serverUri: config.SERVER_URL,
-  applicationRedirectUri: config.APPLICATION_REDIRECT_URL,
+  stsURI: config.STS_URL,
+  serverURI: config.SERVER_URL,
+  applicationRedirectURI: config.APPLICATION_REDIRECT_URL,
 }));
 
 // Initialize and start server
