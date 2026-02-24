@@ -1,4 +1,8 @@
-@import url("https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700&display=swap");
+@import "@fontsource/assistant/300.css";
+@import "@fontsource/assistant/400.css";
+@import "@fontsource/assistant/500.css";
+@import "@fontsource/assistant/600.css";
+@import "@fontsource/assistant/700.css";
 
 @tailwind base;
 @tailwind components;
@@ -7,7 +11,7 @@
 /* Audit Log Admin Interface Design System */
 
 @layer base {
-  :root {
+  .audit-logs-wrapper {
     /* Core brand colors - Mint/Teal theme */
     --background: 0 0% 100%;
     --foreground: 200 15% 15%;
@@ -65,7 +69,7 @@
     --badge-service: 35 80% 50%;
   }
 
-  .dark {
+  .audit-logs-wrapper.dark {
     --background: 200 20% 8%;
     --foreground: 150 15% 95%;
 
@@ -117,11 +121,24 @@
 }
 
 @layer base {
-  * {
+  .audit-logs-wrapper * {
     @apply border-border;
   }
 
-  body {
+  /* Prevent external host app styles from bleeding in */
+  .audit-logs-wrapper {
+    all: initial;
+    /* Reapply necessary inherited Tailwind baseline */
+    box-sizing: border-box;
+    font-family: inherit;
+    color: inherit;
+  }
+
+  .audit-logs-wrapper * {
+    box-sizing: border-box;
+  }
+
+  .audit-logs-wrapper {
     @apply bg-background text-foreground font-sans antialiased;
   }
 }
@@ -149,8 +166,10 @@
   .scrollbar-stable {
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
-    direction: ltr; /* Move scrollbar to right */
-    overflow-y: scroll !important; /* Always show scrollbar to prevent layout shift */
+    direction: ltr;
+    /* Move scrollbar to right */
+    overflow-y: scroll !important;
+    /* Always show scrollbar to prevent layout shift */
   }
 
   .scrollbar-stable::-webkit-scrollbar {

@@ -66,6 +66,9 @@ describe("getEvents", () => {
                 { executorName: { includesInsensitive: "test-term" } },
                 { targetName: { includesInsensitive: "test-term" } },
                 { resourceName: { includesInsensitive: "test-term" } },
+                { executorId: { includesInsensitive: "test-term" } },
+                { targetId: { includesInsensitive: "test-term" } },
+                { resourceId: { includesInsensitive: "test-term" } },
               ],
             },
           ],
@@ -191,6 +194,9 @@ describe("getEvents", () => {
             { executorName: { includesInsensitive: "search-term" } },
             { targetName: { includesInsensitive: "search-term" } },
             { resourceName: { includesInsensitive: "search-term" } },
+            { executorId: { includesInsensitive: "search-term" } },
+            { targetId: { includesInsensitive: "search-term" } },
+            { resourceId: { includesInsensitive: "search-term" } },
           ],
         },
       ],
@@ -408,7 +414,7 @@ describe("Compartmentalization Logic", () => {
     };
 
     expect(JSON.stringify(filter)).toContain(
-      JSON.stringify(expectedOrCondition),
+      JSON.stringify(expectedOrCondition.or[0]),
     );
   });
 });

@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { ChevronDown, ChevronLeft, Fingerprint } from 'lucide-react';
+import { ChevronDown, ChevronLeft, Fingerprint, Loader2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { fetchAuditEventById } from '@/lib/api';
 import { AuditEvent } from '@/types/audit';
 import { CategoryBadge } from './CategoryBadge';
 import { cn } from '@/lib/utils';
@@ -15,6 +17,16 @@ interface AuditEventRowProps {
 
 export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const { data: fullEvent, isLoading: isFetchingDetails } = useQuery({
+    queryKey: ['auditEvent', event.id],
+    queryFn: () => fetchAuditEventById(event.id),
+    enabled: isExpanded,
+  });
+
+  const beforeState = fullEvent?.before_state || event.before_state;
+  const afterState = fullEvent?.after_state || event.after_state;
+  const context = fullEvent?.context || event.context;
 
   const formattedDate = format(new Date(event.created_at), 'd בMMM yyyy', { locale: he });
   const formattedTime = format(new Date(event.created_at), 'HH:mm:ss');
@@ -129,24 +141,32 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
             </div>
           </div>
 
-          {/* State changes */}
-          {(event.before_state || event.after_state) && (
-            <div className="mt-4">
-              <h4 className={styles.detailsHeader}>שינויים במצב</h4>
-              <div className="mt-2 border rounded-md p-4 bg-white/50">
-                <StateDiff before={event.before_state} after={event.after_state} />
-              </div>
+          {isFetchingDetails ? (
+            <div className="flex justify-center py-6">
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             </div>
-          )}
+          ) : (
+            <>
+              {/* State changes */}
+              {(beforeState || afterState) && (
+                <div className="mt-4">
+                  <h4 className={styles.detailsHeader}>שינויים במצב</h4>
+                  <div className="mt-2 border rounded-md p-4 bg-white/50">
+                    <StateDiff before={beforeState} after={afterState} />
+                  </div>
+                </div>
+              )}
 
-          {/* Context */}
-          {event.context && (
-            <div className={styles.contextSection}>
-              <h4 className={styles.detailsHeader}>הקשר נוסף</h4>
-              <pre className={styles.jsonPre} dir="ltr">
-                {JSON.stringify(event.context, null, 2)}
-              </pre>
-            </div>
+              {/* Context */}
+              {context && (
+                <div className={styles.contextSection}>
+                  <h4 className={styles.detailsHeader}>הקשר נוסף</h4>
+                  <pre className={styles.jsonPre} dir="ltr">
+                    {JSON.stringify(context, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

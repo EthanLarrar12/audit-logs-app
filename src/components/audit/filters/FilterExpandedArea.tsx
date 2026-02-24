@@ -41,14 +41,14 @@ export const FilterExpandedArea: React.FC<FilterExpandedAreaProps> = ({
   // Calculate selected categories and actions for display options
   const selectedCategories = Array.isArray(filters.category)
     ? AUDIT_CATEGORIES.filter((c) =>
-        (filters.category as string[]).includes(c.id),
-      )
+      (filters.category as string[]).includes(c.id),
+    )
     : [];
 
   const selectedActions = Array.isArray(filters.action)
     ? selectedCategories
-        .flatMap((c) => c.subcategories)
-        .filter((s) => (filters.action as string[]).includes(s.id))
+      .flatMap((c) => c.subcategories)
+      .filter((s) => (filters.action as string[]).includes(s.id))
     : [];
 
   const allApplicableFilters = [
@@ -123,34 +123,36 @@ export const FilterExpandedArea: React.FC<FilterExpandedAreaProps> = ({
               };
             })}
         />
+
+        {/* Dynamic Search bars */}
+        {displayFilters.length > 0 && (
+          <div> {/* className={styles.dynamicFiltersGrid}> */}
+            {displayFilters.map((filterDef) => (
+              <React.Fragment key={filterDef.searchField}>
+                {filterDef.searchField === "premadeProfile" ? (
+                  <ProfileFilter
+                    label={filterDef.name}
+                    value={filters.premadeProfile || null}
+                    profiles={premadeProfiles}
+                    onChange={handlePremadeProfileChange}
+                  />
+                ) : (
+                  <SearchFilter
+                    label={filterDef.name}
+                    value={searchValues[filterDef.searchField] || ""}
+                    onChange={(val) =>
+                      handleSearchChange(filterDef.searchField, val)
+                    }
+                    isLoading={isLoading}
+                  />
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Dynamic Search bars */}
-      {displayFilters.length > 0 && (
-        <div className={styles.dynamicFiltersGrid}>
-          {displayFilters.map((filterDef) => (
-            <React.Fragment key={filterDef.searchField}>
-              {filterDef.searchField === "premadeProfile" ? (
-                <ProfileFilter
-                  label={filterDef.name}
-                  value={filters.premadeProfile || null}
-                  profiles={premadeProfiles}
-                  onChange={handlePremadeProfileChange}
-                />
-              ) : (
-                <SearchFilter
-                  label={filterDef.name}
-                  value={searchValues[filterDef.searchField] || ""}
-                  onChange={(val) =>
-                    handleSearchChange(filterDef.searchField, val)
-                  }
-                  isLoading={isLoading}
-                />
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-      )}
+
     </>
   );
 };
