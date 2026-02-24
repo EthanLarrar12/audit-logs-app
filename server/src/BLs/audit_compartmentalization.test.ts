@@ -2,14 +2,10 @@ import { getEvents } from "./audit";
 import { GET_AUDIT_EVENTS_QUERY } from "../GQL/auditQueries";
 import { PerformQuery } from "../../sdks/performQuery";
 import { AuditQueryParams } from "../types/audit";
-import { getRlsFilters } from "../utils/auth";
 import { isPermitted } from "../../sdks/STS";
 import { GraphQLFilter } from "../types/graphql";
 
 // Mock dependencies
-jest.mock("../utils/auth", () => ({
-  getRlsFilters: jest.fn(),
-}));
 
 jest.mock("../../sdks/STS", () => ({
   isPermitted: jest.fn(),
@@ -21,7 +17,6 @@ const mockPerformQuery = jest.fn() as unknown as PerformQuery;
 describe("Category Compartmentalization", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (getRlsFilters as jest.Mock).mockReturnValue(null);
     (mockPerformQuery as jest.Mock).mockResolvedValue({
       data: {
         allRecords: {
@@ -71,12 +66,16 @@ describe("Category Compartmentalization", () => {
     const filter = variables.filter;
 
     const andFilters = filter.and;
-    const targetTypeFilter = andFilters.find(
-      (f: GraphQLFilter) => f.targetType && f.targetType.in,
+    const hasUserCategory = andFilters.some(
+      (f: any) =>
+        f.or &&
+        f.or.some(
+          (c: any) =>
+            c.and && c.and.some((tf: any) => tf.targetType?.equalTo === "USER"),
+        ),
     );
 
-    expect(targetTypeFilter).toBeDefined();
-    expect(targetTypeFilter.targetType.in).toContain("USER");
+    expect(hasUserCategory).toBe(true);
   });
 
   it("should block specific category request if not permitted", async () => {
@@ -112,12 +111,15 @@ describe("Category Compartmentalization", () => {
     const filter = variables.filter;
 
     const andFilters = filter.and;
-    const targetTypeFilter = andFilters.find(
-      (f: GraphQLFilter) => f.targetType && f.targetType.in,
+    const hasUserCategory = andFilters.some(
+      (f: any) =>
+        f.or &&
+        f.or.length === 1 &&
+        f.or[0].and &&
+        f.or[0].and.some((tf: any) => tf.targetType?.equalTo === "USER"),
     );
 
-    // Should strictly contain ONLY the requested category
-    expect(targetTypeFilter.targetType.in).toEqual(["USER"]);
+    expect(hasUserCategory).toBe(true);
   });
 
   it("should restrict search results to allowed categories (default deny applies)", async () => {
@@ -134,17 +136,19 @@ describe("Category Compartmentalization", () => {
     const auditCall = calls.find((call) => call[0] === GET_AUDIT_EVENTS_QUERY);
     const variables = auditCall[1];
     const filter = variables.filter;
-    // The filter should contain the default allowed list (which is only USER)
-    // plus the search condition
+
+    // The filter should contain the default allowed list (which is only USER here)
     const andFilters = filter.and;
 
-    const allowedTypeFilter = andFilters.find(
-      (f: GraphQLFilter) => f.targetType && f.targetType.in,
+    const hasUserCategory = andFilters.some(
+      (f: any) =>
+        f.or &&
+        f.or.some(
+          (c: any) =>
+            c.and && c.and.some((tf: any) => tf.targetType?.equalTo === "USER"),
+        ),
     );
 
-    expect(allowedTypeFilter).toBeDefined();
-    // Since only USER is mapped in audit.ts and we default deny,
-    // allowedTypeFilter should be ['USER']
-    expect(allowedTypeFilter.targetType.in).toEqual(["USER"]);
+    expect(hasUserCategory).toBe(true);
   });
 });

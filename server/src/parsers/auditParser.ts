@@ -11,6 +11,7 @@ interface GraphQLAuditNode {
   category: string;
   actorId: string;
   actorUsername: string;
+  actorType?: string;
   executorId: string;
   executorName: string;
   action: string;
@@ -63,7 +64,7 @@ export const parseAuditEventNode = (node: GraphQLAuditNode): AuditEvent => {
     id: node.id,
     created_at: timestamp,
     category: node.category,
-    actor_type: "USER", // Default to USER as executor_type was removed // TODO: does this help at all?
+    actor_type: (node.actorType as AuditEvent["actor_type"]) || "SYSTEM", // Fallback to SYSTEM if no executorType is present
     actor_id: node.actorId || node.executorId,
     actor_username: node.actorUsername || node.executorName,
     action: node.action,
@@ -135,6 +136,7 @@ interface GraphQLSuggestionsResponse {
       nodes: Array<{
         executorId: string;
         executorName: string;
+        actorType: string;
         targetId: string;
         targetName: string;
         resourceId: string;
@@ -181,7 +183,7 @@ export const parseSuggestionsResponse = (
         {
           id: node.executorId,
           name: node.executorName || null,
-          category: "USER",
+          category: node.actorType || "SYSTEM",
         },
         {
           id: node.targetId,
