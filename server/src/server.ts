@@ -65,8 +65,15 @@ app.get(
 );
 
 // Serve static files from the React app
-const clientBuildPath = path.join(__dirname, "../../dist");
+const clientBuildPath = config.IS_NPM_RUN_DEV ?
+  path.join(__dirname, "../../dist") :
+  path.join(__dirname, "../../../../dist");
+
 app.use('/audit', express.static(clientBuildPath));
+
+app.get("/audit", (req, res) => {
+  res.sendFile(path.join(clientBuildPath, "index.html"));
+});
 
 app.use(getSTSMiddleware({
   stsURI: config.STS_URL,
@@ -84,12 +91,6 @@ const startServer = async (): Promise<void> => {
     app.use("/audit", createAuditRouter(performQuery));
 
     app.use(errorMiddleware);
-
-    // The "catchall" handler: for any request that doesn't
-    // match one above, send back React's index.html file.
-    app.get("/audit", (req, res) => {
-      res.sendFile(path.join(clientBuildPath, "index.html"));
-    });
 
     // Start server
     app.listen(PORT, () => {

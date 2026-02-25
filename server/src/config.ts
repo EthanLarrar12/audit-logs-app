@@ -9,4 +9,5 @@ export const config = {
   STS_URL: process.env.STS_URL || 'http://localhost:3000',
   SERVER_URL: process.env.SERVER_URL || 'http://localhost:3001',
   APPLICATION_REDIRECT_URL: process.env.APPLICATION_REDIRECT_URL || 'http://localhost:3001',
+  IS_NPM_RUN_DEV: process.env.npm_lifecycle_event === 'dev',
 };
