@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import { ZodObject, ZodError } from "zod";
+import { ZodObject, ZodError, ZodRawShape } from "zod";
 import { InvalidParameterException } from "../../sdks/exceptions";
 
 /**
@@ -7,7 +7,7 @@ import { InvalidParameterException } from "../../sdks/exceptions";
  * Validates request query, params, or body against a Zod schema
  */
 export const validate = (
-  schema: ZodObject<any, any>,
+  schema: ZodObject<ZodRawShape>,
   source: "query" | "params" | "body" = "body",
 ): RequestHandler => {
   return async (

@@ -29,6 +29,7 @@ export const GET_AUDIT_EVENTS_QUERY = `
                 category: targetType
                 actorId: executorId
                 actorUsername: executorName
+                actorType: executorType
                 action: historyAction
                 resourceName
                 resourceId: resourceId
@@ -51,6 +52,7 @@ export const GET_AUDIT_EVENT_BY_ID_QUERY = `
             category: targetType
             actorId: executorId
             actorUsername: executorName
+            actorType: executorType
             action: historyAction
             resourceName: resourceName
             resourceId: resourceId
@@ -74,6 +76,7 @@ export const GET_SUGGESTIONS_QUERY = `
             nodes {
                 executorId
                 executorName
+                actorType: executorType
                 targetId
                 targetName
                 resourceId

@@ -5,14 +5,12 @@ import {
 } from "../GQL/auditQueries";
 import { PerformQuery } from "../../sdks/performQuery";
 import { AuditQueryParams } from "../types/audit";
-import { getRlsFilters } from "../utils/auth";
 import { isPermitted } from "../../sdks/STS";
 import { GET_USER_ALLOWED_PARAMETERS_QUERY } from "../GQL/profileQueries";
+import { GraphQLFilter } from "../types/graphql";
 
 // Mock dependencies
-jest.mock("../utils/auth", () => ({
-  getRlsFilters: jest.fn(),
-}));
+
 jest.mock("../../sdks/STS", () => ({
   isPermitted: jest.fn(),
   getUserIdFromCookie: jest.fn().mockReturnValue("user-123"),
@@ -23,7 +21,6 @@ const mockPerformQuery = jest.fn() as unknown as PerformQuery;
 describe("getEvents", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (getRlsFilters as jest.Mock).mockReturnValue(null);
     // Default to permitted for existing tests
     (isPermitted as jest.Mock).mockImplementation(() => true);
     (mockPerformQuery as jest.Mock).mockResolvedValue({
@@ -37,14 +34,11 @@ describe("getEvents", () => {
   });
 
   const DEFAULT_TARGET_TYPE_FILTER = {
-    targetType: {
-      in: [
-        "USER",
-        // "PARAMETER", // Filtered by resourceType now
-        // "ENTITY", // filtered out by default deny
-        // ... others filtered out
-      ],
-    },
+    or: [
+      {
+        and: [{ targetType: { equalTo: "USER" } }],
+      },
+    ],
   };
 
   it("should construct correct filter for free text search (names only)", async () => {
@@ -175,19 +169,12 @@ describe("getEvents", () => {
     // Filters are pushed to andFilters, order matters based on implementation
     const expectedFilter = {
       and: [
+        DEFAULT_TARGET_TYPE_FILTER,
         {
           and: [
             { executorId: { includesInsensitive: "actor-123" } },
             { executorType: { equalTo: "USER" } },
           ],
-        },
-        {
-          targetType: {
-            in: [
-              "USER",
-              // ... others filtered out
-            ],
-          },
         },
         {
           or: [
@@ -304,7 +291,12 @@ describe("Compartmentalization Logic", () => {
   });
 
   it("should filter out parameters if user has no read permissions", async () => {
-    (isPermitted as jest.Mock).mockReturnValue(false); // No read permissions
+    (isPermitted as jest.Mock).mockImplementation((args) => {
+      // Allow the USER category permission. "mandatPermission": ["read"]
+      if (args?.mandatPermission?.includes("read")) return true;
+      // Deny parameter permissions. "profilePermission": ["read"] or ["update"]
+      return false;
+    });
 
     const params: AuditQueryParams = {};
     await getEvents(params, mockPerformQuery, "user-123");
@@ -313,9 +305,12 @@ describe("Compartmentalization Logic", () => {
     const variables = calls[0][1];
     const filter = variables.filter;
 
-    // Should include filter to exclude PARAMETER by resourceType
+    // Should include filter to exclude PARAMETER by resourceType but allow NULL
     expect(JSON.stringify(filter)).toContain(
       JSON.stringify({ resourceType: { notEqualTo: "PARAMETER" } }),
+    );
+    expect(JSON.stringify(filter)).toContain(
+      JSON.stringify({ resourceType: { isNull: true } }),
     );
   });
 
@@ -404,6 +399,7 @@ describe("Compartmentalization Logic", () => {
     const expectedOrCondition = {
       or: [
         { resourceType: { notEqualTo: "PARAMETER" } },
+        { resourceType: { isNull: true } },
         {
           and: [
             { resourceType: { equalTo: "PARAMETER" } },
@@ -415,6 +411,9 @@ describe("Compartmentalization Logic", () => {
 
     expect(JSON.stringify(filter)).toContain(
       JSON.stringify(expectedOrCondition.or[0]),
+    );
+    expect(JSON.stringify(filter)).toContain(
+      JSON.stringify(expectedOrCondition.or[1]),
     );
   });
 });

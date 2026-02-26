@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { useAuditEvents } from '@/hooks/useAuditEvents';
-import { FilterBar } from '@/components/audit/FilterBar';
-import { AuditTable } from '@/components/audit/AuditTable';
-import { exportToExcel } from '@/lib/exportToExcel';
-import { fetchAllAuditEvents } from '@/lib/api';
-import { toast } from '@/hooks/use-toast';
-import { styles } from './Index.styles';
+import { useState } from "react";
+import { useAuditEvents } from "@/hooks/useAuditEvents";
+import { FilterBar } from "@/components/audit/FilterBar";
+import { AuditTable } from "@/components/audit/AuditTable";
+import { exportToExcel } from "@/lib/exportToExcel";
+import { fetchAllAuditEvents } from "@/lib/api";
+import { toast } from "@/hooks/use-toast";
+import { styles } from "./Index.styles";
 
 const Index = () => {
   const {
@@ -25,9 +25,10 @@ const Index = () => {
   const [isExporting, setIsExporting] = useState(false);
 
   const hasActiveFilters = Object.values(filters).some((v) => {
+    if (v === null || v === undefined || v === false) return false;
     if (Array.isArray(v)) return v.length > 0;
-    if (typeof v === 'string') return v.trim().length > 0;
-    return v !== null && v !== undefined;
+    if (typeof v === "string") return v.trim().length > 0;
+    return true;
   });
 
   const handleExport = async () => {
@@ -36,14 +37,14 @@ const Index = () => {
       const allEvents = await fetchAllAuditEvents(filters);
       exportToExcel(allEvents, filters);
       toast({
-        title: 'הייצוא הושלם',
-        description: 'קובץ האקסל הורד בהצלחה.',
+        title: "הייצוא הושלם",
+        description: "קובץ האקסל הורד בהצלחה.",
       });
     } catch (error) {
       toast({
-        title: 'שגיאה בייצוא',
-        description: 'לא ניתן היה לייצא את הנתונים. נסה שוב.',
-        variant: 'destructive',
+        title: "שגיאה בייצוא",
+        description: "לא ניתן היה לייצא את הנתונים. נסה שוב.",
+        variant: "destructive",
       });
     } finally {
       setIsExporting(false);

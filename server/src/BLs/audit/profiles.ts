@@ -3,6 +3,10 @@ import { GET_USER_PREMADE_PROFILES_QUERY } from "../../GQL/profileQueries";
 import { GET_SEARCH_FILTERS_QUERY } from "../../GQL/auditQueries";
 import { parseSearchFiltersResponse } from "../../parsers/auditParser";
 import { parsePremadeProfilesResponse as parseProfiles } from "../../parsers/profileParser";
+import {
+  GraphQLUserPremadeProfilesResponse,
+  PremadeProfile,
+} from "../../parsers/profileParser.types";
 
 /**
  * Get all premade profiles for a specific user
@@ -10,13 +14,12 @@ import { parsePremadeProfilesResponse as parseProfiles } from "../../parsers/pro
 export const getPremadeProfiles = async (
   performQuery: PerformQuery,
   userId: string,
-): Promise<{ id: string; name: string }[]> => {
+): Promise<PremadeProfile[]> => {
   const result = (await performQuery(GET_USER_PREMADE_PROFILES_QUERY, {
     userId,
-  })) as Record<string, unknown>;
+  })) as GraphQLUserPremadeProfilesResponse;
 
-  // Use the updated parser from profileParser
-  return parseProfiles(result as any);
+  return parseProfiles(result);
 };
 
 /**

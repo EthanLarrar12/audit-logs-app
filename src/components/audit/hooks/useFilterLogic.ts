@@ -237,7 +237,7 @@ export const useFilterLogic = ({
 
   const activeFilterCount = activeFilters.length;
   const hasAnyActiveFilter = Object.values(filters).some((v) => {
-    if (v === null || v === undefined) return false;
+    if (v === null || v === undefined || v === false) return false;
     if (typeof v === "string" && v.trim() === "") return false;
     if (Array.isArray(v) && v.length === 0) return false;
     return true;
@@ -345,8 +345,10 @@ export const useFilterLogic = ({
     [toggleMultiFilter],
   );
   const handleActionClear = useCallback(() => {
-    updateFilter("action", null);
-  }, [updateFilter]);
+    const newFilters = { ...filters, action: null };
+    const { filters: finalFilters } = cleanupInvalidFilters(newFilters);
+    onFiltersChange(finalFilters);
+  }, [filters, onFiltersChange, cleanupInvalidFilters]);
   const handlePremadeProfileChange = useCallback(
     (id: string) => updateFilter("premadeProfile", id),
     [updateFilter],
