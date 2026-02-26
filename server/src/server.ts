@@ -49,10 +49,6 @@ app.use(
   ),
 );
 
-// API Routes
-// API Routes - Initialized after schema build in startServer
-// app.use('/audit', auditRouter); // Removed in favor of dynamic initialization
-
 // Health check
 app.get(
   "/health",
