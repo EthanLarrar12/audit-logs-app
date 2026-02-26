@@ -225,7 +225,7 @@ PostGraphile GraphQL endpoint and interactive playground. Used by the filter BL 
 The filter logic lives in `server/src/BLs/audit/`. Filters are applied at the GraphQL query level using a **handler pattern**:
 
 - **`CategoryFilterHandler`** — one handler per `MirageObjectType` (USER, ENTITY, …). Each handler knows how to build the right GraphQL filter fragment for its category and how to parse the raw response.
-- **`GlobalFilterHandler`** — handlers for filters that apply across all categories: `DateRange`, `Search`, `PremadeProfile`, `RLS`.
+- **`GlobalFilterHandler`** — handlers for filters that apply across all categories: `DateRange`, `Search`, `PremadeProfile`.
 
 The main `filters.ts` orchestrator runs all relevant handlers concurrently with `Promise.all`, merges their outputs, and returns the final filtered event list.
 
