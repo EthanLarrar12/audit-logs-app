@@ -14,11 +14,14 @@ import { config } from "./config";
 
 const app = express();
 const PORT = config.PORT;
-const DATABASE_URL = config.DATABASE_URL;
+const PGQL_DB_URL = config.PGQL_DB_URL;
+
+const connectionUrl = new URL(PGQL_DB_URL);
+connectionUrl.searchParams.append("application_name", config.APPLICATION_NAME);
 
 // Setup Postgres Pool
 export const pgPool = new Pool({
-  connectionString: DATABASE_URL,
+  connectionString: connectionUrl.toString(),
 });
 
 // Middleware
@@ -31,23 +34,25 @@ const pluginHook = makePluginHook([
   // Add any plugin hooks here if needed
 ]);
 
-app.use(
-  postgraphile(
-    pgPool,
-    ["history", "api"], // Target schema(s)
-    {
-      watchPg: true,
-      graphiql: true,
-      enhanceGraphiql: true,
-      appendPlugins: [PostGraphileConnectionFilterPlugin],
-      retryOnInitFail: true,
-      dynamicJson: true,
-      allowExplain: (req) => {
-        return true;
+if (config.IS_NPM_RUN_DEV) {
+  app.use(
+    postgraphile(
+      pgPool,
+      ["history", "api"], // Target schema(s)
+      {
+        watchPg: true,
+        graphiql: true,
+        enhanceGraphiql: true,
+        appendPlugins: [PostGraphileConnectionFilterPlugin],
+        retryOnInitFail: true,
+        dynamicJson: true,
+        allowExplain: (req) => {
+          return true;
+        },
       },
-    },
-  ),
-);
+    ),
+  );
+}
 
 // API Routes
 // API Routes - Initialized after schema build in startServer
@@ -97,12 +102,14 @@ const startServer = async (): Promise<void> => {
     app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
       console.log(`📋 API available at http://localhost:${PORT}/audit/events`);
-      console.log(
-        `Create GraphQL API available at http://localhost:${PORT}/graphql`,
-      );
-      console.log(
-        `Create GraphiQL available at http://localhost:${PORT}/graphiql`,
-      );
+      if (config.IS_NPM_RUN_DEV) {
+        console.log(
+          `Create GraphQL API available at http://localhost:${PORT}/graphql`,
+        );
+        console.log(
+          `Create GraphiQL available at http://localhost:${PORT}/graphiql`,
+        );
+      }
     });
   } catch (error) {
     console.error("Failed to start server:", error);
