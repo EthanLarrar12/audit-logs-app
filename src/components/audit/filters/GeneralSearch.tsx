@@ -14,6 +14,7 @@ import { FilterGroup } from "./FilterGroup";
 import { styles } from "./GeneralSearch.styles";
 import { useSuggestions } from "@/hooks/useSuggestions";
 import { Virtuoso } from "react-virtuoso";
+import pizponGif from "@/assets/pizpon.gif";
 
 interface GeneralSearchProps {
   label: string;
@@ -39,9 +40,9 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
   selectedItems = [],
   onRemove,
 }) => {
-  // const [selectedItem, setSelectedItem] = useState<{ ... } | null>(null); // Removed internal state
-
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
+  const [isPizponActive, setIsPizponActive] = useState(false);
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useSuggestions(value);
 
@@ -63,10 +64,20 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
     setIsSuggestionsOpen(true);
   };
 
+  const triggerPizponIfNeeded = (val: string) => {
+    if (val === "לא הוא משוכנע") {
+      setIsPizponActive(true);
+      setTimeout(() => {
+        setIsPizponActive(false);
+      }, 5000);
+    }
+  };
+
   const handleInputKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-  ): void => {
-    if (e.key === "Enter") {
+  ): void => {    
+    if (e.key === "Enter") {      
+      triggerPizponIfNeeded(value);
       onSelect(value, null, false);
       setIsSuggestionsOpen(false);
     }
@@ -93,6 +104,7 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
   };
 
   const handleSelectCurrentValue = (): void => {
+    triggerPizponIfNeeded(value);
     onSelect(value, null, false, value); // Pass value as name too
     setIsSuggestionsOpen(false);
   };
@@ -175,7 +187,9 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
                   <div className="h-4 w-4 opacity-70 flex items-center justify-center">
                     {(() => {
                       const IconComponent = actionIcon;
-                      return <IconComponent className="h-4 w-4 text-slate-500" />;
+                      return (
+                        <IconComponent className="h-4 w-4 text-slate-500" />
+                      );
                     })()}
                   </div>
                   <span>
@@ -241,8 +255,8 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
             {/* Render Input */}
             <div className="flex-1 min-w-[100px] flex items-center flex-shrink-0 h-full">
               {isLoading &&
-                suggestions.length === 0 &&
-                !selectedItems.length ? (
+              suggestions.length === 0 &&
+              !selectedItems.length ? (
                 <Loader2 className={styles.loader} />
               ) : (
                 selectedItems.length === 0 && (
@@ -293,13 +307,13 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
                 style={{
                   height: Math.min(
                     (value ? 45 : 0) + // Height for "Search for..." option
-                    suggestions.reduce((acc, curr, index) => {
-                      const prev = index > 0 ? suggestions[index - 1] : null;
-                      const hasHeader = !prev || curr.type !== prev.type;
-                      return acc + 44 + (hasHeader ? 28 : 0); // Item height + header height
-                    }, 0),
-                    300
-                  )
+                      suggestions.reduce((acc, curr, index) => {
+                        const prev = index > 0 ? suggestions[index - 1] : null;
+                        const hasHeader = !prev || curr.type !== prev.type;
+                        return acc + 44 + (hasHeader ? 28 : 0); // Item height + header height
+                      }, 0),
+                    300,
+                  ),
                 }}
                 totalCount={totalCount}
                 itemContent={renderRow}
@@ -325,6 +339,15 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
           </div>
         </PopoverContent>
       </Popover>
+      {isPizponActive && (
+        <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
+          <img
+            src={pizponGif}
+            className="absolute w-64 h-auto animate-pizpon-bounce"
+            alt="Pizpon"
+          />
+        </div>
+      )}
     </FilterGroup>
   );
 };

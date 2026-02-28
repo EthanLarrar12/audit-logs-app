@@ -190,3 +190,38 @@
 .scrollbar-webkit::-webkit-scrollbar-button {
   display: none;
 }
+
+@keyframes pizpon-bounce {
+  0% {
+    left: -20%;
+    top: 10vh;
+  }
+  15% {
+    left: 20%;
+    top: 50vh;
+  }
+  30% {
+    left: 40%;
+    top: 15vh;
+  }
+  50% {
+    left: 60%;
+    top: 55vh;
+  }
+  70% {
+    left: 80%;
+    top: 15vh;
+  }
+  85% {
+    left: 40%;
+    top: 50vh;
+  }
+  100% {
+    left: 120%;
+    top: 20vh;
+  }
+}
+
+.animate-pizpon-bounce {
+  animation: pizpon-bounce 5s ease-in-out forwards;
+}
