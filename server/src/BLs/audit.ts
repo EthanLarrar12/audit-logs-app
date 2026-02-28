@@ -174,7 +174,6 @@ export const getTranslations = async (
 
   const valuesData = typedResult.data?.allDigitalValues;
   const valuesNodes = valuesData?.nodes;
-  const hasValues = Boolean(valuesNodes);
 
   const valuesDict: Record<string, Record<string, string>> = {};
 
