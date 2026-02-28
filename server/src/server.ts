@@ -14,11 +14,14 @@ import { config } from "./config";
 
 const app = express();
 const PORT = config.PORT;
-const DATABASE_URL = config.DATABASE_URL;
+const PGQL_DB_URL = config.PGQL_DB_URL;
+
+const connectionUrl = new URL(PGQL_DB_URL);
+connectionUrl.searchParams.append("application_name", config.APPLICATION_NAME);
 
 // Setup Postgres Pool
 export const pgPool = new Pool({
-  connectionString: DATABASE_URL,
+  connectionString: connectionUrl.toString(),
 });
 
 // Middleware
@@ -31,23 +34,25 @@ const pluginHook = makePluginHook([
   // Add any plugin hooks here if needed
 ]);
 
-app.use(
-  postgraphile(
-    pgPool,
-    ["history", "api"], // Target schema(s)
-    {
-      watchPg: true,
-      graphiql: true,
-      enhanceGraphiql: true,
-      appendPlugins: [PostGraphileConnectionFilterPlugin],
-      retryOnInitFail: true,
-      dynamicJson: true,
-      allowExplain: (req) => {
-        return true;
+if (config.IS_NPM_RUN_DEV) {
+  app.use(
+    postgraphile(
+      pgPool,
+      ["history", "api"], // Target schema(s)
+      {
+        watchPg: true,
+        graphiql: true,
+        enhanceGraphiql: true,
+        appendPlugins: [PostGraphileConnectionFilterPlugin],
+        retryOnInitFail: true,
+        dynamicJson: true,
+        allowExplain: (req) => {
+          return true;
+        },
       },
-    },
-  ),
-);
+    ),
+  );
+}
 
 // Health check
 app.get(
@@ -61,13 +66,21 @@ app.get(
 );
 
 // Serve static files from the React app
-const clientBuildPath = path.join(__dirname, "../../dist");
+const clientBuildPath = config.IS_NPM_RUN_DEV ?
+  path.join(__dirname, "../../dist") :
+  path.join(__dirname, "../../../../dist");
+
 app.use('/audit', express.static(clientBuildPath));
+
+app.get("/audit", (req, res) => {
+  res.sendFile(path.join(clientBuildPath, "index.html"));
+});
 
 app.use(getSTSMiddleware({
   stsURI: config.STS_URL,
   serverURI: config.SERVER_URL,
   applicationRedirectURI: config.APPLICATION_REDIRECT_URL,
+  allowCrossOrigin: true
 }));
 
 // Initialize and start server
@@ -81,22 +94,18 @@ const startServer = async (): Promise<void> => {
 
     app.use(errorMiddleware);
 
-    // The "catchall" handler: for any request that doesn't
-    // match one above, send back React's index.html file.
-    app.get("/audit", (req, res) => {
-      res.sendFile(path.join(clientBuildPath, "index.html"));
-    });
-
     // Start server
     app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
       console.log(`📋 API available at http://localhost:${PORT}/audit/events`);
-      console.log(
-        `Create GraphQL API available at http://localhost:${PORT}/graphql`,
-      );
-      console.log(
-        `Create GraphiQL available at http://localhost:${PORT}/graphiql`,
-      );
+      if (config.IS_NPM_RUN_DEV) {
+        console.log(
+          `Create GraphQL API available at http://localhost:${PORT}/graphql`,
+        );
+        console.log(
+          `Create GraphiQL available at http://localhost:${PORT}/graphiql`,
+        );
+      }
     });
   } catch (error) {
     console.error("Failed to start server:", error);
