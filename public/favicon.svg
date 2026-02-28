@@ -1,0 +1,100 @@
+<svg id="לוגו_גדול" data-name="לוגו גדול" xmlns="http://www.w3.org/2000/svg" width="1245" height="2877" viewBox="0 0 1245 2877">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #41b8d4;
+      }
+
+      .cls-2 {
+        fill: #43b4c2;
+      }
+
+      .cls-3 {
+        fill: #45b3bb;
+      }
+
+      .cls-4 {
+        fill: #45b3ba;
+      }
+
+      .cls-5 {
+        fill: #4ab3ad;
+      }
+
+      .cls-6 {
+        fill: #4db4ab;
+      }
+
+      .cls-7 {
+        fill: #4ab3aa;
+      }
+
+      .cls-8 {
+        fill: #59b167;
+      }
+
+      .cls-13, .cls-14, .cls-15, .cls-16, .cls-8 {
+        fill-rule: evenodd;
+      }
+
+      .cls-9 {
+        fill: #56b174;
+      }
+
+      .cls-10 {
+        fill: #53b17d;
+      }
+
+      .cls-11 {
+        fill: #54b37f;
+      }
+
+      .cls-12 {
+        fill: #4fb38f;
+      }
+
+      .cls-13 {
+        fill: #4bb48a;
+      }
+
+      .cls-14 {
+        fill: #53b38d;
+      }
+
+      .cls-15, .cls-17 {
+        fill: #4fb3a2;
+      }
+
+      .cls-16 {
+        fill: #4cb19d;
+      }
+    </style>
+  </defs>
+  <g id="Group_4_copy" data-name="Group 4 copy">
+    <g id="למעלה">
+      <ellipse class="cls-1" cx="883.36" cy="74.266" rx="72.61" ry="74.078"/>
+      <ellipse id="Ellipse_1_copy_2" data-name="Ellipse 1 copy 2" class="cls-2" cx="686.266" cy="343.5" rx="115.578" ry="115.625"/>
+      <g>
+        <circle class="cls-3" cx="420.25" cy="673.218" r="137.094"/>
+        <rect id="Rounded_Rectangle_3" data-name="Rounded Rectangle 3" class="cls-4" x="492.094" y="642.875" width="403.125" height="60.75" rx="14.218" ry="14.218"/>
+      </g>
+      <g>
+        <circle id="Ellipse_1_copy" data-name="Ellipse 1 copy" class="cls-5" cx="209.797" cy="1033.376" r="137.047"/>
+        <rect id="Rounded_Rectangle_2" data-name="Rounded Rectangle 2" class="cls-6" x="332.031" y="1004.47" width="825.469" height="59.28" rx="10" ry="10"/>
+        <ellipse class="cls-7" cx="1101.2" cy="1035.58" rx="71.11" ry="74.111"/>
+      </g>
+    </g>
+    <g id="Group_1_copy" data-name="Group 1 copy">
+      <path class="cls-8" d="M348.891,2728.75c40.1,0,72.609,33.17,72.609,74.09s-32.508,74.1-72.609,74.1-72.61-33.18-72.61-74.1S308.79,2728.75,348.891,2728.75Z"/>
+      <circle id="Ellipse_1_copy_2-2" data-name="Ellipse 1 copy 2" class="cls-9" cx="578.094" cy="2557.08" r="115.594"/>
+      <circle class="cls-10" cx="844.093" cy="2227.36" r="137.063"/>
+      <rect id="Rounded_Rectangle_3-2" data-name="Rounded Rectangle 3" class="cls-11" x="369.094" y="2196.97" width="403.125" height="60.78" rx="14.218" ry="14.218"/>
+      <circle id="Ellipse_1_copy-2" data-name="Ellipse 1 copy" class="cls-12" cx="1054.529" cy="1867.25" r="137.091"/>
+      <path id="Rounded_Rectangle_2-2" data-name="Rounded Rectangle 2" class="cls-13" d="M116.812,1836.87H922.25a10,10,0,0,1,10,10v39.29a10,10,0,0,1-10,10H116.812a10,10,0,0,1-10-10v-39.29A10,10,0,0,1,116.812,1836.87Z"/>
+      <path class="cls-14" d="M163.125,1790.91c39.3,0,71.156,33.17,71.156,74.09s-31.858,74.09-71.156,74.09S91.969,1905.92,91.969,1865,123.827,1790.91,163.125,1790.91Z"/>
+      <path class="cls-15" d="M1130.11,1331.5c63.43,0,114.86,51.75,114.86,115.59s-51.43,115.6-114.86,115.6-114.86-51.76-114.86-115.6S1066.67,1331.5,1130.11,1331.5Z"/>
+      <path id="Ellipse_3_copy" data-name="Ellipse 3 copy" class="cls-16" d="M114.953,1332.97c63.435,0,114.86,51.75,114.86,115.59s-51.425,115.6-114.86,115.6S0.094,1512.4.094,1448.56,51.518,1332.97,114.953,1332.97Z"/>
+      <rect id="Rounded_Rectangle_1" data-name="Rounded Rectangle 1" class="cls-17" x="120.156" y="1415.97" width="938.034" height="65.19" rx="10" ry="10"/>
+    </g>
+  </g>
+</svg>
