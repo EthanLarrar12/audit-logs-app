@@ -10,14 +10,15 @@ export const errorMiddleware = (
 ) => {
   if (err instanceof ApiException) {
     res.status(err.httpStatusCode).json({
-      error: err.errorMessage,
-      additionalInfo: err.extraDetails,
+      errorMessage: err.errorMessage,
+      extraDetails: err.extraDetails,
     });
     return;
   }
 
   console.error("Unknown Error:", err);
   res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-    error: "Internal Server Error",
+    errorMessage: "Internal Server Error",
+    extraDetails: "",
   });
 };
