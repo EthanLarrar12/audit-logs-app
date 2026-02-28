@@ -56,38 +56,47 @@ const badgeConfig: Record<
   // Categories (SCREAMING_SNAKE_CASE)
   USER: {
     icon: UserIcon,
+    label: "משתמש",
     styleKey: "User",
   },
   ENTITY: {
     icon: Box,
+    label: "ישות",
     styleKey: "Entity",
   },
   SHOS: {
     icon: ShieldAlert,
+    label: 'שו"ס',
     styleKey: "Shos",
   },
   DYNAMIC_TAG: {
     icon: Tags,
+    label: "תגיות",
     styleKey: "DynamicTag",
   },
   END_SYSTEM: {
     icon: Monitor,
+    label: "מערכת קצה",
     styleKey: "EndSystem",
   },
   PROFILE: {
     icon: UserCircle,
+    label: "פרופיל",
     styleKey: "Profile",
   },
   DISTRIBUTION_GROUP: {
     icon: Users,
+    label: "רשימות תפוצה",
     styleKey: "DistributionGroup",
   },
   SYSTEM: {
     icon: Settings,
+    label: "מערכת",
     styleKey: "System",
   },
   PARAMETER: {
     icon: ParameterIcon,
+    label: "תכונה",
     styleKey: "DynamicTag", // Reusing a similar style or define a new one if needed
   },
   // Target Types (lowercase)
