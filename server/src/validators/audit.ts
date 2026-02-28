@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { TranslationValue } from "../shared/types/audit";
 
 /**
  * Zod schema for audit events query parameters
@@ -67,10 +66,7 @@ export const deleteHistorySchema = z.object({
  */
 export const translationsBodySchema = z.object({
   paramIds: z.array(z.string()).default([]),
-  values: z.array(z.object({
-    parameterId: z.string(),
-    valueId: z.string(),
-  })).default([]),
+  values: z.record(z.string(), z.array(z.string())).default({}),
 });
 
 // Export inferred types
@@ -79,5 +75,5 @@ export type AuditEventIdParam = z.infer<typeof auditEventIdParamSchema>;
 export type SuggestionsQuery = z.infer<typeof suggestionsQuerySchema>;
 export type DeleteHistoryBody = z.infer<typeof deleteHistorySchema>;
 export type TranslationsBody = Omit<z.infer<typeof translationsBodySchema>, 'values'> & {
-  values: TranslationValue[];
+  values: Record<string, string[]>;
 };

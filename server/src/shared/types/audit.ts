@@ -31,10 +31,7 @@ export interface AuditEventPage {
   items: AuditEvent[];
 }
 
-export interface TranslationValue {
-  parameterId: string;
-  valueId: string;
-}
+export type TranslationRequestValues = Record<string, string[]>;
 
 export interface TranslationDictionary {
   parameters: Record<string, string>;

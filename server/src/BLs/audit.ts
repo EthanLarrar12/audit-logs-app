@@ -1,5 +1,5 @@
 import { AuditEvent, AuditEventPage, AuditQueryParams } from "../types/audit";
-import { TranslationValue, TranslationDictionary } from "../shared/types/audit";
+import { TranslationRequestValues, TranslationDictionary } from "../shared/types/audit";
 import {
   GET_AUDIT_EVENTS_QUERY,
   GET_AUDIT_EVENT_BY_ID_QUERY,
@@ -142,7 +142,7 @@ export const deleteAuditHistory = async (
 export const getTranslations = async (
   performQuery: PerformQuery,
   paramIds: string[],
-  valuesToTranslate: TranslationValue[]
+  valuesToTranslate: TranslationRequestValues
 ): Promise<TranslationDictionary> => {
   const queryStr = getTranslationsQuery(valuesToTranslate);
 

@@ -107,12 +107,13 @@ export const GET_SEARCH_FILTERS_QUERY = `
  * Function to dynamically generate dictionary translations query
  * It dynamically constructs the complex value filters based on compound value objects.
  */
-export const getTranslationsQuery = (values: { parameterId: string; valueId: string }[]) => {
+export const getTranslationsQuery = (values: Record<string, string[]>) => {
     let valueFiltersBlock = "";
-    if (values.length > 0) {
-        const orConditions = values.map(({ parameterId, valueId }) => {
-            // Escape strings carefully for GraphQL string injection
-            return `{ digitalParameterId: { equalTo: "${parameterId}" }, id: { equalTo: "${valueId}" } }`;
+    if (Object.keys(values).length > 0) {
+        const orConditions = Object.entries(values).flatMap(([parameterId, valueIds]) => {
+            return valueIds.map(valueId =>
+                `{ digitalParameterId: { equalTo: "${parameterId}" }, id: { equalTo: "${valueId}" } }`
+            );
         }).join(", ");
 
         valueFiltersBlock = `

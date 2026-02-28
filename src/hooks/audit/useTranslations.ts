@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchWithCreds } from '@/lib/api';
-import { TranslationDictionary, TranslationValue } from '@/types/audit';
+import { TranslationDictionary, TranslationRequestValues } from '@/types/audit';
 
 // Hardcoded dictionary for common keys/values not in the database
 const HARDCODED_TRANSLATIONS: TranslationDictionary = {
@@ -12,9 +12,9 @@ const HARDCODED_TRANSLATIONS: TranslationDictionary = {
         chail: "חיל",
         minuy: "מינוי",
         pikud: "פיקוד",
-        sabat: "סב\"ט",
+        sabat: 'סב"ט',
         tafkid: "תפקיד",
-        tatash: "תת\"ש",
+        tatash: 'תת"ש',
         address: "כתובת",
         domains: "דומיינים",
         miktzoa: "מקצוע",
@@ -26,7 +26,7 @@ const HARDCODED_TRANSLATIONS: TranslationDictionary = {
         is_blocked: "חסום",
         sug_sherut: "סוג שירות",
         display_name: "שם תצוגה",
-        colored_sabat: "סב\"ט צבעוני",
+        colored_sabat: 'סב"ט צבעוני',
         creation_date: "תאריך יצירה",
         domain_source: "מקור דומיין",
         personal_number: "מספר אישי",
@@ -38,21 +38,30 @@ const HARDCODED_TRANSLATIONS: TranslationDictionary = {
         updated_at: "תאריך עדכון",
     },
     values: {
+        "*": {
+            "true": "כן",
+            "false": "לא",
+            "null": "ריק",
+        },
+        status: {
+            "Active": "פעיל",
+            "Inactive": "לא פעיל",
+        },
         domain_source: {
-            AMAN: "אמ\"ן",
+            AMAN: 'אמ"ן',
             CTS: "סודי ביותר",
             UNKNOWN: "לא ידוע",
         },
         domains: {
-            AMAN: "אמ\"ן",
+            AMAN: 'אמ"ן',
             CTS: "סודי ביותר",
         }
     }
 };
 
 // Internal API call to backend route
-async function fetchTranslations(paramIds: string[], values: TranslationValue[]): Promise<TranslationDictionary> {
-    if (paramIds.length === 0 && values.length === 0) {
+async function fetchTranslations(paramIds: string[], values: TranslationRequestValues): Promise<TranslationDictionary> {
+    if (paramIds.length === 0 && Object.keys(values).length === 0) {
         return { parameters: {}, values: {} };
     }
 
@@ -73,13 +82,13 @@ async function fetchTranslations(paramIds: string[], values: TranslationValue[])
  * It checks the global React Query cache first, identifies missing keys/values,
  * fetches ONLY the missing ones from the server, and then merges them back into the global dictionary.
  */
-export const useTranslations = (paramIds: string[] = [], values: TranslationValue[] = []) => {
+export const useTranslations = (paramIds: string[] = [], values: TranslationRequestValues = {}) => {
     const queryClient = useQueryClient();
 
     return useQuery({
         // We still use local query keys for uniqueness to trigger renders correctly based on inputs,
         // but the queryFn itself will look up and mutate the global cache.
-        queryKey: ['translations-batch', paramIds.sort().join(','), values.map(v => `${v.parameterId}:${v.valueId}`).sort().join(',')],
+        queryKey: ['translations-batch', paramIds.sort().join(','), Object.entries(values).map(([pId, vIds]) => `${pId}:${vIds.sort().join('|')} `).sort().join(',')],
         queryFn: async () => {
             // 1. Get current global dictionary and merge with hardcoded defaults
             const cachedGlobalDict = queryClient.getQueryData<TranslationDictionary>(['global-translations']) || { parameters: {}, values: {} };
@@ -94,15 +103,21 @@ export const useTranslations = (paramIds: string[] = [], values: TranslationValu
 
             // For values, determine what's missing by checking if pair is in cache 
             // AND the generic value isn't in hardcoded defaults
-            const missingValues = values.filter(v => {
-                const hasCached = globalDict.values[v.parameterId] && (v.valueId in globalDict.values[v.parameterId]);
-                const isHardcoded = HARDCODED_TRANSLATIONS.values[v.parameterId]?.[v.valueId] || HARDCODED_TRANSLATIONS.values["*"]?.[v.valueId];
-                return !hasCached && !isHardcoded;
-            });
+            const missingValues: TranslationRequestValues = {};
+            for (const [pId, vIds] of Object.entries(values)) {
+                const missingForParam = vIds.filter(vId => {
+                    const hasCached = globalDict.values[pId] && (vId in globalDict.values[pId]);
+                    const isHardcoded = HARDCODED_TRANSLATIONS.values[pId]?.[vId] || HARDCODED_TRANSLATIONS.values["*"]?.[vId];
+                    return !hasCached && !isHardcoded;
+                });
+                if (missingForParam.length > 0) {
+                    missingValues[pId] = missingForParam;
+                }
+            }
 
             // 3. Fetch missing pieces (if any)
             let newTranslations: TranslationDictionary = { parameters: {}, values: {} };
-            if (missingParams.length > 0 || missingValues.length > 0) {
+            if (missingParams.length > 0 || Object.keys(missingValues).length > 0) {
                 newTranslations = await fetchTranslations(missingParams, missingValues);
             }
 
@@ -131,26 +146,29 @@ export const useTranslations = (paramIds: string[] = [], values: TranslationValu
             paramIds.forEach(id => {
                 if (fullParameters[id]) localResult.parameters[id] = fullParameters[id];
             });
-            values.forEach(v => {
-                const translated = fullValues[v.parameterId]?.[v.valueId];
-                const hardcodedSpecific = HARDCODED_TRANSLATIONS.values[v.parameterId]?.[v.valueId];
-                const hardcodedGeneric = HARDCODED_TRANSLATIONS.values["*"]?.[v.valueId];
 
-                if (translated) {
-                    if (!localResult.values[v.parameterId]) localResult.values[v.parameterId] = {};
-                    localResult.values[v.parameterId][v.valueId] = translated;
-                } else if (hardcodedSpecific) {
-                    if (!localResult.values[v.parameterId]) localResult.values[v.parameterId] = {};
-                    localResult.values[v.parameterId][v.valueId] = hardcodedSpecific;
-                } else if (hardcodedGeneric) {
-                    if (!localResult.values[v.parameterId]) localResult.values[v.parameterId] = {};
-                    localResult.values[v.parameterId][v.valueId] = hardcodedGeneric;
-                }
-            });
+            for (const [pId, vIds] of Object.entries(values)) {
+                vIds.forEach(vId => {
+                    const translated = fullValues[pId]?.[vId];
+                    const hardcodedSpecific = HARDCODED_TRANSLATIONS.values[pId]?.[vId];
+                    const hardcodedGeneric = HARDCODED_TRANSLATIONS.values["*"]?.[vId];
+
+                    if (translated) {
+                        if (!localResult.values[pId]) localResult.values[pId] = {};
+                        localResult.values[pId][vId] = translated;
+                    } else if (hardcodedSpecific) {
+                        if (!localResult.values[pId]) localResult.values[pId] = {};
+                        localResult.values[pId][vId] = hardcodedSpecific;
+                    } else if (hardcodedGeneric) {
+                        if (!localResult.values[pId]) localResult.values[pId] = {};
+                        localResult.values[pId][vId] = hardcodedGeneric;
+                    }
+                });
+            }
 
             return localResult;
         },
         staleTime: 1000 * 60 * 60 * 24, // 24 hours
-        enabled: paramIds.length > 0 || values.length > 0, // Only fetch if there are things to translate
+        enabled: paramIds.length > 0 || Object.keys(values).length > 0, // Only fetch if there are things to translate
     });
 };

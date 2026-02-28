@@ -36,7 +36,7 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
   const extractTranslationKeysValues = (
     objects: any[],
     keysSet: Set<string>,
-    valuesMap: Map<string, { parameterId: string; valueId: string }>
+    valuesMap: Record<string, Set<string>>
   ) => {
     objects.forEach((obj) => {
       if (!obj || typeof obj !== 'object') return;
@@ -47,27 +47,47 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
       for (const [key, val] of Object.entries(obj)) {
         keysSet.add(key);
         if (typeof val === 'object' && val !== null) {
-          extractTranslationKeysValues([val], keysSet, valuesMap);
+          if (Array.isArray(val)) {
+            val.forEach(item => {
+              if (typeof item === 'object' && item !== null) {
+                extractTranslationKeysValues([item], keysSet, valuesMap);
+              } else if (item !== null && item !== undefined && item !== '') {
+                const valueStr = String(item);
+                if (!valuesMap[key]) {
+                  valuesMap[key] = new Set<string>();
+                }
+                valuesMap[key].add(valueStr);
+              }
+            });
+          } else {
+            extractTranslationKeysValues([val], keysSet, valuesMap);
+          }
         } else if (val !== null && val !== undefined && val !== '') {
           const valueStr = String(val);
-          const token = `${key}:${valueStr}`;
-          if (!valuesMap.has(token)) {
-            valuesMap.set(token, { parameterId: key, valueId: valueStr });
+          if (!valuesMap[key]) {
+            valuesMap[key] = new Set<string>();
           }
+          valuesMap[key].add(valueStr);
         }
       }
     });
   };
 
   const paramIdsSet = new Set<string>();
-  const valuesMap = new Map<string, { parameterId: string; valueId: string }>();
+  const valuesMap: Record<string, Set<string>> = {};
+
   if (isExpanded) {
     extractTranslationKeysValues([beforeState, afterState, context], paramIdsSet, valuesMap);
   }
 
+  const queryParamIds = Array.from(paramIdsSet);
+  const queryValues = Object.fromEntries(
+    Object.entries(valuesMap).map(([k, set]) => [k, Array.from(set)])
+  );
+
   const { data: translations, isLoading: isLoadingTranslations } = useTranslations(
-    Array.from(paramIdsSet),
-    Array.from(valuesMap.values())
+    queryParamIds,
+    queryValues
   );
 
   const handleToggleExpanded = () => {
@@ -83,7 +103,17 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
       const translatedKey = translations.parameters[key] || key;
 
       if (typeof val === 'object' && val !== null) {
-        translatedObj[translatedKey] = translateContext(val);
+        if (Array.isArray(val)) {
+          translatedObj[translatedKey] = val.map(item => {
+            if (typeof item === 'object' && item !== null) {
+              return translateContext(item);
+            }
+            const valueStr = String(item);
+            return translations.values[key]?.[valueStr] ?? item;
+          });
+        } else {
+          translatedObj[translatedKey] = translateContext(val);
+        }
       } else {
         const valueStr = String(val);
         translatedObj[translatedKey] = translations.values[key]?.[valueStr] ?? val;
