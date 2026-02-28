@@ -102,3 +102,40 @@ export const GET_SEARCH_FILTERS_QUERY = `
         }
     }
 `;
+
+/**
+ * Function to dynamically generate dictionary translations query
+ * It dynamically constructs the complex value filters based on compound value objects.
+ */
+export const getTranslationsQuery = (values: Record<string, string[]>) => {
+    let valueFiltersBlock = "";
+    if (Object.keys(values).length > 0) {
+        const orConditions = Object.entries(values).flatMap(([parameterId, valueIds]) => {
+            return valueIds.map(valueId =>
+                `{ digitalParameterId: { equalTo: "${parameterId}" }, id: { equalTo: "${valueId}" } }`
+            );
+        }).join(", ");
+
+        valueFiltersBlock = `
+      allDigitalValues(filter: { or: [ ${orConditions} ] }) {
+        nodes {
+          id
+          digitalParameterId
+          name
+        }
+      }
+    `;
+    }
+
+    return `
+      query GetTranslations($paramIds: [String!]) {
+        allDigitalParameters(filter: { id: { in: $paramIds } }) {
+          nodes {
+            id
+            name
+          }
+        }
+        ${valueFiltersBlock}
+      }
+  `;
+};

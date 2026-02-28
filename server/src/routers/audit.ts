@@ -6,6 +6,7 @@ import {
   auditEventIdParamSchema,
   suggestionsQuerySchema,
   deleteHistorySchema,
+  translationsBodySchema,
 } from "../validators/audit";
 import { PerformQuery } from "../../sdks/performQuery";
 import {
@@ -22,6 +23,7 @@ export const createAuditRouter = (performQuery: PerformQuery) => {
     getPremadeProfiles,
     getSuggestions,
     deleteAuditHistory,
+    getTranslations,
   } = getAuditRoutes(performQuery);
 
   // GET /audit/events - List audit events with filters and pagination
@@ -46,6 +48,13 @@ export const createAuditRouter = (performQuery: PerformQuery) => {
     "/events/:id",
     validate(auditEventIdParamSchema, "params"),
     getAuditEventById,
+  );
+
+  // POST /audit/translations - Get extra details field translations payload specifically
+  auditRouter.post(
+    "/translations",
+    validate(translationsBodySchema, "body"),
+    getTranslations
   );
 
   // DELETE /audit - Delete history records

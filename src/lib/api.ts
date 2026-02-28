@@ -28,7 +28,7 @@ interface FetchAuditEventsParams {
 /**
  * Custom fetch wrapper that includes credentials, handles retries, and manages 401 redirection.
  */
-async function fetchWithCreds(
+export async function fetchWithCreds(
   input: string | URL | Request,
   init?: RequestInit,
   retries = 3,

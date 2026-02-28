@@ -61,8 +61,19 @@ export const deleteHistorySchema = z.object({
   endDate: z.number().int().min(0),
 });
 
+/**
+ * Zod schema for fetching translations dynamically
+ */
+export const translationsBodySchema = z.object({
+  paramIds: z.array(z.string()).default([]),
+  values: z.record(z.string(), z.array(z.string())).default({}),
+});
+
 // Export inferred types
 export type AuditEventsQuery = z.infer<typeof auditEventsQuerySchema>;
 export type AuditEventIdParam = z.infer<typeof auditEventIdParamSchema>;
 export type SuggestionsQuery = z.infer<typeof suggestionsQuerySchema>;
 export type DeleteHistoryBody = z.infer<typeof deleteHistorySchema>;
+export type TranslationsBody = Omit<z.infer<typeof translationsBodySchema>, 'values'> & {
+  values: Record<string, string[]>;
+};

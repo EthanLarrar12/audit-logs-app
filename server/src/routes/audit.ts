@@ -6,12 +6,14 @@ import {
   getPremadeProfiles,
   getSuggestions,
   deleteAuditHistory,
+  getTranslations,
 } from "../BLs/audit";
 import {
   AuditEventsQuery,
   AuditEventIdParam,
   SuggestionsQuery,
   DeleteHistoryBody,
+  TranslationsBody,
 } from "../validators/audit";
 
 import { PerformQuery } from "../../sdks/performQuery";
@@ -127,11 +129,29 @@ export const getAuditRoutes = (performQuery: PerformQuery) => {
     }
   };
 
+  /**
+   * Get parameter and value display translations
+   */
+  const handleGetTranslations: RequestHandler = async (
+    req,
+    res,
+    next,
+  ): Promise<void> => {
+    try {
+      const { paramIds, values } = req.body as TranslationsBody;
+      const result = await getTranslations(performQuery, paramIds, values);
+      res.status(StatusCodes.OK).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   return {
     getAuditEvents: handleGetAuditEvents,
     getAuditEventById: handleGetAuditEventById,
     getPremadeProfiles: handleGetPremadeProfiles,
     getSuggestions: handleGetSuggestions,
     deleteAuditHistory: handleDeleteHistory,
+    getTranslations: handleGetTranslations,
   };
 };

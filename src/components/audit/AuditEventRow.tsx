@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { getSubcategoryName, getActionIcon } from '@/constants/filterOptions';
 import { styles } from './AuditEventRow.styles';
 import { StateDiff } from './StateDiff';
+import { useTranslations } from '@/hooks/audit/useTranslations';
 
 interface AuditEventRowProps {
   event: AuditEvent;
@@ -31,9 +32,97 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
   const formattedDate = format(new Date(event.created_at), 'd בMMM yyyy', { locale: he });
   const formattedTime = format(new Date(event.created_at), 'HH:mm:ss');
 
+  // Helper to extract keys and string values recursively
+  const extractTranslationKeysValues = (
+    objects: any[],
+    keysSet: Set<string>,
+    valuesMap: Record<string, Set<string>>
+  ) => {
+    objects.forEach((obj) => {
+      if (!obj || typeof obj !== 'object') return;
+      if (Array.isArray(obj)) {
+        extractTranslationKeysValues(obj, keysSet, valuesMap);
+        return;
+      }
+      for (const [key, val] of Object.entries(obj)) {
+        keysSet.add(key);
+        if (typeof val === 'object' && val !== null) {
+          if (Array.isArray(val)) {
+            val.forEach(item => {
+              if (typeof item === 'object' && item !== null) {
+                extractTranslationKeysValues([item], keysSet, valuesMap);
+              } else if (item !== null && item !== undefined && item !== '') {
+                const valueStr = String(item);
+                if (!valuesMap[key]) {
+                  valuesMap[key] = new Set<string>();
+                }
+                valuesMap[key].add(valueStr);
+              }
+            });
+          } else {
+            extractTranslationKeysValues([val], keysSet, valuesMap);
+          }
+        } else if (val !== null && val !== undefined && val !== '') {
+          const valueStr = String(val);
+          if (!valuesMap[key]) {
+            valuesMap[key] = new Set<string>();
+          }
+          valuesMap[key].add(valueStr);
+        }
+      }
+    });
+  };
+
+  const paramIdsSet = new Set<string>();
+  const valuesMap: Record<string, Set<string>> = {};
+
+  if (isExpanded) {
+    extractTranslationKeysValues([beforeState, afterState, context], paramIdsSet, valuesMap);
+  }
+
+  const queryParamIds = Array.from(paramIdsSet);
+  const queryValues = Object.fromEntries(
+    Object.entries(valuesMap).map(([k, set]) => [k, Array.from(set)])
+  );
+
+  const { data: translations, isLoading: isLoadingTranslations } = useTranslations(
+    queryParamIds,
+    queryValues
+  );
+
   const handleToggleExpanded = () => {
     setIsExpanded((prev) => !prev);
   };
+
+  const translateContext = (obj: any): any => {
+    if (!obj || typeof obj !== 'object' || !translations) return obj;
+    if (Array.isArray(obj)) return obj.map(translateContext);
+
+    const translatedObj: Record<string, any> = {};
+    for (const [key, val] of Object.entries(obj)) {
+      const translatedKey = translations.parameters[key] || key;
+
+      if (typeof val === 'object' && val !== null) {
+        if (Array.isArray(val)) {
+          translatedObj[translatedKey] = val.map(item => {
+            if (typeof item === 'object' && item !== null) {
+              return translateContext(item);
+            }
+            const valueStr = String(item);
+            return translations.values[key]?.[valueStr] ?? item;
+          });
+        } else {
+          translatedObj[translatedKey] = translateContext(val);
+        }
+      } else {
+        const valueStr = String(val);
+        translatedObj[translatedKey] = translations.values[key]?.[valueStr] ?? val;
+      }
+    }
+    return translatedObj;
+  };
+
+  const translatedContext = translateContext(context);
 
   return (
     <div
@@ -152,7 +241,10 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
                 <div className={styles.stateChangesSection}>
                   <h4 className={styles.detailsHeader}>שינויים במצב</h4>
                   <div className={styles.stateDiffWrapper}>
-                    <StateDiff before={beforeState} after={afterState} />
+                    <StateDiff
+                      before={translateContext(beforeState)}
+                      after={translateContext(afterState)}
+                    />
                   </div>
                 </div>
               )}
@@ -161,9 +253,15 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
               {context && (
                 <div className={styles.contextSection}>
                   <h4 className={styles.detailsHeader}>הקשר נוסף</h4>
-                  <pre className={styles.jsonPre} dir="ltr">
-                    {JSON.stringify(context, null, 2)}
-                  </pre>
+                  {isLoadingTranslations && !translations ? (
+                    <div className={styles.loadingContainer}>
+                      <Loader2 className={cn(styles.loadingIcon, "h-4 w-4")} />
+                    </div>
+                  ) : (
+                    <pre className={styles.jsonPre}>
+                      {JSON.stringify(translatedContext, null, 2)}
+                    </pre>
+                  )}
                 </div>
               )}
             </>

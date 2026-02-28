@@ -24,7 +24,9 @@ def apply_zip(zip_filename='zip_changes.zip'):
                 continue
             
             # Ensure the parent directory exists
-            os.makedirs(os.path.dirname(target_path), exist_ok=True)
+            parent_dir = os.path.dirname(target_path)
+            if parent_dir:
+                os.makedirs(parent_dir, exist_ok=True)
             
             # Extract the file
             print(f"  Applying: {target_path}")

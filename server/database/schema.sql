@@ -110,3 +110,17 @@ BEGIN
     OFFSET result_offset; 
 END;
 $$ LANGUAGE plpgsql STABLE;
+
+CREATE TABLE IF NOT EXISTS api.digital_parameters(
+    id text not null,
+    name text not null,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS api.digital_values(
+    id text not null,
+    digital_parameter_id text not null,
+    name text,
+    PRIMARY KEY (id, digital_parameter_id),
+    FOREIGN KEY (digital_parameter_id) REFERENCES api.digital_parameters(id) ON DELETE CASCADE
+);

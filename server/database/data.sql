@@ -197,3 +197,45 @@ INSERT INTO history.record_data (action_id, changes) VALUES
 INSERT INTO history.records (action_id, insert_time, executor_type, executor_id, executor_name, target_type, target_id, target_name, resource_type, resource_id, resource_name, history_action) VALUES
     ('act_array_001', 1709424000000, 'USER', 'tester_array', 'בודק מערכים', 'USER', 'array_user', 'משתמש מערך', NULL, NULL, NULL, 'MANDAT_USER_PROFILE_DG_PARAMS_ADDED');
 
+-- Insert sample dictionary data for English to Hebrew translation in Extra Details
+INSERT INTO api.digital_parameters (id, name) VALUES
+    ('username', 'שם משתמש'),
+    ('role', 'תפקיד'),
+    ('name', 'שם ישות'),
+    ('shos_id', 'מזהה שוס'),
+    ('level', 'רמה'),
+    ('active', 'פעיל'),
+    ('group_name', 'שם קבוצה'),
+    ('members', 'חברים'),
+    ('profile_name', 'שם פרופיל'),
+    ('end_system', 'מערכת קצה'),
+    ('entity_id', 'מזהה ישות'),
+    ('status', 'סטטוס'),
+    ('manager', 'מנהל'),
+    ('tags', 'תגיות'),
+    ('value', 'ערך'),
+    ('owner', 'בעלים'),
+    ('sync_status', 'סטטוס סנכרון'),
+    ('clearance', 'סיווג'),
+    ('rank', 'דרגה'),
+    ('email', 'דוא"ל'),
+    ('fullName', 'שם מלא'),
+    ('department', 'מחלקה'),
+    ('phoneNumber', 'מספר טלפון'),
+    ('address', 'כתובת'),
+    ('preferences', 'העדפות'),
+    ('permissions', 'הרשאות');
+
+INSERT INTO api.digital_values (id, digital_parameter_id, name) VALUES
+    ('admin', 'role', 'מנהל מערכת'),
+    ('user', 'role', 'משתמש רגיל'),
+    ('true', 'active', 'כן'),
+    ('false', 'active', 'לא'),
+    ('active', 'status', 'פעיל'),
+    ('inactive', 'status', 'לא פעיל'),
+    ('completed', 'sync_status', 'הושלם'),
+    ('pending', 'sync_status', 'ממתין'),
+    ('1', 'clearance', 'סודי ביותר'),
+    ('2', 'clearance', 'סודי'),
+    ('king', 'rank', 'מלך'),
+    ('prince', 'rank', 'נסיך');

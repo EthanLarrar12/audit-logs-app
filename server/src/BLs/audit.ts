@@ -1,8 +1,10 @@
 import { AuditEvent, AuditEventPage, AuditQueryParams } from "../types/audit";
+import { TranslationRequestValues, TranslationDictionary } from "../shared/types/audit";
 import {
   GET_AUDIT_EVENTS_QUERY,
   GET_AUDIT_EVENT_BY_ID_QUERY,
   DELETE_AUDIT_HISTORY_MUTATION,
+  getTranslationsQuery,
 } from "../GQL/auditQueries";
 import {
   parseAuditEventsResponse,
@@ -132,4 +134,38 @@ export const deleteAuditHistory = async (
   }
 
   return result.data?.deleteAuditHistory?.integer || 0;
+};
+
+/**
+ * Get display translations for specific parameters and values
+ */
+export const getTranslations = async (
+  performQuery: PerformQuery,
+  paramIds: string[],
+  valuesToTranslate: TranslationRequestValues
+): Promise<TranslationDictionary> => {
+  const queryStr = getTranslationsQuery(valuesToTranslate);
+
+  const result = await performQuery(queryStr, { paramIds }) as any;
+
+  const parameters: Record<string, string> = {};
+  if (result.data?.allDigitalParameters?.nodes) {
+    result.data.allDigitalParameters.nodes.forEach((node: any) => {
+      parameters[node.id] = node.name;
+    });
+  }
+
+  const values: Record<string, Record<string, string>> = {};
+  if (result.data?.allDigitalValues?.nodes) {
+    result.data.allDigitalValues.nodes.forEach((node: any) => {
+      const pId = node.digitalParameterId;
+      const vId = node.id;
+      if (!values[pId]) {
+        values[pId] = {};
+      }
+      values[pId][vId] = node.name;
+    });
+  }
+
+  return { parameters, values };
 };
