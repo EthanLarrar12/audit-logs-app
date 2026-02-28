@@ -4,25 +4,25 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '');
+  const env = loadEnv(mode, process.cwd(), "");
   const proxyTarget = env.PROXY_TARGET;
 
   return {
-    base: '/audit/',
+    base: "/audit/",
     server: {
       host: "::",
       port: 8000,
       cors: true,
       proxy: {
-        '/audit': {
+        "^/audit/(events|premade-profiles|suggest|events/.*)": {
           target: proxyTarget,
           changeOrigin: true,
         },
-        '/graphql': {
+        "/graphql": {
           target: proxyTarget,
           changeOrigin: true,
         },
-        '/graphiql': {
+        "/graphiql": {
           target: proxyTarget,
           changeOrigin: true,
         },
@@ -31,9 +31,9 @@ export default defineConfig(({ mode }) => {
     build: {
       rollupOptions: {
         input: {
-          main: path.resolve(__dirname, 'index.html'),
+          main: path.resolve(__dirname, "index.html"),
         },
-      }
+      },
     },
     plugins: [react()],
     resolve: {

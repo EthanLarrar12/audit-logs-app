@@ -3,21 +3,24 @@
 
 <head>
   <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/src/assets/mirage.svg?v=2" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>יומן ביקורת | ניהול אבטחה</title>
+  <title>מיראז' היסטוריה</title>
   <meta name="description" content="ממשק יומן ביקורת אבטחה לחקירת שינויי הרשאות, ניסיונות אימות ואירועי מערכת." />
-  <meta name="author" content="Lovable" />
+  <meta name="author" content="Mirage" />
 
-  <meta property="og:title" content="יומן ביקורת | ניהול אבטחה" />
+  <meta property="og:title" content="מיראז' היסטוריה" />
   <meta property="og:description" content="חקירת שינויי הרשאות, ניסיונות אימות כושלים ואירועי מערכת." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:site" content="@Lovable" />
-  <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+</head>
 
-  <link rel="stylesheet" href="/src/skeleton.css" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@Lovable" />
+<meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+<link rel="stylesheet" href="/src/skeleton.css" />
 </head>
 
 <body class="audit-logs-wrapper">
@@ -45,114 +48,175 @@
         </div>
       </div>
 
-      <!-- Table card -->
-      <div class="sk-table-card">
-        <!-- Header -->
-        <div class="sk-header">
-          <div class="sk-bar medium"></div>
-          <div class="sk-bar short"></div>
-          <div class="sk-bar medium"></div>
-          <div class="sk-bar short"></div>
-          <div class="sk-bar medium"></div>
-          <div class="sk-bar short"></div>
-          <div class="sk-bar tiny"></div>
+      .sk-bar.long {
+      width: 100%;
+      }
+
+      .sk-bar.tiny {
+      width: 50%;
+      height: 10px;
+      margin-top: 6px;
+      }
+
+      .sk-bar.badge {
+      width: 56px;
+      height: 22px;
+      border-radius: 9999px;
+      }
+
+      .sk-bar.icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 0.25rem;
+      }
+
+      .sk-cell {
+      display: flex;
+      flex-direction: column;
+      }
+
+      @keyframes sk-shimmer {
+      0% {
+      background-position: 200% 0;
+      }
+
+      100% {
+      background-position: -200% 0;
+      }
+      }
+      </style>
+
+      <div id="static-skeleton">
+        <!-- Filter bar: 3-col primary row + footer toggle/reset -->
+        <div class="sk-filterbar">
+          <div class="sk-filterbar-row">
+            <div class="sk-filter-group">
+              <div class="sk-filter-label"></div>
+              <div class="sk-filter-input"></div>
+            </div>
+            <div class="sk-filter-group">
+              <div class="sk-filter-label"></div>
+              <div class="sk-filter-input"></div>
+            </div>
+            <div class="sk-filter-group">
+              <div class="sk-filter-label"></div>
+              <div class="sk-filter-input"></div>
+            </div>
+          </div>
+          <div class="sk-filterbar-footer">
+            <div class="sk-filter-toggle"></div>
+            <div class="sk-filter-reset"></div>
+          </div>
         </div>
 
-        <!-- Rows -->
-        <div class="sk-row" style="animation-delay:0ms">
-          <div class="sk-cell">
-            <div class="sk-bar long"></div>
-            <div class="sk-bar tiny"></div>
-          </div>
-          <div class="sk-bar badge"></div>
-          <div class="sk-cell">
+        <!-- Table card -->
+        <div class="sk-table-card">
+          <!-- Header -->
+          <div class="sk-header">
             <div class="sk-bar medium"></div>
-            <div class="sk-bar tiny"></div>
-          </div>
-          <div class="sk-cell">
+            <div class="sk-bar short"></div>
+            <div class="sk-bar medium"></div>
+            <div class="sk-bar short"></div>
+            <div class="sk-bar medium"></div>
             <div class="sk-bar short"></div>
             <div class="sk-bar tiny"></div>
           </div>
-          <div class="sk-bar medium"></div>
-          <div class="sk-bar badge"></div>
-          <div class="sk-bar icon"></div>
-        </div>
-        <div class="sk-row" style="animation-delay:100ms">
-          <div class="sk-cell">
-            <div class="sk-bar long"></div>
-            <div class="sk-bar tiny"></div>
-          </div>
-          <div class="sk-bar badge"></div>
-          <div class="sk-cell">
+
+          <!-- Rows -->
+          <div class="sk-row" style="animation-delay: 0ms">
+            <div class="sk-cell">
+              <div class="sk-bar long"></div>
+              <div class="sk-bar tiny"></div>
+            </div>
+            <div class="sk-bar badge"></div>
+            <div class="sk-cell">
+              <div class="sk-bar medium"></div>
+              <div class="sk-bar tiny"></div>
+            </div>
+            <div class="sk-cell">
+              <div class="sk-bar short"></div>
+              <div class="sk-bar tiny"></div>
+            </div>
             <div class="sk-bar medium"></div>
-            <div class="sk-bar tiny"></div>
+            <div class="sk-bar badge"></div>
+            <div class="sk-bar icon"></div>
           </div>
-          <div class="sk-cell">
-            <div class="sk-bar short"></div>
-            <div class="sk-bar tiny"></div>
-          </div>
-          <div class="sk-bar medium"></div>
-          <div class="sk-bar badge"></div>
-          <div class="sk-bar icon"></div>
-        </div>
-        <div class="sk-row" style="animation-delay:200ms">
-          <div class="sk-cell">
-            <div class="sk-bar long"></div>
-            <div class="sk-bar tiny"></div>
-          </div>
-          <div class="sk-bar badge"></div>
-          <div class="sk-cell">
+          <div class="sk-row" style="animation-delay: 100ms">
+            <div class="sk-cell">
+              <div class="sk-bar long"></div>
+              <div class="sk-bar tiny"></div>
+            </div>
+            <div class="sk-bar badge"></div>
+            <div class="sk-cell">
+              <div class="sk-bar medium"></div>
+              <div class="sk-bar tiny"></div>
+            </div>
+            <div class="sk-cell">
+              <div class="sk-bar short"></div>
+              <div class="sk-bar tiny"></div>
+            </div>
             <div class="sk-bar medium"></div>
-            <div class="sk-bar tiny"></div>
+            <div class="sk-bar badge"></div>
+            <div class="sk-bar icon"></div>
           </div>
-          <div class="sk-cell">
-            <div class="sk-bar short"></div>
-            <div class="sk-bar tiny"></div>
-          </div>
-          <div class="sk-bar medium"></div>
-          <div class="sk-bar badge"></div>
-          <div class="sk-bar icon"></div>
-        </div>
-        <div class="sk-row" style="animation-delay:300ms">
-          <div class="sk-cell">
-            <div class="sk-bar long"></div>
-            <div class="sk-bar tiny"></div>
-          </div>
-          <div class="sk-bar badge"></div>
-          <div class="sk-cell">
+          <div class="sk-row" style="animation-delay: 200ms">
+            <div class="sk-cell">
+              <div class="sk-bar long"></div>
+              <div class="sk-bar tiny"></div>
+            </div>
+            <div class="sk-bar badge"></div>
+            <div class="sk-cell">
+              <div class="sk-bar medium"></div>
+              <div class="sk-bar tiny"></div>
+            </div>
+            <div class="sk-cell">
+              <div class="sk-bar short"></div>
+              <div class="sk-bar tiny"></div>
+            </div>
             <div class="sk-bar medium"></div>
-            <div class="sk-bar tiny"></div>
+            <div class="sk-bar badge"></div>
+            <div class="sk-bar icon"></div>
           </div>
-          <div class="sk-cell">
-            <div class="sk-bar short"></div>
-            <div class="sk-bar tiny"></div>
-          </div>
-          <div class="sk-bar medium"></div>
-          <div class="sk-bar badge"></div>
-          <div class="sk-bar icon"></div>
-        </div>
-        <div class="sk-row" style="animation-delay:400ms">
-          <div class="sk-cell">
-            <div class="sk-bar long"></div>
-            <div class="sk-bar tiny"></div>
-          </div>
-          <div class="sk-bar badge"></div>
-          <div class="sk-cell">
+          <div class="sk-row" style="animation-delay: 300ms">
+            <div class="sk-cell">
+              <div class="sk-bar long"></div>
+              <div class="sk-bar tiny"></div>
+            </div>
+            <div class="sk-bar badge"></div>
+            <div class="sk-cell">
+              <div class="sk-bar medium"></div>
+              <div class="sk-bar tiny"></div>
+            </div>
+            <div class="sk-cell">
+              <div class="sk-bar short"></div>
+              <div class="sk-bar tiny"></div>
+            </div>
             <div class="sk-bar medium"></div>
-            <div class="sk-bar tiny"></div>
+            <div class="sk-bar badge"></div>
+            <div class="sk-bar icon"></div>
           </div>
-          <div class="sk-cell">
-            <div class="sk-bar short"></div>
-            <div class="sk-bar tiny"></div>
+          <div class="sk-row" style="animation-delay: 400ms">
+            <div class="sk-cell">
+              <div class="sk-bar long"></div>
+              <div class="sk-bar tiny"></div>
+            </div>
+            <div class="sk-bar badge"></div>
+            <div class="sk-cell">
+              <div class="sk-bar medium"></div>
+              <div class="sk-bar tiny"></div>
+            </div>
+            <div class="sk-cell">
+              <div class="sk-bar short"></div>
+              <div class="sk-bar tiny"></div>
+            </div>
+            <div class="sk-bar medium"></div>
+            <div class="sk-bar badge"></div>
+            <div class="sk-bar icon"></div>
           </div>
-          <div class="sk-bar medium"></div>
-          <div class="sk-bar badge"></div>
-          <div class="sk-bar icon"></div>
         </div>
       </div>
     </div>
-  </div>
-  <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
 </body>
 
 </html>
