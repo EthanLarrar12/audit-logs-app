@@ -145,27 +145,57 @@ export const getTranslations = async (
   valuesToTranslate: TranslationRequestValues
 ): Promise<TranslationDictionary> => {
   const queryStr = getTranslationsQuery(valuesToTranslate);
+  const queryVariables = { paramIds };
 
-  const result = await performQuery(queryStr, { paramIds }) as any;
+  const rawResult = await performQuery(queryStr, queryVariables);
 
-  const parameters: Record<string, string> = {};
-  if (result.data?.allDigitalParameters?.nodes) {
-    result.data.allDigitalParameters.nodes.forEach((node: any) => {
-      parameters[node.id] = node.name;
+  type GraphQLTranslationResponse = {
+    data?: {
+      allDigitalParameters?: { nodes: { id: string; name: string }[] };
+      allDigitalValues?: { nodes: { id: string; digitalParameterId: string; name: string }[] };
+    };
+  };
+
+  const typedResult = rawResult as GraphQLTranslationResponse;
+
+  const parametersData = typedResult.data?.allDigitalParameters;
+  const parametersNodes = parametersData?.nodes;
+
+  const parametersDict: Record<string, string> = {};
+
+  if (parametersNodes) {
+    parametersNodes.forEach((node: { id: string; name: string }) => {
+      const parameterId = node.id;
+      const parameterName = node.name;
+
+      parametersDict[parameterId] = parameterName;
     });
   }
 
-  const values: Record<string, Record<string, string>> = {};
-  if (result.data?.allDigitalValues?.nodes) {
-    result.data.allDigitalValues.nodes.forEach((node: any) => {
-      const pId = node.digitalParameterId;
-      const vId = node.id;
-      if (!values[pId]) {
-        values[pId] = {};
+  const valuesData = typedResult.data?.allDigitalValues;
+  const valuesNodes = valuesData?.nodes;
+
+  const valuesDict: Record<string, Record<string, string>> = {};
+
+  if (valuesNodes) {
+    valuesNodes.forEach((node: { id: string; digitalParameterId: string; name: string }) => {
+      const parameterId = node.digitalParameterId;
+      const valueId = node.id;
+      const valueName = node.name;
+
+      const isParameterInitialized = Boolean(valuesDict[parameterId]);
+      if (!isParameterInitialized) {
+        valuesDict[parameterId] = {};
       }
-      values[pId][vId] = node.name;
+
+      valuesDict[parameterId][valueId] = valueName;
     });
   }
 
-  return { parameters, values };
+  const translationsDictionary: TranslationDictionary = {
+    parameters: parametersDict,
+    values: valuesDict
+  };
+
+  return translationsDictionary;
 };

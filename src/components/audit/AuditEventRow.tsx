@@ -4,7 +4,7 @@ import { he } from 'date-fns/locale';
 import { ChevronDown, ChevronLeft, Fingerprint, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAuditEventById } from '@/lib/api';
-import { AuditEvent } from '@/types/audit';
+import { AuditEvent, JsonValue, JsonObject, JsonArray } from '@/types/audit';
 import { CategoryBadge } from './CategoryBadge';
 import { cn } from '@/lib/utils';
 import { getSubcategoryName, getActionIcon } from '@/constants/filterOptions';
@@ -34,40 +34,61 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
 
   // Helper to extract keys and string values recursively
   const extractTranslationKeysValues = (
-    objects: any[],
+    objects: JsonValue[],
     keysSet: Set<string>,
     valuesMap: Record<string, Set<string>>
-  ) => {
+  ): void => {
     objects.forEach((obj) => {
-      if (!obj || typeof obj !== 'object') return;
-      if (Array.isArray(obj)) {
-        extractTranslationKeysValues(obj, keysSet, valuesMap);
+      const isInvalid = !obj || typeof obj !== 'object';
+      if (isInvalid) return;
+
+      const isArray = Array.isArray(obj);
+      if (isArray) {
+        extractTranslationKeysValues(obj as JsonArray, keysSet, valuesMap);
         return;
       }
-      for (const [key, val] of Object.entries(obj)) {
+
+      const entries = Object.entries(obj as JsonObject);
+      for (const [key, val] of entries) {
         keysSet.add(key);
-        if (typeof val === 'object' && val !== null) {
-          if (Array.isArray(val)) {
+
+        const isObject = typeof val === 'object' && val !== null;
+        if (isObject) {
+          const isValArray = Array.isArray(val);
+
+          if (isValArray) {
             val.forEach(item => {
-              if (typeof item === 'object' && item !== null) {
+              const isItemObject = typeof item === 'object' && item !== null;
+
+              if (isItemObject) {
                 extractTranslationKeysValues([item], keysSet, valuesMap);
-              } else if (item !== null && item !== undefined && item !== '') {
-                const valueStr = String(item);
-                if (!valuesMap[key]) {
-                  valuesMap[key] = new Set<string>();
+              } else {
+                const isValidPrimitive = item !== null && item !== undefined && item !== '';
+                if (isValidPrimitive) {
+                  const valueStr = String(item);
+                  const isKeyInMap = valuesMap[key];
+
+                  if (!isKeyInMap) {
+                    valuesMap[key] = new Set<string>();
+                  }
+                  valuesMap[key].add(valueStr);
                 }
-                valuesMap[key].add(valueStr);
               }
             });
           } else {
             extractTranslationKeysValues([val], keysSet, valuesMap);
           }
-        } else if (val !== null && val !== undefined && val !== '') {
-          const valueStr = String(val);
-          if (!valuesMap[key]) {
-            valuesMap[key] = new Set<string>();
+        } else {
+          const isValidPrimitive = val !== null && val !== undefined && val !== '';
+          if (isValidPrimitive) {
+            const valueStr = String(val);
+            const isKeyInMap = valuesMap[key];
+
+            if (!isKeyInMap) {
+              valuesMap[key] = new Set<string>();
+            }
+            valuesMap[key].add(valueStr);
           }
-          valuesMap[key].add(valueStr);
         }
       }
     });
@@ -94,31 +115,59 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
     setIsExpanded((prev) => !prev);
   };
 
-  const translateContext = (obj: any): any => {
-    if (!obj || typeof obj !== 'object' || !translations) return obj;
-    if (Array.isArray(obj)) return obj.map(translateContext);
+  const translateContext = (obj: JsonValue): JsonValue => {
+    const isInvalid = !obj || typeof obj !== 'object' || !translations;
+    if (isInvalid) return obj;
 
-    const translatedObj: Record<string, any> = {};
-    for (const [key, val] of Object.entries(obj)) {
-      const translatedKey = translations.parameters[key] || key;
+    const isArray = Array.isArray(obj);
+    if (isArray) {
+      const translatedArray = (obj as JsonArray).map(translateContext);
+      return translatedArray;
+    }
 
-      if (typeof val === 'object' && val !== null) {
-        if (Array.isArray(val)) {
-          translatedObj[translatedKey] = val.map(item => {
-            if (typeof item === 'object' && item !== null) {
-              return translateContext(item);
+    const translatedObj: JsonObject = {};
+    const entries = Object.entries(obj as JsonObject);
+
+    for (const [key, val] of entries) {
+      const translationForKey = translations.parameters[key];
+      const translatedKey = translationForKey || key;
+
+      const isObject = typeof val === 'object' && val !== null;
+
+      if (isObject) {
+        const isValArray = Array.isArray(val);
+
+        if (isValArray) {
+          const mappedArray = val.map(item => {
+            const isItemObject = typeof item === 'object' && item !== null;
+            if (isItemObject) {
+              const mappedItemSubObject = translateContext(item);
+              return mappedItemSubObject;
             }
+
             const valueStr = String(item);
-            return translations.values[key]?.[valueStr] ?? item;
+            const valueLookupsForParam = translations.values[key];
+            const translatedItemValue = valueLookupsForParam?.[valueStr];
+            const fallbackItemValue = translatedItemValue ?? item;
+
+            return fallbackItemValue;
           });
+
+          translatedObj[translatedKey] = mappedArray;
         } else {
-          translatedObj[translatedKey] = translateContext(val);
+          const mappedSubObject = translateContext(val);
+          translatedObj[translatedKey] = mappedSubObject;
         }
       } else {
         const valueStr = String(val);
-        translatedObj[translatedKey] = translations.values[key]?.[valueStr] ?? val;
+        const valueLookupsForParam = translations.values[key];
+        const translatedValue = valueLookupsForParam?.[valueStr];
+        const fallbackValue = translatedValue ?? val;
+
+        translatedObj[translatedKey] = fallbackValue;
       }
     }
+
     return translatedObj;
   };
 
@@ -242,8 +291,8 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
                   <h4 className={styles.detailsHeader}>שינויים במצב</h4>
                   <div className={styles.stateDiffWrapper}>
                     <StateDiff
-                      before={translateContext(beforeState)}
-                      after={translateContext(afterState)}
+                      before={translateContext(beforeState as JsonValue) as Record<string, unknown>}
+                      after={translateContext(afterState as JsonValue) as Record<string, unknown>}
                     />
                   </div>
                 </div>

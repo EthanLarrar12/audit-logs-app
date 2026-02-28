@@ -1,3 +1,10 @@
+export type JsonPrimitive = string | number | boolean | null | undefined;
+export interface JsonArray extends Array<JsonValue> { }
+export interface JsonObject {
+  [key: string]: JsonValue;
+}
+export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
+
 export interface AuditEvent {
   id: string;
   created_at: string;
