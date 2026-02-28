@@ -79,6 +79,7 @@ app.use(getSTSMiddleware({
   stsURI: config.STS_URL,
   serverURI: config.SERVER_URL,
   applicationRedirectURI: config.APPLICATION_REDIRECT_URL,
+  allowCrossOrigin: true
 }));
 
 // Initialize and start server
