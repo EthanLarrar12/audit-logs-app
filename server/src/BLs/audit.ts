@@ -148,16 +148,23 @@ export const getTranslations = async (
   const queryVariables = { paramIds };
 
   const rawResult = await performQuery(queryStr, queryVariables);
-  const typedResult = rawResult as any;
+
+  type GraphQLTranslationResponse = {
+    data?: {
+      allDigitalParameters?: { nodes: { id: string; name: string }[] };
+      allDigitalValues?: { nodes: { id: string; digitalParameterId: string; name: string }[] };
+    };
+  };
+
+  const typedResult = rawResult as GraphQLTranslationResponse;
 
   const parametersData = typedResult.data?.allDigitalParameters;
   const parametersNodes = parametersData?.nodes;
-  const hasParameters = Boolean(parametersNodes);
 
   const parametersDict: Record<string, string> = {};
 
-  if (hasParameters) {
-    parametersNodes.forEach((node: any) => {
+  if (parametersNodes) {
+    parametersNodes.forEach((node: { id: string; name: string }) => {
       const parameterId = node.id;
       const parameterName = node.name;
 
@@ -171,8 +178,8 @@ export const getTranslations = async (
 
   const valuesDict: Record<string, Record<string, string>> = {};
 
-  if (hasValues) {
-    valuesNodes.forEach((node: any) => {
+  if (valuesNodes) {
+    valuesNodes.forEach((node: { id: string; digitalParameterId: string; name: string }) => {
       const parameterId = node.digitalParameterId;
       const valueId = node.id;
       const valueName = node.name;

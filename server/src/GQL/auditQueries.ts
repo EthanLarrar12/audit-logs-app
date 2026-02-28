@@ -107,7 +107,7 @@ export const GET_SEARCH_FILTERS_QUERY = `
  * Function to dynamically generate dictionary translations query
  * It dynamically constructs the complex value filters based on compound value objects.
  */
-export const getTranslationsQuery = (values: Record<string, string[]>) => {
+export const getTranslationsQuery = (values: Record<string, string[]>): string => {
     let valueFiltersBlock = "";
 
     const valuesKeys = Object.keys(values);

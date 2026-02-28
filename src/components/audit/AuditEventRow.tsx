@@ -4,7 +4,7 @@ import { he } from 'date-fns/locale';
 import { ChevronDown, ChevronLeft, Fingerprint, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAuditEventById } from '@/lib/api';
-import { AuditEvent } from '@/types/audit';
+import { AuditEvent, JsonValue, JsonObject, JsonArray } from '@/types/audit';
 import { CategoryBadge } from './CategoryBadge';
 import { cn } from '@/lib/utils';
 import { getSubcategoryName, getActionIcon } from '@/constants/filterOptions';
@@ -34,21 +34,21 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
 
   // Helper to extract keys and string values recursively
   const extractTranslationKeysValues = (
-    objects: any[],
+    objects: JsonValue[],
     keysSet: Set<string>,
     valuesMap: Record<string, Set<string>>
-  ) => {
+  ): void => {
     objects.forEach((obj) => {
       const isInvalid = !obj || typeof obj !== 'object';
       if (isInvalid) return;
 
       const isArray = Array.isArray(obj);
       if (isArray) {
-        extractTranslationKeysValues(obj, keysSet, valuesMap);
+        extractTranslationKeysValues(obj as JsonArray, keysSet, valuesMap);
         return;
       }
 
-      const entries = Object.entries(obj);
+      const entries = Object.entries(obj as JsonObject);
       for (const [key, val] of entries) {
         keysSet.add(key);
 
@@ -115,18 +115,18 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
     setIsExpanded((prev) => !prev);
   };
 
-  const translateContext = (obj: any): any => {
+  const translateContext = (obj: JsonValue): JsonValue => {
     const isInvalid = !obj || typeof obj !== 'object' || !translations;
     if (isInvalid) return obj;
 
     const isArray = Array.isArray(obj);
     if (isArray) {
-      const translatedArray = obj.map(translateContext);
+      const translatedArray = (obj as JsonArray).map(translateContext);
       return translatedArray;
     }
 
-    const translatedObj: Record<string, any> = {};
-    const entries = Object.entries(obj);
+    const translatedObj: JsonObject = {};
+    const entries = Object.entries(obj as JsonObject);
 
     for (const [key, val] of entries) {
       const translationForKey = translations.parameters[key];
@@ -291,8 +291,8 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
                   <h4 className={styles.detailsHeader}>שינויים במצב</h4>
                   <div className={styles.stateDiffWrapper}>
                     <StateDiff
-                      before={translateContext(beforeState)}
-                      after={translateContext(afterState)}
+                      before={translateContext(beforeState as JsonValue) as Record<string, unknown>}
+                      after={translateContext(afterState as JsonValue) as Record<string, unknown>}
                     />
                   </div>
                 </div>

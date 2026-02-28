@@ -1,6 +1,6 @@
-import { AuditEvent, AuditEventPage, TranslationRequestValues, TranslationDictionary } from "../../server/src/shared/types/audit";
+import { AuditEvent, AuditEventPage, TranslationRequestValues, TranslationDictionary, JsonValue, JsonObject, JsonArray, JsonPrimitive } from "../../server/src/shared/types/audit";
 
-export type { AuditEvent, AuditEventPage, TranslationRequestValues, TranslationDictionary };
+export type { AuditEvent, AuditEventPage, TranslationRequestValues, TranslationDictionary, JsonValue, JsonObject, JsonArray, JsonPrimitive };
 
 export enum FilterField {
   SEARCH_INPUT = "searchInput",
