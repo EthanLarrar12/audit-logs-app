@@ -16,9 +16,12 @@ const app = express();
 const PORT = config.PORT;
 const PGQL_DB_URL = config.PGQL_DB_URL;
 
+const connectionUrl = new URL(PGQL_DB_URL);
+connectionUrl.searchParams.append("application_name", config.APPLICATION_NAME);
+
 // Setup Postgres Pool
 export const pgPool = new Pool({
-  connectionString: PGQL_DB_URL,
+  connectionString: connectionUrl.toString(),
 });
 
 // Middleware

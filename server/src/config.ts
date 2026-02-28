@@ -10,4 +10,5 @@ export const config = {
   SERVER_URL: process.env.SERVER_URL || 'http://localhost:3001',
   APPLICATION_REDIRECT_URL: process.env.APPLICATION_REDIRECT_URL || 'http://localhost:3001',
   IS_NPM_RUN_DEV: process.env.npm_lifecycle_event === 'dev',
+  APPLICATION_NAME: process.env.APPLICATION_NAME || 'AuditLogsApp',
 };
