@@ -1,6 +1,6 @@
-import { AuditEvent, AuditEventPage } from "../../server/src/shared/types/audit";
+import { AuditEvent, AuditEventPage, TranslationValue, TranslationDictionary } from "../../server/src/shared/types/audit";
 
-export type { AuditEvent, AuditEventPage };
+export type { AuditEvent, AuditEventPage, TranslationValue, TranslationDictionary };
 
 export enum FilterField {
   SEARCH_INPUT = "searchInput",

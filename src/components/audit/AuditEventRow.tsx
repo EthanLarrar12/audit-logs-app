@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { getSubcategoryName, getActionIcon } from '@/constants/filterOptions';
 import { styles } from './AuditEventRow.styles';
 import { StateDiff } from './StateDiff';
+import { useTranslations } from '@/hooks/audit/useTranslations';
 
 interface AuditEventRowProps {
   event: AuditEvent;
@@ -31,9 +32,67 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
   const formattedDate = format(new Date(event.created_at), 'd בMMM yyyy', { locale: he });
   const formattedTime = format(new Date(event.created_at), 'HH:mm:ss');
 
+  // Helper to extract keys and string values recursively
+  const extractTranslationKeysValues = (
+    objects: any[],
+    keysSet: Set<string>,
+    valuesMap: Map<string, { parameterId: string; valueId: string }>
+  ) => {
+    objects.forEach((obj) => {
+      if (!obj || typeof obj !== 'object') return;
+      if (Array.isArray(obj)) {
+        extractTranslationKeysValues(obj, keysSet, valuesMap);
+        return;
+      }
+      for (const [key, val] of Object.entries(obj)) {
+        keysSet.add(key);
+        if (typeof val === 'object' && val !== null) {
+          extractTranslationKeysValues([val], keysSet, valuesMap);
+        } else if (val !== null && val !== undefined && val !== '') {
+          const valueStr = String(val);
+          const token = `${key}:${valueStr}`;
+          if (!valuesMap.has(token)) {
+            valuesMap.set(token, { parameterId: key, valueId: valueStr });
+          }
+        }
+      }
+    });
+  };
+
+  const paramIdsSet = new Set<string>();
+  const valuesMap = new Map<string, { parameterId: string; valueId: string }>();
+  if (isExpanded) {
+    extractTranslationKeysValues([beforeState, afterState, context], paramIdsSet, valuesMap);
+  }
+
+  const { data: translations, isLoading: isLoadingTranslations } = useTranslations(
+    Array.from(paramIdsSet),
+    Array.from(valuesMap.values())
+  );
+
   const handleToggleExpanded = () => {
     setIsExpanded((prev) => !prev);
   };
+
+  const translateContext = (obj: any): any => {
+    if (!obj || typeof obj !== 'object' || !translations) return obj;
+    if (Array.isArray(obj)) return obj.map(translateContext);
+
+    const translatedObj: Record<string, any> = {};
+    for (const [key, val] of Object.entries(obj)) {
+      const translatedKey = translations.parameters[key] || key;
+
+      if (typeof val === 'object' && val !== null) {
+        translatedObj[translatedKey] = translateContext(val);
+      } else {
+        const valueStr = String(val);
+        translatedObj[translatedKey] = translations.values[key]?.[valueStr] ?? val;
+      }
+    }
+    return translatedObj;
+  };
+
+  const translatedContext = translateContext(context);
 
   return (
     <div
@@ -152,7 +211,10 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
                 <div className={styles.stateChangesSection}>
                   <h4 className={styles.detailsHeader}>שינויים במצב</h4>
                   <div className={styles.stateDiffWrapper}>
-                    <StateDiff before={beforeState} after={afterState} />
+                    <StateDiff
+                      before={translateContext(beforeState)}
+                      after={translateContext(afterState)}
+                    />
                   </div>
                 </div>
               )}
@@ -161,9 +223,15 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
               {context && (
                 <div className={styles.contextSection}>
                   <h4 className={styles.detailsHeader}>הקשר נוסף</h4>
-                  <pre className={styles.jsonPre} dir="ltr">
-                    {JSON.stringify(context, null, 2)}
-                  </pre>
+                  {isLoadingTranslations && !translations ? (
+                    <div className={styles.loadingContainer}>
+                      <Loader2 className={cn(styles.loadingIcon, "h-4 w-4")} />
+                    </div>
+                  ) : (
+                    <pre className={styles.jsonPre}>
+                      {JSON.stringify(translatedContext, null, 2)}
+                    </pre>
+                  )}
                 </div>
               )}
             </>

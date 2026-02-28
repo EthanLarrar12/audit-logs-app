@@ -111,7 +111,7 @@ export const StateDiff: React.FC<StateDiffProps> = ({ before, after }) => {
     };
 
     return (
-        <div className={styles.container} dir="ltr">
+        <div className={styles.container}>
             {renderSection('מצב קודם', diff, 'before')}
             {renderSection('מצב חדש', diff, 'after')}
         </div>

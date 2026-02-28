@@ -3,15 +3,15 @@ export interface AuditEvent {
   created_at: string;
   category: string;
   actor_type:
-    | "USER"
-    | "ENTITY"
-    | "SHOS"
-    | "DYNAMIC_TAG"
-    | "END_SYSTEM"
-    | "PROFILE"
-    | "DISTRIBUTION_GROUP"
-    | "PARAMETER"
-    | "SYSTEM";
+  | "USER"
+  | "ENTITY"
+  | "SHOS"
+  | "DYNAMIC_TAG"
+  | "END_SYSTEM"
+  | "PROFILE"
+  | "DISTRIBUTION_GROUP"
+  | "PARAMETER"
+  | "SYSTEM";
   actor_id: string | null;
   actor_username: string | null;
   action: string;
@@ -29,4 +29,14 @@ export interface AuditEvent {
 export interface AuditEventPage {
   page: number;
   items: AuditEvent[];
+}
+
+export interface TranslationValue {
+  parameterId: string;
+  valueId: string;
+}
+
+export interface TranslationDictionary {
+  parameters: Record<string, string>;
+  values: Record<string, Record<string, string>>;
 }

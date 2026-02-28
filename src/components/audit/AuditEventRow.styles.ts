@@ -34,7 +34,7 @@ export const styles = makeStyles((t) => ({
     userAgentText: `${t.typography.xs} ${t.colors.textSecondary} break-words`,
     stateChangesGrid: 'grid grid-cols-1 md:grid-cols-2 gap-4',
     stateSection: 'space-y-2',
-    jsonPre: `${t.typography.xs} ${t.colors.bgSecondary} p-3 rounded-md overflow-auto max-h-32 scrollbar-thin`,
+    jsonPre: `font-sans ${t.typography.xs} ${t.colors.bgSecondary} p-3 rounded-md overflow-auto max-h-32 scrollbar-thin`,
     contextSection: 'space-y-2',
     loadingContainer: 'flex justify-center py-6',
     loadingIcon: 'w-6 h-6 animate-spin text-muted-foreground',

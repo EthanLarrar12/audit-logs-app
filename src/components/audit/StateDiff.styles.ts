@@ -2,7 +2,7 @@ import { makeStyles } from "@/lib/makeStyles";
 
 export const styles = makeStyles((t) => ({
     container: "grid grid-cols-1 md:grid-cols-2 gap-4 text-xs",
-    objectContainer: "font-mono text-xs bg-slate-50 rounded p-2 border border-slate-200 overflow-auto",
+    objectContainer: "font-sans text-xs bg-slate-50 rounded p-2 border border-slate-200 overflow-auto",
     list: "list-none m-0 p-0",
     listItem: "p-1 rounded mb-1 whitespace-pre-wrap break-all flex",
     prefix: "font-semibold select-none opacity-50 mr-2 min-w-[12px]",
