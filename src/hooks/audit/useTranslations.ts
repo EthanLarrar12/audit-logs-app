@@ -85,82 +85,154 @@ async function fetchTranslations(paramIds: string[], values: TranslationRequestV
 export const useTranslations = (paramIds: string[] = [], values: TranslationRequestValues = {}) => {
     const queryClient = useQueryClient();
 
+    const sortedParamIds = [...paramIds].sort();
+    const sortedParamIdString = sortedParamIds.join(',');
+
+    const entriesOfValues = Object.entries(values);
+    const sortedValueEntries = entriesOfValues.map(([pId, vIds]) => {
+        const sortedVIds = [...vIds].sort();
+        const vIdsString = sortedVIds.join('|');
+        return `${pId}:${vIdsString}`;
+    });
+    sortedValueEntries.sort();
+    const sortedValuesString = sortedValueEntries.join(',');
+
+    const queryKeyBatch = ['translations-batch', sortedParamIdString, sortedValuesString];
+
+    const hasParamIds = paramIds.length > 0;
+    const hasValues = Object.keys(values).length > 0;
+    const isQueryEnabled = hasParamIds || hasValues;
+
     return useQuery({
         // We still use local query keys for uniqueness to trigger renders correctly based on inputs,
         // but the queryFn itself will look up and mutate the global cache.
-        queryKey: ['translations-batch', paramIds.sort().join(','), Object.entries(values).map(([pId, vIds]) => `${pId}:${vIds.sort().join('|')} `).sort().join(',')],
+        queryKey: queryKeyBatch,
         queryFn: async () => {
             // 1. Get current global dictionary and merge with hardcoded defaults
-            const cachedGlobalDict = queryClient.getQueryData<TranslationDictionary>(['global-translations']) || { parameters: {}, values: {} };
+            const cachedData = queryClient.getQueryData<TranslationDictionary>(['global-translations']);
+            const emptyGlobalDict: TranslationDictionary = { parameters: {}, values: {} };
+            const cachedGlobalDict = cachedData || emptyGlobalDict;
+
+            const hardcodedParameters = HARDCODED_TRANSLATIONS.parameters;
+            const existingParameters = cachedGlobalDict.parameters;
+            const mergedGlobalParameters = { ...hardcodedParameters, ...existingParameters };
+
+            const existingGlobalValues = cachedGlobalDict.values; // Record<string, Record<string, string>>
 
             const globalDict = {
-                parameters: { ...HARDCODED_TRANSLATIONS.parameters, ...cachedGlobalDict.parameters },
-                values: cachedGlobalDict.values, // cachedGlobalDict.values is Record<string, Record<string, string>>
+                parameters: mergedGlobalParameters,
+                values: existingGlobalValues,
             };
 
             // 2. Identify what is genuinely missing
-            const missingParams = paramIds.filter(id => !(id in globalDict.parameters));
+            const missingParams = paramIds.filter(id => {
+                const isParameterCached = id in globalDict.parameters;
+                return !isParameterCached;
+            });
 
             // For values, determine what's missing by checking if pair is in cache 
             // AND the generic value isn't in hardcoded defaults
             const missingValues: TranslationRequestValues = {};
-            for (const [pId, vIds] of Object.entries(values)) {
+
+            for (const [pId, vIds] of entriesOfValues) {
                 const missingForParam = vIds.filter(vId => {
-                    const hasCached = globalDict.values[pId] && (vId in globalDict.values[pId]);
-                    const isHardcoded = HARDCODED_TRANSLATIONS.values[pId]?.[vId] || HARDCODED_TRANSLATIONS.values["*"]?.[vId];
-                    return !hasCached && !isHardcoded;
+                    const cachedParamValues = globalDict.values[pId];
+                    const hasCached = cachedParamValues && (vId in cachedParamValues);
+
+                    const hardcodedSpecificMap = HARDCODED_TRANSLATIONS.values[pId];
+                    const isSpecificHardcoded = hardcodedSpecificMap?.[vId];
+
+                    const hardcodedGenericMap = HARDCODED_TRANSLATIONS.values["*"];
+                    const isGenericHardcoded = hardcodedGenericMap?.[vId];
+
+                    const isHardcoded = isSpecificHardcoded || isGenericHardcoded;
+
+                    const isMissing = !hasCached && !isHardcoded;
+                    return isMissing;
                 });
-                if (missingForParam.length > 0) {
+
+                const hasMissingItems = missingForParam.length > 0;
+                if (hasMissingItems) {
                     missingValues[pId] = missingForParam;
                 }
             }
 
             // 3. Fetch missing pieces (if any)
             let newTranslations: TranslationDictionary = { parameters: {}, values: {} };
-            if (missingParams.length > 0 || Object.keys(missingValues).length > 0) {
+
+            const hasMissingParamsToFetch = missingParams.length > 0;
+            const hasMissingValuesToFetch = Object.keys(missingValues).length > 0;
+            const needsFetch = hasMissingParamsToFetch || hasMissingValuesToFetch;
+
+            if (needsFetch) {
                 newTranslations = await fetchTranslations(missingParams, missingValues);
             }
 
             // 4. Merge server translations specifically into the cacheable global dictionary
+            const existingCacheableParams = cachedGlobalDict.parameters;
+            const newFetchedParams = newTranslations.parameters;
+            const combinedCacheableParams = { ...existingCacheableParams, ...newFetchedParams };
+
+            const existingCacheableValues = { ...cachedGlobalDict.values }; // Shallow copy first
+
             const updatedCacheableDict: TranslationDictionary = {
-                parameters: { ...cachedGlobalDict.parameters, ...newTranslations.parameters },
-                values: { ...cachedGlobalDict.values }, // Shallow copy first
+                parameters: combinedCacheableParams,
+                values: existingCacheableValues,
             };
 
             // Deep merge new deeply nested parameterId -> valueId maps
-            for (const [pId, vMap] of Object.entries(newTranslations.values)) {
-                if (!updatedCacheableDict.values[pId]) {
+            const newValuesEntries = Object.entries(newTranslations.values);
+            for (const [pId, vMap] of newValuesEntries) {
+                const existingMapForParam = updatedCacheableDict.values[pId];
+
+                if (!existingMapForParam) {
                     updatedCacheableDict.values[pId] = {};
                 }
-                updatedCacheableDict.values[pId] = { ...updatedCacheableDict.values[pId], ...vMap };
+
+                const currentMapForParam = updatedCacheableDict.values[pId];
+                const mergedMapForParam = { ...currentMapForParam, ...vMap };
+
+                updatedCacheableDict.values[pId] = mergedMapForParam;
             }
 
             // 5. Update global cache
             queryClient.setQueryData(['global-translations'], updatedCacheableDict);
 
             // 6. Return the local subset of translations needed for this specific hook call
-            const fullParameters = { ...HARDCODED_TRANSLATIONS.parameters, ...updatedCacheableDict.parameters };
+            const cacheableParams = updatedCacheableDict.parameters;
+            const fullParameters = { ...HARDCODED_TRANSLATIONS.parameters, ...cacheableParams };
             const fullValues = updatedCacheableDict.values;
 
             const localResult: TranslationDictionary = { parameters: {}, values: {} };
+
             paramIds.forEach(id => {
-                if (fullParameters[id]) localResult.parameters[id] = fullParameters[id];
+                const translatedParam = fullParameters[id];
+                if (translatedParam) {
+                    localResult.parameters[id] = translatedParam;
+                }
             });
 
-            for (const [pId, vIds] of Object.entries(values)) {
+            for (const [pId, vIds] of entriesOfValues) {
                 vIds.forEach(vId => {
-                    const translated = fullValues[pId]?.[vId];
-                    const hardcodedSpecific = HARDCODED_TRANSLATIONS.values[pId]?.[vId];
-                    const hardcodedGeneric = HARDCODED_TRANSLATIONS.values["*"]?.[vId];
+                    const valuesForParam = fullValues[pId];
+                    const translated = valuesForParam?.[vId];
+
+                    const hardcodedSpecificMap = HARDCODED_TRANSLATIONS.values[pId];
+                    const hardcodedSpecific = hardcodedSpecificMap?.[vId];
+
+                    const hardcodedGenericMap = HARDCODED_TRANSLATIONS.values["*"];
+                    const hardcodedGeneric = hardcodedGenericMap?.[vId];
+
+                    const localResultParamMap = localResult.values[pId];
+                    if (!localResultParamMap) {
+                        localResult.values[pId] = {};
+                    }
 
                     if (translated) {
-                        if (!localResult.values[pId]) localResult.values[pId] = {};
                         localResult.values[pId][vId] = translated;
                     } else if (hardcodedSpecific) {
-                        if (!localResult.values[pId]) localResult.values[pId] = {};
                         localResult.values[pId][vId] = hardcodedSpecific;
                     } else if (hardcodedGeneric) {
-                        if (!localResult.values[pId]) localResult.values[pId] = {};
                         localResult.values[pId][vId] = hardcodedGeneric;
                     }
                 });
@@ -169,6 +241,6 @@ export const useTranslations = (paramIds: string[] = [], values: TranslationRequ
             return localResult;
         },
         staleTime: 1000 * 60 * 60 * 24, // 24 hours
-        enabled: paramIds.length > 0 || Object.keys(values).length > 0, // Only fetch if there are things to translate
+        enabled: isQueryEnabled, // Only fetch if there are things to translate
     });
 };

@@ -109,15 +109,29 @@ export const GET_SEARCH_FILTERS_QUERY = `
  */
 export const getTranslationsQuery = (values: Record<string, string[]>) => {
     let valueFiltersBlock = "";
-    if (Object.keys(values).length > 0) {
-        const orConditions = Object.entries(values).flatMap(([parameterId, valueIds]) => {
-            return valueIds.map(valueId =>
-                `{ digitalParameterId: { equalTo: "${parameterId}" }, id: { equalTo: "${valueId}" } }`
-            );
-        }).join(", ");
+
+    const valuesKeys = Object.keys(values);
+    const hasValues = valuesKeys.length > 0;
+
+    if (hasValues) {
+        const valuesEntries = Object.entries(values);
+
+        const conditionMappings = valuesEntries.flatMap(([parameterId, valueIds]) => {
+            const mappedConditions = valueIds.map(valueId => {
+                const parameterCondition = `digitalParameterId: { equalTo: "${parameterId}" }`;
+                const valueCondition = `id: { equalTo: "${valueId}" }`;
+                const singleConditionBlock = `{ ${parameterCondition}, ${valueCondition} }`;
+
+                return singleConditionBlock;
+            });
+
+            return mappedConditions;
+        });
+
+        const combinedOrConditions = conditionMappings.join(", ");
 
         valueFiltersBlock = `
-      allDigitalValues(filter: { or: [ ${orConditions} ] }) {
+      allDigitalValues(filter: { or: [ ${combinedOrConditions} ] }) {
         nodes {
           id
           digitalParameterId
@@ -127,7 +141,7 @@ export const getTranslationsQuery = (values: Record<string, string[]>) => {
     `;
     }
 
-    return `
+    const finalQuery = `
       query GetTranslations($paramIds: [String!]) {
         allDigitalParameters(filter: { id: { in: $paramIds } }) {
           nodes {
@@ -138,4 +152,6 @@ export const getTranslationsQuery = (values: Record<string, string[]>) => {
         ${valueFiltersBlock}
       }
   `;
+
+    return finalQuery;
 };
