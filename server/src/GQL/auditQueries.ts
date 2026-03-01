@@ -107,19 +107,26 @@ export const GET_SEARCH_FILTERS_QUERY = `
  * Function to dynamically generate dictionary translations query
  * It dynamically constructs the complex value filters based on compound value objects.
  */
-export const getTranslationsQuery = (values: Record<string, string[]>): string => {
+export const getTranslationsQuery = (values: Record<string, string[]>): { query: string; variables: Record<string, string> } => {
     let valueFiltersBlock = "";
+    const variables: Record<string, string> = {};
+    let varIndex = 0;
 
     const valuesKeys = Object.keys(values);
     const hasValues = valuesKeys.length > 0;
+
+    let variablesDeclaration = "";
 
     if (hasValues) {
         const valuesEntries = Object.entries(values);
 
         const conditionMappings = valuesEntries.flatMap(([parameterId, valueIds]) => {
             const mappedConditions = valueIds.map(valueId => {
+                const valueVarName = `val${varIndex++}`;
+                variables[valueVarName] = valueId;
+
                 const parameterCondition = `digitalParameterId: { equalTo: "${parameterId}" }`;
-                const valueCondition = `id: { equalTo: "${valueId}" }`;
+                const valueCondition = `id: { equalTo: $${valueVarName} }`;
                 const singleConditionBlock = `{ ${parameterCondition}, ${valueCondition} }`;
 
                 return singleConditionBlock;
@@ -129,6 +136,9 @@ export const getTranslationsQuery = (values: Record<string, string[]>): string =
         });
 
         const combinedOrConditions = conditionMappings.join(", ");
+
+        const variableDeclarationsList = Object.keys(variables).map(key => `$${key}: String!`);
+        variablesDeclaration = variableDeclarationsList.length > 0 ? `, ${variableDeclarationsList.join(", ")}` : "";
 
         valueFiltersBlock = `
       allDigitalValues(filter: { or: [ ${combinedOrConditions} ] }) {
@@ -142,7 +152,7 @@ export const getTranslationsQuery = (values: Record<string, string[]>): string =
     }
 
     const finalQuery = `
-      query GetTranslations($paramIds: [String!]) {
+      query GetTranslations($paramIds: [String!]${variablesDeclaration}) {
         allDigitalParameters(filter: { id: { in: $paramIds } }) {
           nodes {
             id
@@ -153,5 +163,5 @@ export const getTranslationsQuery = (values: Record<string, string[]>): string =
       }
   `;
 
-    return finalQuery;
+    return { query: finalQuery, variables };
 };

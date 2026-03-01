@@ -36,25 +36,21 @@ const HARDCODED_TRANSLATIONS: TranslationDictionary = {
         creator_system_id: "מערכת יוצרת",
         operational_phone: "טלפון מבצעי",
         updated_at: "תאריך עדכון",
+        last_kartoffel_sync: "סנכרון אחרון מאמ\"ן",
+        is_portal_user: "קיים במקור שלישותי"
     },
     values: {
         "*": {
             "true": "כן",
             "false": "לא",
             "null": "ריק",
-        },
-        status: {
-            "Active": "פעיל",
-            "Inactive": "לא פעיל",
-        },
-        domain_source: {
             AMAN: 'אמ"ן',
             CTS: "סודי ביותר",
             UNKNOWN: "לא ידוע",
-        },
-        domains: {
-            AMAN: 'אמ"ן',
-            CTS: "סודי ביותר",
+            BLUE: "כחול",
+            RED: "אדום",
+            WHITE: "לבן",
+            PURPLE: "סגול",
         }
     }
 };
@@ -223,17 +219,15 @@ export const useTranslations = (paramIds: string[] = [], values: TranslationRequ
                     const hardcodedGenericMap = HARDCODED_TRANSLATIONS.values["*"];
                     const hardcodedGeneric = hardcodedGenericMap?.[vId];
 
-                    const localResultParamMap = localResult.values[pId];
-                    if (!localResultParamMap) {
-                        localResult.values[pId] = {};
-                    }
+                    const resolvedTranslation = translated || hardcodedSpecific || hardcodedGeneric;
 
-                    if (translated) {
-                        localResult.values[pId][vId] = translated;
-                    } else if (hardcodedSpecific) {
-                        localResult.values[pId][vId] = hardcodedSpecific;
-                    } else if (hardcodedGeneric) {
-                        localResult.values[pId][vId] = hardcodedGeneric;
+                    if (resolvedTranslation) {
+                        const localResultParamMap = localResult.values[pId];
+                        if (!localResultParamMap) {
+                            localResult.values[pId] = {};
+                        }
+
+                        localResult.values[pId][vId] = resolvedTranslation;
                     }
                 });
             }

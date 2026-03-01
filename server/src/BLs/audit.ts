@@ -144,10 +144,10 @@ export const getTranslations = async (
   paramIds: string[],
   valuesToTranslate: TranslationRequestValues
 ): Promise<TranslationDictionary> => {
-  const queryStr = getTranslationsQuery(valuesToTranslate);
-  const queryVariables = { paramIds };
+  const { query, variables } = getTranslationsQuery(valuesToTranslate);
+  const queryVariables = { paramIds, ...variables };
 
-  const rawResult = await performQuery(queryStr, queryVariables);
+  const rawResult = await performQuery(query, queryVariables);
 
   type GraphQLTranslationResponse = {
     data?: {

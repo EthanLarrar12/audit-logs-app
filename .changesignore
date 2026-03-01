@@ -1,3 +1,5 @@
 server/sdks
 node_modules
 dist
+.changesignore
+changes.zip
