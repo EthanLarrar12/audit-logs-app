@@ -67,7 +67,7 @@ export const AUDIT_CATEGORIES: Category[] = [
         name: 'משתמש',
         subcategories: [
             { id: 'MANDAT_USER_CREATED', name: 'יצירת משתמש', type: ActionType.CREATE },
-            { id: 'MANDAT_USER_DELETED', name: 'מחיקה משתמש', type: ActionType.DELETE },
+            { id: 'MANDAT_USER_DELETED', name: 'מחיקת משתמש', type: ActionType.DELETE },
             { id: 'MANDAT_USER_SYNCED', name: 'סינכרון משתמש', type: ActionType.SYNC },
             {
                 id: 'MANDAT_USER_PROFILE_DG_PARAMS_ADDED',

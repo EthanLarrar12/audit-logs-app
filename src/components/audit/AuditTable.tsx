@@ -3,6 +3,7 @@ import { AUDIT_HEADERS } from "@/constants/auditHeaders";
 import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCw } from "lucide-react";
 import { Virtuoso, Components } from "react-virtuoso"; // Added imports
+import { toast } from "@/hooks/use-toast";
 import { AuditEvent } from "@/types/audit";
 import { cn } from "@/lib/utils";
 import excelIcon from "@/assets/exportToExcel.svg";
@@ -87,6 +88,13 @@ export function AuditTable({
   const handleRefresh = () => {
     setIsSpinning(true);
     onRefresh();
+
+    toast({
+      title: "הנתונים עודכנו",
+      description: "יומן הביקורת רוענן בהצלחה.",
+      duration: 2000,
+    });
+
     setTimeout(() => setIsSpinning(false), 1000);
   };
 
@@ -170,7 +178,7 @@ export function AuditTable({
         <div
           className={cn(
             styles.headerItemUser,
-            "cursor-pointer relative z-10 select-none hover:text-brand transition-colors",
+            "cursor-pointer relative z-10 hover:text-brand transition-colors",
           )}
           onClick={() => handleHeaderClick("ACTOR")}
         >
@@ -179,7 +187,7 @@ export function AuditTable({
         <div
           className={cn(
             styles.headerItemAction,
-            "cursor-pointer relative z-10 select-none hover:text-brand transition-colors",
+            "cursor-pointer relative z-10 hover:text-brand transition-colors",
           )}
           onClick={() => handleHeaderClick("ACTION")}
         >
@@ -188,7 +196,7 @@ export function AuditTable({
         <div
           className={cn(
             styles.headerItemTarget,
-            "cursor-pointer relative z-10 select-none hover:text-brand transition-colors",
+            "cursor-pointer relative z-10 hover:text-brand transition-colors",
           )}
           onClick={() => handleHeaderClick("TARGET")}
         >

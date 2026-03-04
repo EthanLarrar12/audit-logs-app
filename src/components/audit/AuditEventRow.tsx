@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import { format } from 'date-fns';
-import { he } from 'date-fns/locale';
-import { ChevronDown, ChevronLeft, Fingerprint, Loader2 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { fetchAuditEventById } from '@/lib/api';
-import { AuditEvent, JsonValue, JsonObject, JsonArray } from '@/types/audit';
-import { CategoryBadge } from './CategoryBadge';
-import { cn } from '@/lib/utils';
-import { getSubcategoryName, getActionIcon } from '@/constants/filterOptions';
-import { styles } from './AuditEventRow.styles';
-import { StateDiff } from './StateDiff';
-import { useTranslations } from '@/hooks/audit/useTranslations';
+import { useState } from "react";
+import { format } from "date-fns";
+import { he } from "date-fns/locale";
+import { ChevronDown, ChevronLeft, Fingerprint, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchAuditEventById } from "@/lib/api";
+import { AuditEvent, JsonValue, JsonObject, JsonArray } from "@/types/audit";
+import { CategoryBadge } from "./CategoryBadge";
+import { cn } from "@/lib/utils";
+import { getSubcategoryName, getActionIcon } from "@/constants/filterOptions";
+import { styles } from "./AuditEventRow.styles";
+import { StateDiff } from "./StateDiff";
+import { useTranslations } from "@/hooks/audit/useTranslations";
 
 interface AuditEventRowProps {
   event: AuditEvent;
@@ -21,11 +21,10 @@ interface AuditEventRowProps {
 export const AuditEventRow: React.FC<AuditEventRowProps> = ({
   event,
   isExpanded,
-  onToggleExpand
+  onToggleExpand,
 }) => {
-
   const { data: fullEvent, isLoading: isFetchingDetails } = useQuery({
-    queryKey: ['auditEvent', event.id],
+    queryKey: ["auditEvent", event.id],
     queryFn: () => fetchAuditEventById(event.id),
     enabled: isExpanded,
   });
@@ -33,16 +32,18 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({
   const beforeState = fullEvent?.before_state || event.before_state;
   const afterState = fullEvent?.after_state || event.after_state;
 
-  const formattedDate = format(new Date(event.created_at), 'd בMMM yyyy', { locale: he });
-  const formattedTime = format(new Date(event.created_at), 'HH:mm:ss');
+  const formattedDate = format(new Date(event.created_at), "d בMMM yyyy", {
+    locale: he,
+  });
+  const formattedTime = format(new Date(event.created_at), "HH:mm:ss");
 
   const extractTranslationKeysValues = (
     objects: JsonValue[],
     keysSet: Set<string>,
-    valuesMap: Record<string, Set<string>>
+    valuesMap: Record<string, Set<string>>,
   ): void => {
     objects.forEach((obj) => {
-      const isInvalid = !obj || typeof obj !== 'object';
+      const isInvalid = !obj || typeof obj !== "object";
       if (isInvalid) return;
 
       const isArray = Array.isArray(obj);
@@ -55,18 +56,19 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({
       for (const [key, val] of entries) {
         keysSet.add(key);
 
-        const isObject = typeof val === 'object' && val !== null;
+        const isObject = typeof val === "object" && val !== null;
         if (isObject) {
           const isValArray = Array.isArray(val);
 
           if (isValArray) {
-            val.forEach(item => {
-              const isItemObject = typeof item === 'object' && item !== null;
+            val.forEach((item) => {
+              const isItemObject = typeof item === "object" && item !== null;
 
               if (isItemObject) {
                 extractTranslationKeysValues([item], keysSet, valuesMap);
               } else {
-                const isValidPrimitive = item !== null && item !== undefined && item !== '';
+                const isValidPrimitive =
+                  item !== null && item !== undefined && item !== "";
                 if (isValidPrimitive) {
                   const valueStr = String(item);
                   const isKeyInMap = valuesMap[key];
@@ -82,7 +84,8 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({
             extractTranslationKeysValues([val], keysSet, valuesMap);
           }
         } else {
-          const isValidPrimitive = val !== null && val !== undefined && val !== '';
+          const isValidPrimitive =
+            val !== null && val !== undefined && val !== "";
           if (isValidPrimitive) {
             const valueStr = String(val);
             const isKeyInMap = valuesMap[key];
@@ -101,21 +104,23 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({
   const valuesMap: Record<string, Set<string>> = {};
 
   if (isExpanded) {
-    extractTranslationKeysValues([beforeState, afterState], paramIdsSet, valuesMap);
+    extractTranslationKeysValues(
+      [beforeState, afterState],
+      paramIdsSet,
+      valuesMap,
+    );
   }
 
   const queryParamIds = Array.from(paramIdsSet);
   const queryValues = Object.fromEntries(
-    Object.entries(valuesMap).map(([k, set]) => [k, Array.from(set)])
+    Object.entries(valuesMap).map(([k, set]) => [k, Array.from(set)]),
   );
 
-  const { data: translations, isLoading: isLoadingTranslations } = useTranslations(
-    queryParamIds,
-    queryValues
-  );
+  const { data: translations, isLoading: isLoadingTranslations } =
+    useTranslations(queryParamIds, queryValues);
 
   const translateContext = (obj: JsonValue): JsonValue => {
-    const isInvalid = !obj || typeof obj !== 'object' || !translations;
+    const isInvalid = !obj || typeof obj !== "object" || !translations;
     if (isInvalid) return obj;
 
     const isArray = Array.isArray(obj);
@@ -131,14 +136,14 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({
       const translationForKey = translations.parameters[key];
       const translatedKey = translationForKey || key;
 
-      const isObject = typeof val === 'object' && val !== null;
+      const isObject = typeof val === "object" && val !== null;
 
       if (isObject) {
         const isValArray = Array.isArray(val);
 
         if (isValArray) {
-          const mappedArray = val.map(item => {
-            const isItemObject = typeof item === 'object' && item !== null;
+          const mappedArray = val.map((item) => {
+            const isItemObject = typeof item === "object" && item !== null;
             if (isItemObject) {
               const mappedItemSubObject = translateContext(item);
               return mappedItemSubObject;
@@ -172,14 +177,19 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({
 
   return (
     <div
-      className={cn(
-        styles.container,
-        isExpanded && styles.containerExpanded
-      )}
+      className={cn(styles.container, isExpanded && styles.containerExpanded)}
     >
       {/* Main row */}
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         onClick={onToggleExpand}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onToggleExpand();
+          }
+        }}
         className={styles.mainRow}
       >
         {/* Timestamp */}
@@ -192,24 +202,21 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({
             )}
           </span>
           <div className="min-w-0">
-            <div className={styles.dateText}>
-              {formattedDate}
-            </div>
+            <div className={styles.dateText}>{formattedDate}</div>
             <div className={styles.timeText} dir="ltr">
               {formattedTime}
             </div>
           </div>
         </div>
 
-
         {/* Actor */}
         <div className={styles.usernameCol}>
-          <div className={styles.username}>
-            {event.actor_username || '—'}
-          </div>
+          <div className={styles.username}>{event.actor_username || "—"}</div>
           {(event.actor_type || event.actor_id) && (
             <div className={styles.targetInfo}>
-              {event.actor_type && <CategoryBadge category={event.actor_type} />}
+              {event.actor_type && (
+                <CategoryBadge category={event.actor_type} />
+              )}
               {event.actor_id && (
                 <span className={styles.targetId} dir="ltr">
                   {event.actor_id}
@@ -230,9 +237,7 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({
 
         {/* Target */}
         <div className={styles.targetCol}>
-          <div className={styles.targetName}>
-            {event.target_name || '—'}
-          </div>
+          <div className={styles.targetName}>{event.target_name || "—"}</div>
           {(event.category || event.target_id) && (
             <div className={styles.targetInfo}>
               {event.category && <CategoryBadge category={event.category} />}
@@ -247,14 +252,12 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({
 
         {/* Resource */}
         <div className={styles.resourceCol}>
-          <div className={styles.resourceType}>
-            {event.resource_name}
-          </div>
+          <div className={styles.resourceType}>{event.resource_name}</div>
           <div className={styles.resourceId} dir="ltr">
             {event.resource_id}
           </div>
         </div>
-      </button>
+      </div>
 
       {/* Expanded details */}
       {isExpanded && (
@@ -288,8 +291,18 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({
                   <h4 className={styles.detailsHeader}>שינויים במצב</h4>
                   <div className={styles.stateDiffWrapper}>
                     <StateDiff
-                      before={translateContext(beforeState as JsonValue) as Record<string, unknown>}
-                      after={translateContext(afterState as JsonValue) as Record<string, unknown>}
+                      before={
+                        translateContext(beforeState as JsonValue) as Record<
+                          string,
+                          unknown
+                        >
+                      }
+                      after={
+                        translateContext(afterState as JsonValue) as Record<
+                          string,
+                          unknown
+                        >
+                      }
                     />
                   </div>
                 </div>
@@ -300,4 +313,4 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({
       )}
     </div>
   );
-}
+};
