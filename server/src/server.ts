@@ -5,7 +5,7 @@ import { postgraphile, makePluginHook } from "postgraphile";
 import PostGraphileConnectionFilterPlugin from "postgraphile-plugin-connection-filter";
 import path from "path";
 import { Pool } from "pg";
-import { createAuditRouter } from "./routers/audit";
+import { createAuditRouter, createApiAuditRouter } from "./routers/audit";
 
 import { getPerformQuery } from "../sdks/performQuery";
 import { getSTSMiddleware } from "../sdks/STS";
@@ -66,23 +66,15 @@ app.get(
 );
 
 // Serve static files from the React app
-const clientBuildPath = config.IS_NPM_RUN_DEV ?
-  path.join(__dirname, "../../dist") :
-  path.join(__dirname, "../../../../dist");
+const clientBuildPath = config.IS_NPM_RUN_DEV
+  ? path.join(__dirname, "../../dist")
+  : path.join(__dirname, "../../../../dist");
 
-app.use('/audit', express.static(clientBuildPath));
+app.use("/audit", express.static(clientBuildPath));
 
 app.get("/audit", (req, res) => {
   res.sendFile(path.join(clientBuildPath, "index.html"));
 });
-
-app.use(getSTSMiddleware({
-  stsURI: config.STS_URL,
-  serverURI: config.SERVER_URL,
-  applicationRedirectURI: config.APPLICATION_REDIRECT_URL,
-  allowCrossOrigin: true,
-  shouldSignMirageDomain: true
-}));
 
 // Initialize and start server
 const startServer = async (): Promise<void> => {
@@ -90,7 +82,21 @@ const startServer = async (): Promise<void> => {
     // Initialize performQuery (internally builds schema)
     const performQuery = await getPerformQuery(pgPool);
 
-    // Initialize and mount routers with performQuery
+    // Mount unprotected routes FIRST
+    app.use("/history", createApiAuditRouter(performQuery));
+
+    // THEN apply STS middleware
+    app.use(
+      getSTSMiddleware({
+        stsURI: config.STS_URL,
+        serverURI: config.SERVER_URL,
+        applicationRedirectURI: config.APPLICATION_REDIRECT_URL,
+        allowCrossOrigin: true,
+        shouldSignMirageDomain: true,
+      }),
+    );
+
+    // Initialize and mount remaining protected routers
     app.use("/audit", createAuditRouter(performQuery));
 
     app.use(errorMiddleware);

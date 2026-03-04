@@ -1,6 +1,6 @@
 import request from "supertest";
 import express from "express";
-import { createAuditRouter } from "../routers/audit";
+import { createApiAuditRouter } from "../routers/audit";
 import * as auditBL from "../BLs/audit";
 import { getPerformQuery } from "../../sdks/performQuery";
 
@@ -23,11 +23,11 @@ app.use(express.json());
 import { errorMiddleware } from "../../sdks/errorMiddleware";
 import { BadGatewayException } from "../../sdks/exceptions";
 
-const router = createAuditRouter(mockPerformQuery);
-app.use("/audit", router);
+const router = createApiAuditRouter(mockPerformQuery);
+app.use("/history", router);
 app.use(errorMiddleware);
 
-describe("DELETE /audit", () => {
+describe("DELETE /history", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -40,7 +40,7 @@ describe("DELETE /audit", () => {
     const endDate = 1707040800000;
 
     const response = await request(app)
-      .delete("/audit")
+      .delete("/history")
       .send({ startDate, endDate });
 
     expect(response.status).toBe(200);
@@ -58,24 +58,24 @@ describe("DELETE /audit", () => {
 
   it("should return validation error if dates are missing", async () => {
     // Missing both
-    let response = await request(app).delete("/audit").send({});
+    let response = await request(app).delete("/history").send({});
     expect(response.status).toBe(400);
 
     // Missing startDate
     response = await request(app)
-      .delete("/audit")
+      .delete("/history")
       .send({ endDate: 1707040800000 });
     expect(response.status).toBe(400);
 
     // Missing endDate
     response = await request(app)
-      .delete("/audit")
+      .delete("/history")
       .send({ startDate: 1706954400000 });
     expect(response.status).toBe(400);
   });
 
   it("should return validation error if dates are invalid types", async () => {
-    const response = await request(app).delete("/audit").send({
+    const response = await request(app).delete("/history").send({
       startDate: "invalid-date",
       endDate: "invalid-date",
     });
@@ -92,7 +92,7 @@ describe("DELETE /audit", () => {
     const startDate = 1706954400000;
     const endDate = 1707040800000;
     const response = await request(app)
-      .delete("/audit")
+      .delete("/history")
       .send({ startDate, endDate });
 
     expect(response.status).toBe(500);
@@ -107,7 +107,7 @@ describe("DELETE /audit", () => {
     const startDate = 1706954400000;
     const endDate = 1707040800000;
     const response = await request(app)
-      .delete("/audit")
+      .delete("/history")
       .send({ startDate, endDate });
 
     expect(response.status).toBe(502);

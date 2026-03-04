@@ -22,7 +22,6 @@ export const createAuditRouter = (performQuery: PerformQuery) => {
     getAuditEventById,
     getPremadeProfiles,
     getSuggestions,
-    deleteAuditHistory,
     getTranslations,
   } = getAuditRoutes(performQuery);
 
@@ -54,11 +53,18 @@ export const createAuditRouter = (performQuery: PerformQuery) => {
   auditRouter.post(
     "/translations",
     validate(translationsBodySchema, "body"),
-    getTranslations
+    getTranslations,
   );
 
+  return auditRouter;
+};
+
+export const createApiAuditRouter = (performQuery: PerformQuery) => {
+  const router = Router();
+  const { deleteAuditHistory } = getAuditRoutes(performQuery);
+
   // DELETE /audit - Delete history records
-  auditRouter.delete(
+  router.delete(
     "/",
     validate(deleteHistorySchema, "body"),
     getApiKeyValidationMiddleware(performQuery),
@@ -69,5 +75,5 @@ export const createAuditRouter = (performQuery: PerformQuery) => {
     deleteAuditHistory,
   );
 
-  return auditRouter;
+  return router;
 };
