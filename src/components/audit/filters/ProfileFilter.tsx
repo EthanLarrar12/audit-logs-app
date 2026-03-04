@@ -49,7 +49,11 @@ export const ProfileFilter: React.FC<ProfileFilterProps> = ({
   };
 
   const handleProfileSelect = (id: string): void => {
-    onChange(id);
+    if (value === id) {
+      onChange(null);
+    } else {
+      onChange(id);
+    }
     setIsOpen(false);
   };
 
