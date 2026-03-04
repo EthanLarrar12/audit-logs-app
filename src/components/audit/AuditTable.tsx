@@ -168,7 +168,7 @@ export function AuditTable({
                   ? "מייצא נתונים..."
                   : hasFilters
                     ? AUDIT_HEADERS.EXPORT_TO_EXCEL
-                    : "יש לבחור סינון לפחות אחד כדי לייצא"}
+                    : "יש לבחור סינון אחד לפחות כדי לייצא"}
               </p>
             </TooltipContent>
           </Tooltip>

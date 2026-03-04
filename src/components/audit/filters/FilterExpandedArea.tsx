@@ -85,11 +85,11 @@ export const FilterExpandedArea: React.FC<FilterExpandedAreaProps> = ({
         />
 
         <MultiSelectFilter
-          label="תת-קטגוריה"
+          label="פעולה"
           placeholder={
             selectedCategories.length === 0
               ? "בחר קטגוריה תחילה"
-              : "כל התת-קטגוריות"
+              : "כל הפעולות"
           }
           disabled={selectedCategories.length === 0}
           selected={(filters.action as string[]) || []}
