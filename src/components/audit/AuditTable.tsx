@@ -50,6 +50,18 @@ export function AuditTable({
   const [clickSequence, setClickSequence] = useState<string[]>([]);
   const [showTeam, setShowTeam] = useState(false);
 
+  // Lift state to survive Virtuoso unmounting
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+
+  const handleToggleRow = (id: string) => {
+    setExpandedRows((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   useEffect(() => {
     const targetSequence = [
       "ACTOR",
@@ -59,7 +71,7 @@ export function AuditTable({
       "TARGET",
       "TARGET",
     ].join(",");
-    
+
     if (clickSequence.join(",") === targetSequence) {
       setShowTeam(true);
       setClickSequence([]);
@@ -194,7 +206,12 @@ export function AuditTable({
         endReached={() => hasNextPage && !isFetchingNextPage && fetchNextPage()}
         itemContent={(index, event) => (
           <div className={styles.rowWrapper} dir="rtl">
-            <AuditEventRow key={event.id} event={event} />
+            <AuditEventRow
+              key={event.id}
+              event={event}
+              isExpanded={expandedRows.has(event.id)}
+              onToggleExpand={() => handleToggleRow(event.id)}
+            />
           </div>
         )}
         components={{

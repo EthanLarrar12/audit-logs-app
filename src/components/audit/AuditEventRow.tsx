@@ -14,10 +14,15 @@ import { useTranslations } from '@/hooks/audit/useTranslations';
 
 interface AuditEventRowProps {
   event: AuditEvent;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
 }
 
-export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+export const AuditEventRow: React.FC<AuditEventRowProps> = ({
+  event,
+  isExpanded,
+  onToggleExpand
+}) => {
 
   const { data: fullEvent, isLoading: isFetchingDetails } = useQuery({
     queryKey: ['auditEvent', event.id],
@@ -27,12 +32,10 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
 
   const beforeState = fullEvent?.before_state || event.before_state;
   const afterState = fullEvent?.after_state || event.after_state;
-  const context = fullEvent?.context || event.context;
 
   const formattedDate = format(new Date(event.created_at), 'd בMMM yyyy', { locale: he });
   const formattedTime = format(new Date(event.created_at), 'HH:mm:ss');
 
-  // Helper to extract keys and string values recursively
   const extractTranslationKeysValues = (
     objects: JsonValue[],
     keysSet: Set<string>,
@@ -98,7 +101,7 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
   const valuesMap: Record<string, Set<string>> = {};
 
   if (isExpanded) {
-    extractTranslationKeysValues([beforeState, afterState, context], paramIdsSet, valuesMap);
+    extractTranslationKeysValues([beforeState, afterState], paramIdsSet, valuesMap);
   }
 
   const queryParamIds = Array.from(paramIdsSet);
@@ -110,10 +113,6 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
     queryParamIds,
     queryValues
   );
-
-  const handleToggleExpanded = () => {
-    setIsExpanded((prev) => !prev);
-  };
 
   const translateContext = (obj: JsonValue): JsonValue => {
     const isInvalid = !obj || typeof obj !== 'object' || !translations;
@@ -171,8 +170,6 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
     return translatedObj;
   };
 
-  const translatedContext = translateContext(context);
-
   return (
     <div
       className={cn(
@@ -182,7 +179,7 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
     >
       {/* Main row */}
       <button
-        onClick={handleToggleExpanded}
+        onClick={onToggleExpand}
         className={styles.mainRow}
       >
         {/* Timestamp */}
@@ -295,22 +292,6 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({ event }) => {
                       after={translateContext(afterState as JsonValue) as Record<string, unknown>}
                     />
                   </div>
-                </div>
-              )}
-
-              {/* Context */}
-              {context && (
-                <div className={styles.contextSection}>
-                  <h4 className={styles.detailsHeader}>הקשר נוסף</h4>
-                  {isLoadingTranslations && !translations ? (
-                    <div className={styles.loadingContainer}>
-                      <Loader2 className={cn(styles.loadingIcon, "h-4 w-4")} />
-                    </div>
-                  ) : (
-                    <pre className={styles.jsonPre}>
-                      {JSON.stringify(translatedContext, null, 2)}
-                    </pre>
-                  )}
                 </div>
               )}
             </>
