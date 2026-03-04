@@ -33,11 +33,20 @@ describe("getEvents", () => {
     });
   });
 
+  const SELF_EVENT_FILTER = {
+    or: [
+      { executorId: { equalTo: "test-user-id" } },
+      { targetId: { equalTo: "test-user-id" } },
+      { resourceId: { equalTo: "test-user-id" } },
+    ],
+  };
+
   const DEFAULT_TARGET_TYPE_FILTER = {
     or: [
       {
         and: [{ targetType: { equalTo: "USER" } }],
       },
+      SELF_EVENT_FILTER,
     ],
   };
 
