@@ -17,6 +17,7 @@ export interface AuditQueryParams {
   targetSearch?: string;
   resourceSearch?: string;
   premadeProfile?: string;
+  actionId?: string;
   sort?: "created_at" | "action" | "actor_username" | "target_name";
   order?: "asc" | "desc";
 }

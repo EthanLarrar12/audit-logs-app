@@ -1,6 +1,24 @@
-import { AuditEvent, AuditEventPage, TranslationRequestValues, TranslationDictionary, JsonValue, JsonObject, JsonArray, JsonPrimitive } from "../../server/src/shared/types/audit";
+import {
+  AuditEvent,
+  AuditEventPage,
+  TranslationRequestValues,
+  TranslationDictionary,
+  JsonValue,
+  JsonObject,
+  JsonArray,
+  JsonPrimitive,
+} from "../../server/src/shared/types/audit";
 
-export type { AuditEvent, AuditEventPage, TranslationRequestValues, TranslationDictionary, JsonValue, JsonObject, JsonArray, JsonPrimitive };
+export type {
+  AuditEvent,
+  AuditEventPage,
+  TranslationRequestValues,
+  TranslationDictionary,
+  JsonValue,
+  JsonObject,
+  JsonArray,
+  JsonPrimitive,
+};
 
 export enum FilterField {
   SEARCH_INPUT = "searchInput",
@@ -16,6 +34,7 @@ export enum FilterField {
   PREMADE_PROFILE = "premadeProfile",
   DATE_FROM = "dateFrom",
   DATE_TO = "dateTo",
+  ACTION_ID = "actionId",
 }
 
 export interface AuditFilters {
@@ -32,4 +51,5 @@ export interface AuditFilters {
   premadeProfile?: string;
   dateFrom?: Date;
   dateTo?: Date;
+  actionId?: string;
 }

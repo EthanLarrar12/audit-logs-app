@@ -62,6 +62,7 @@ export const parseAuditEventNode = (node: GraphQLAuditNode): AuditEvent => {
 
   return {
     id: node.id,
+    action_id: node.actionId,
     created_at: timestamp,
     category: node.category,
     actor_type: (node.actorType as AuditEvent["actor_type"]) || "SYSTEM", // Fallback to SYSTEM if no executorType is present

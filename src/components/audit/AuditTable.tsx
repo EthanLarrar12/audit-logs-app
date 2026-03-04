@@ -30,6 +30,7 @@ interface AuditTableProps {
   onRefresh: () => void;
   onExport: () => void;
   isExporting: boolean;
+  onFilterByActionId?: (actionId: string) => void;
 }
 
 export function AuditTable({
@@ -44,6 +45,7 @@ export function AuditTable({
   onRefresh,
   onExport,
   isExporting,
+  onFilterByActionId,
 }: AuditTableProps) {
   // No manual IntersectionObserver needed with Virtuoso
 
@@ -219,6 +221,7 @@ export function AuditTable({
               event={event}
               isExpanded={expandedRows.has(event.id)}
               onToggleExpand={() => handleToggleRow(event.id)}
+              onFilterByActionId={onFilterByActionId}
             />
           </div>
         )}

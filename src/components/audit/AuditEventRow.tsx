@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
-import { ChevronDown, ChevronLeft, Fingerprint, Loader2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  Fingerprint,
+  Link2,
+  Loader2,
+} from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAuditEventById } from "@/lib/api";
+import { Button } from "@/components/ui/button";
 import { AuditEvent, JsonValue, JsonObject, JsonArray } from "@/types/audit";
 import { CategoryBadge } from "./CategoryBadge";
 import { cn } from "@/lib/utils";
@@ -16,12 +23,14 @@ interface AuditEventRowProps {
   event: AuditEvent;
   isExpanded: boolean;
   onToggleExpand: () => void;
+  onFilterByActionId?: (actionId: string) => void;
 }
 
 export const AuditEventRow: React.FC<AuditEventRowProps> = ({
   event,
   isExpanded,
   onToggleExpand,
+  onFilterByActionId,
 }) => {
   const { data: fullEvent, isLoading: isFetchingDetails } = useQuery({
     queryKey: ["auditEvent", event.id],
@@ -270,8 +279,24 @@ export const AuditEventRow: React.FC<AuditEventRowProps> = ({
                   <Fingerprint className={styles.detailsIcon} />
                   <div>
                     <dt className={styles.detailsLabel}>מזהה אירוע</dt>
-                    <dd className={styles.detailsValue} dir="ltr">
-                      {event.id}
+                    <dd className="flex items-center gap-2 mt-0.5">
+                      <span className={styles.detailsValue} dir="ltr">
+                        {event.id}
+                      </span>
+                      {event.action_id && onFilterByActionId && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onFilterByActionId(event.action_id);
+                          }}
+                          className="h-6 px-2 text-[11px] font-medium text-primary hover:text-primary hover:bg-primary/10 gap-1.5 rounded-md transition-colors"
+                        >
+                          <Link2 className="w-3 h-3" />
+                          הצג קבוצת פעולה
+                        </Button>
+                      )}
                     </dd>
                   </div>
                 </div>

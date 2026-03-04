@@ -353,6 +353,14 @@ export const useFilterLogic = ({
     (id: string) => updateFilter("premadeProfile", id),
     [updateFilter],
   );
+  const handleActionIdFilter = useCallback(
+    (id: string) => updateFilter("actionId", id),
+    [updateFilter],
+  );
+  const handleActionIdClear = useCallback(
+    () => updateFilter("actionId", undefined),
+    [updateFilter],
+  );
 
   return {
     isExpanded,
@@ -374,6 +382,8 @@ export const useFilterLogic = ({
     handleActionToggle,
     handleActionClear,
     handlePremadeProfileChange,
+    handleActionIdFilter,
+    handleActionIdClear,
     handleSearchChange, // Exposed for generic dynamic filters
   };
 };
