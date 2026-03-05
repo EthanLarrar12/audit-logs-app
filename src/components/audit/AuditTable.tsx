@@ -3,6 +3,7 @@ import { AUDIT_HEADERS } from "@/constants/auditHeaders";
 import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCw } from "lucide-react";
 import { Virtuoso, Components } from "react-virtuoso"; // Added imports
+import { toast } from "@/hooks/use-toast";
 import { AuditEvent } from "@/types/audit";
 import { cn } from "@/lib/utils";
 import excelIcon from "@/assets/exportToExcel.svg";
@@ -29,6 +30,7 @@ interface AuditTableProps {
   onRefresh: () => void;
   onExport: () => void;
   isExporting: boolean;
+  onFilterByActionId?: (actionId: string) => void;
 }
 
 export function AuditTable({
@@ -43,12 +45,25 @@ export function AuditTable({
   onRefresh,
   onExport,
   isExporting,
+  onFilterByActionId,
 }: AuditTableProps) {
   // No manual IntersectionObserver needed with Virtuoso
 
   const [isSpinning, setIsSpinning] = useState(false);
   const [clickSequence, setClickSequence] = useState<string[]>([]);
   const [showTeam, setShowTeam] = useState(false);
+
+  // Lift state to survive Virtuoso unmounting
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+
+  const handleToggleRow = (id: string) => {
+    setExpandedRows((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   useEffect(() => {
     const targetSequence = [
@@ -59,7 +74,7 @@ export function AuditTable({
       "TARGET",
       "TARGET",
     ].join(",");
-    
+
     if (clickSequence.join(",") === targetSequence) {
       setShowTeam(true);
       setClickSequence([]);
@@ -75,6 +90,13 @@ export function AuditTable({
   const handleRefresh = () => {
     setIsSpinning(true);
     onRefresh();
+
+    toast({
+      title: "הנתונים עודכנו",
+      description: "יומן הביקורת רוענן בהצלחה.",
+      duration: 2000,
+    });
+
     setTimeout(() => setIsSpinning(false), 1000);
   };
 
@@ -148,7 +170,7 @@ export function AuditTable({
                   ? "מייצא נתונים..."
                   : hasFilters
                     ? AUDIT_HEADERS.EXPORT_TO_EXCEL
-                    : "יש לבחור סינון לפחות אחד כדי לייצא"}
+                    : "יש לבחור סינון אחד לפחות כדי לייצא"}
               </p>
             </TooltipContent>
           </Tooltip>
@@ -158,7 +180,7 @@ export function AuditTable({
         <div
           className={cn(
             styles.headerItemUser,
-            "cursor-pointer relative z-10 select-none hover:text-brand transition-colors",
+            "cursor-pointer relative z-10 hover:text-brand transition-colors",
           )}
           onClick={() => handleHeaderClick("ACTOR")}
         >
@@ -167,7 +189,7 @@ export function AuditTable({
         <div
           className={cn(
             styles.headerItemAction,
-            "cursor-pointer relative z-10 select-none hover:text-brand transition-colors",
+            "cursor-pointer relative z-10 hover:text-brand transition-colors",
           )}
           onClick={() => handleHeaderClick("ACTION")}
         >
@@ -176,7 +198,7 @@ export function AuditTable({
         <div
           className={cn(
             styles.headerItemTarget,
-            "cursor-pointer relative z-10 select-none hover:text-brand transition-colors",
+            "cursor-pointer relative z-10 hover:text-brand transition-colors",
           )}
           onClick={() => handleHeaderClick("TARGET")}
         >
@@ -194,7 +216,13 @@ export function AuditTable({
         endReached={() => hasNextPage && !isFetchingNextPage && fetchNextPage()}
         itemContent={(index, event) => (
           <div className={styles.rowWrapper} dir="rtl">
-            <AuditEventRow key={event.id} event={event} />
+            <AuditEventRow
+              key={event.id}
+              event={event}
+              isExpanded={expandedRows.has(event.id)}
+              onToggleExpand={() => handleToggleRow(event.id)}
+              onFilterByActionId={onFilterByActionId}
+            />
           </div>
         )}
         components={{

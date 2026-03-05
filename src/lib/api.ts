@@ -1,5 +1,13 @@
-import { AuditFilters, AuditEvent, AuditEventPage, FilterField } from "@/types/audit";
-import { MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE } from "../../server/src/shared/auditConstants";
+import {
+  AuditFilters,
+  AuditEvent,
+  AuditEventPage,
+  FilterField,
+} from "@/types/audit";
+import {
+  MAX_PAGE_SIZE,
+  DEFAULT_PAGE_SIZE,
+} from "../../server/src/shared/auditConstants";
 
 enum ApiQueryParam {
   PAGE = "page",
@@ -17,6 +25,7 @@ enum ApiQueryParam {
   DATE_FROM = "from",
   DATE_TO = "to",
   CATEGORY = "category",
+  ACTION_ID = "actionId",
 }
 
 interface FetchAuditEventsParams {
@@ -48,12 +57,14 @@ export async function fetchWithCreds(
     // Handle 401 Unauthorized - redirect to /auth
     if (response.status === 401) {
       window.location.href = `/auth?comeback=${encodeURIComponent(window.location.href)}`;
-      return new Promise(() => { }); // Stop further execution
+      return new Promise(() => {}); // Stop further execution
     }
 
     // Handle 5xx Server Errors with retries
     if (response.status >= 500 && retries > 0) {
-      console.warn(`Retrying due to server error ${response.status}... (${retries} attempts left)`);
+      console.warn(
+        `Retrying due to server error ${response.status}... (${retries} attempts left)`,
+      );
       return fetchWithCreds(input, init, retries - 1);
     }
 
@@ -61,7 +72,10 @@ export async function fetchWithCreds(
   } catch (error) {
     // Handle Network Errors with retries
     if (retries > 0) {
-      console.warn(`Retrying due to network error... (${retries} attempts left)`, error);
+      console.warn(
+        `Retrying due to network error... (${retries} attempts left)`,
+        error,
+      );
       return fetchWithCreds(input, init, retries - 1);
     }
     throw error;
@@ -175,6 +189,10 @@ export async function fetchAuditEvents({
     }
   }
 
+  if (filters[FilterField.ACTION_ID]) {
+    params.append(ApiQueryParam.ACTION_ID, filters[FilterField.ACTION_ID]!);
+  }
+
   const response = await fetchWithCreds(`/audit/events?${params.toString()}`);
 
   if (!response.ok) {
@@ -187,7 +205,9 @@ export async function fetchAuditEvents({
 /**
  * Fetches all audit events matching the filters by iterating through pages.
  */
-export async function fetchAllAuditEvents(filters: AuditFilters): Promise<AuditEvent[]> {
+export async function fetchAllAuditEvents(
+  filters: AuditFilters,
+): Promise<AuditEvent[]> {
   const allEvents: AuditEvent[] = [];
   let currentPage = 1;
   const PAGE_SIZE = MAX_PAGE_SIZE;

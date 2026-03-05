@@ -1,5 +1,8 @@
 import { AuditEvent, AuditEventPage, AuditQueryParams } from "../types/audit";
-import { TranslationRequestValues, TranslationDictionary } from "../shared/types/audit";
+import {
+  TranslationRequestValues,
+  TranslationDictionary,
+} from "../shared/types/audit";
 import {
   GET_AUDIT_EVENTS_QUERY,
   GET_AUDIT_EVENT_BY_ID_QUERY,
@@ -142,7 +145,7 @@ export const deleteAuditHistory = async (
 export const getTranslations = async (
   performQuery: PerformQuery,
   paramIds: string[],
-  valuesToTranslate: TranslationRequestValues
+  valuesToTranslate: TranslationRequestValues,
 ): Promise<TranslationDictionary> => {
   const { query, variables } = getTranslationsQuery(valuesToTranslate);
   const queryVariables = { paramIds, ...variables };
@@ -152,7 +155,9 @@ export const getTranslations = async (
   type GraphQLTranslationResponse = {
     data?: {
       allDigitalParameters?: { nodes: { id: string; name: string }[] };
-      allDigitalValues?: { nodes: { id: string; digitalParameterId: string; name: string }[] };
+      allDigitalValues?: {
+        nodes: { id: string; digitalParameterId: string; name: string }[];
+      };
     };
   };
 
@@ -178,23 +183,25 @@ export const getTranslations = async (
   const valuesDict: Record<string, Record<string, string>> = {};
 
   if (valuesNodes) {
-    valuesNodes.forEach((node: { id: string; digitalParameterId: string; name: string }) => {
-      const parameterId = node.digitalParameterId;
-      const valueId = node.id;
-      const valueName = node.name;
+    valuesNodes.forEach(
+      (node: { id: string; digitalParameterId: string; name: string }) => {
+        const parameterId = node.digitalParameterId;
+        const valueId = node.id;
+        const valueName = node.name;
 
-      const isParameterInitialized = Boolean(valuesDict[parameterId]);
-      if (!isParameterInitialized) {
-        valuesDict[parameterId] = {};
-      }
+        const isParameterInitialized = Boolean(valuesDict[parameterId]);
+        if (!isParameterInitialized) {
+          valuesDict[parameterId] = {};
+        }
 
-      valuesDict[parameterId][valueId] = valueName;
-    });
+        valuesDict[parameterId][valueId] = valueName;
+      },
+    );
   }
 
   const translationsDictionary: TranslationDictionary = {
     parameters: parametersDict,
-    values: valuesDict
+    values: valuesDict,
   };
 
   return translationsDictionary;

@@ -30,6 +30,7 @@ export const auditEventsQuerySchema = z.object({
   targetSearch: z.string().optional(),
   resourceSearch: z.string().optional(),
   premadeProfile: z.string().optional(),
+  actionId: z.string().optional(),
   sort: z
     .enum(["created_at", "action", "actor_username", "target_name"])
     .optional()
@@ -74,6 +75,9 @@ export type AuditEventsQuery = z.infer<typeof auditEventsQuerySchema>;
 export type AuditEventIdParam = z.infer<typeof auditEventIdParamSchema>;
 export type SuggestionsQuery = z.infer<typeof suggestionsQuerySchema>;
 export type DeleteHistoryBody = z.infer<typeof deleteHistorySchema>;
-export type TranslationsBody = Omit<z.infer<typeof translationsBodySchema>, 'values'> & {
+export type TranslationsBody = Omit<
+  z.infer<typeof translationsBodySchema>,
+  "values"
+> & {
   values: Record<string, string[]>;
 };

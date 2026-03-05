@@ -1,5 +1,5 @@
 import React from "react";
-import { Filter, RotateCcw, ChevronUp, ChevronDown } from "lucide-react";
+import { Filter, RotateCcw, X, Link2 } from "lucide-react";
 import { AuditFilters } from "@/types/audit";
 import { Button } from "@/components/ui/button";
 import { styles } from "./FilterBar.styles";
@@ -13,12 +13,11 @@ interface FilterBarProps {
   onFiltersChange: (filters: AuditFilters) => void;
   onReset: () => void;
   isLoading?: boolean;
+  onFilterByActionIdReady?: (fn: (id: string) => void) => void;
 }
 
 export const FilterBar: React.FC<FilterBarProps> = (props) => {
   const { filters, onReset, isLoading } = props;
-
-
 
   const {
     isExpanded,
@@ -40,6 +39,8 @@ export const FilterBar: React.FC<FilterBarProps> = (props) => {
     handleActionToggle,
     handleActionClear,
     handlePremadeProfileChange,
+    handleActionIdFilter,
+    handleActionIdClear,
     handleSearchChange,
   } = useFilterLogic(props);
 
@@ -51,8 +52,6 @@ export const FilterBar: React.FC<FilterBarProps> = (props) => {
     <div className={styles.container}>
       {/* Main filters grid */}
       <div className={styles.controlsContainer}>
-
-
         {/* Permanent First row */}
         <FilterPrimaryRow
           filters={filters}
@@ -69,6 +68,21 @@ export const FilterBar: React.FC<FilterBarProps> = (props) => {
         {/* Expanded Area - Moved before toggle for logical flow if desired, but user wants toggle at bottom?
             Actually, let's keep expanded area here, and put the TOGGLE + EXPORT at the very bottom.
         */}
+        {/* Action ID active filter chip */}
+        {filters.actionId && (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-primary text-primary-foreground rounded-md text-xs font-medium w-fit shadow-sm rtl:flex-row-reverse animate-in fade-in zoom-in-95 duration-200">
+            <Link2 className="w-3.5 h-3.5" />
+            <span>כל אירועי הפעולה</span>
+            <button
+              onClick={handleActionIdClear}
+              className="mr-1 hover:bg-primary-foreground/20 rounded-full p-0.5 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              aria-label="נקה מסנן פעולה"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+        )}
+
         {isExpanded && (
           <FilterExpandedArea
             filters={filters}

@@ -1,5 +1,5 @@
 export type JsonPrimitive = string | number | boolean | null | undefined;
-export interface JsonArray extends Array<JsonValue> { }
+export interface JsonArray extends Array<JsonValue> {}
 export interface JsonObject {
   [key: string]: JsonValue;
 }
@@ -7,18 +7,19 @@ export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
 
 export interface AuditEvent {
   id: string;
+  action_id: string;
   created_at: string;
   category: string;
   actor_type:
-  | "USER"
-  | "ENTITY"
-  | "SHOS"
-  | "DYNAMIC_TAG"
-  | "END_SYSTEM"
-  | "PROFILE"
-  | "DISTRIBUTION_GROUP"
-  | "PARAMETER"
-  | "SYSTEM";
+    | "USER"
+    | "ENTITY"
+    | "SHOS"
+    | "DYNAMIC_TAG"
+    | "END_SYSTEM"
+    | "PROFILE"
+    | "DISTRIBUTION_GROUP"
+    | "PARAMETER"
+    | "SYSTEM";
   actor_id: string | null;
   actor_username: string | null;
   action: string;

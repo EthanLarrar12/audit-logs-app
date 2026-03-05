@@ -1,6 +1,6 @@
 import request from "supertest";
 import express from "express";
-import { createAuditRouter } from "../routers/audit";
+import { createApiAuditRouter } from "../routers/audit";
 import { getPerformQuery } from "../../sdks/performQuery";
 import { DELETE_AUDIT_HISTORY_MUTATION } from "../GQL/auditQueries";
 
@@ -14,10 +14,10 @@ const app = express();
 app.use(express.json());
 
 // Initialize router with mocked performQuery
-const router = createAuditRouter(mockPerformQuery);
-app.use("/audit", router);
+const router = createApiAuditRouter(mockPerformQuery);
+app.use("/history", router);
 
-describe("DELETE /audit Integration Tests", () => {
+describe("DELETE /history Integration Tests", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -36,7 +36,7 @@ describe("DELETE /audit Integration Tests", () => {
     const endDate = 1707040800000;
 
     const response = await request(app)
-      .delete("/audit")
+      .delete("/history")
       .send({ startDate, endDate });
 
     expect(response.status).toBe(200);
@@ -72,7 +72,7 @@ describe("DELETE /audit Integration Tests", () => {
     const startDate: number = sixMonthsAgo.getTime();
     const endDate: number = new Date().getTime();
 
-    await request(app).delete("/audit").send({ startDate, endDate });
+    await request(app).delete("/history").send({ startDate, endDate });
 
     expect(mockPerformQuery).toHaveBeenCalledWith(
       expect.anything(),

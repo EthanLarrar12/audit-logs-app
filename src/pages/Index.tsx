@@ -24,6 +24,10 @@ const Index = () => {
 
   const [isExporting, setIsExporting] = useState(false);
 
+  const handleFilterByActionId = (actionId: string) => {
+    setFilters({ actionId });
+  };
+
   const hasActiveFilters = Object.values(filters).some((v) => {
     if (v === null || v === undefined || v === false) return false;
     if (Array.isArray(v)) return v.length > 0;
@@ -75,6 +79,7 @@ const Index = () => {
             onRefresh={refetch}
             onExport={handleExport}
             isExporting={isExporting}
+            onFilterByActionId={handleFilterByActionId}
           />
         </div>
       </div>
