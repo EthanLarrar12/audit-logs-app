@@ -16,7 +16,6 @@ export const StateDiff: React.FC<StateDiffProps> = ({ before, after }) => {
     diffNode: DeepDiffResult,
     type: "before" | "after",
     depth: number = 0,
-    isArrayItem: boolean = false,
   ) => {
     let dynamicClass = styles.textDefault;
     let prefix = "  ";
@@ -54,15 +53,13 @@ export const StateDiff: React.FC<StateDiffProps> = ({ before, after }) => {
         return (
           <li key={key} className={styles.listItem}>
             <div className="w-full">
-              {!isArrayItem && (
-                <div className={styles.propertyRow}>
-                  <span className={styles.prefix}> </span>
-                  <span className={styles.key}>{key}:</span>
-                </div>
-              )}
+              <div className={styles.propertyRow}>
+                <span className={styles.prefix}> </span>
+                <span className={styles.key}>{key}:</span>
+              </div>
               <ul className={styles.nestedLine}>
                 {Object.entries(children).map(([childKey, childNode]) =>
-                  renderValue(`${key}-${childKey}`, childNode, type, depth + 1),
+                  renderValue(childKey, childNode, type, depth + 1),
                 )}
               </ul>
             </div>
@@ -73,23 +70,19 @@ export const StateDiff: React.FC<StateDiffProps> = ({ before, after }) => {
         return (
           <li key={key} className={styles.listItem}>
             <div className="w-full">
-              {!isArrayItem && (
-                <div className={styles.propertyRow}>
-                  <span className={styles.prefix}> </span>
-                  <span className={styles.key}>{key}:</span>
-                </div>
-              )}
+              <div className={styles.propertyRow}>
+                <span className={styles.prefix}> </span>
+                <span className={styles.key}>{key}: [</span>
+              </div>
               <ul className={styles.nestedLine}>
                 {arrayItems.map((childNode, index) =>
-                  renderValue(
-                    `${key}-${index}`,
-                    childNode,
-                    type,
-                    depth + 1,
-                    true,
-                  ),
+                  renderValue(`${index}`, childNode, type, depth + 1),
                 )}
               </ul>
+              <div className={styles.propertyRow}>
+                <span className={styles.prefix}> </span>
+                <span className={styles.key}>]</span>
+              </div>
             </div>
           </li>
         );
@@ -102,19 +95,14 @@ export const StateDiff: React.FC<StateDiffProps> = ({ before, after }) => {
     if (valueToDisplay === undefined) return null;
 
     return (
-      <li
-        key={key}
-        className={`${styles.listItem} ${dynamicClass} !items-start`}
-      >
+      <li key={key} className={`${styles.listItem} ${dynamicClass}`}>
         <span className={styles.prefix}>{prefix}</span>
-        <div className="flex flex-col w-full">
-          {!isArrayItem && <span className={styles.key}>{key}</span>}
-          <span className={!isArrayItem ? "ml-8 mt-1" : ""}>
-            {typeof valueToDisplay === "object" && valueToDisplay !== null
-              ? JSON.stringify(valueToDisplay, null, 2)
-              : String(valueToDisplay)}
-          </span>
-        </div>
+        <span>
+          <span className={styles.key}>{key}:</span>{" "}
+          {typeof valueToDisplay === "object" && valueToDisplay !== null
+            ? JSON.stringify(valueToDisplay, null, 2)
+            : String(valueToDisplay)}
+        </span>
       </li>
     );
   };
