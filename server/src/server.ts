@@ -81,6 +81,9 @@ const startServer = async (): Promise<void> => {
   try {
     // Initialize performQuery (internally builds schema)
     const performQuery = await getPerformQuery(pgPool);
+    console.log(
+      `Connected to database: ${connectionUrl}`,
+    );
 
     // Mount unprotected routes FIRST
     app.use("/history", createApiAuditRouter(performQuery));
@@ -103,14 +106,16 @@ const startServer = async (): Promise<void> => {
 
     // Start server
     app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
-      console.log(`📋 API available at http://localhost:${PORT}/audit/events`);
+      console.log(`🚀 Server running on ${config.SERVER_URL}:${PORT}`);
+      console.log(
+        `📋 API available at ${config.SERVER_URL}:${PORT}/audit/events`,
+      );
       if (config.IS_NPM_RUN_DEV) {
         console.log(
-          `Create GraphQL API available at http://localhost:${PORT}/graphql`,
+          `Create GraphQL API available at ${config.SERVER_URL}:${PORT}/graphql`,
         );
         console.log(
-          `Create GraphiQL available at http://localhost:${PORT}/graphiql`,
+          `Create GraphiQL available at ${config.SERVER_URL}:${PORT}/graphiql`,
         );
       }
     });

@@ -1,11 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { Search, Loader2, X } from "lucide-react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useLayoutEffect,
+  useCallback,
+} from "react";
+import { Search, Loader2, X, ChevronUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { SuggestionResult } from "@/lib/api";
 import { getActionIcon } from "@/constants/filterOptions";
@@ -42,6 +54,61 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
 }) => {
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
   const [isPizponActive, setIsPizponActive] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [visibleCount, setVisibleCount] = useState<number>(1);
+
+  const updateVisibleCount = useCallback(() => {
+    if (!containerRef.current || !measureRef.current) return;
+    if (selectedItems.length === 0) {
+      setVisibleCount(1);
+      return;
+    }
+
+    const containerWidth = containerRef.current.clientWidth;
+    if (containerWidth === 0) return;
+
+    // We need space for: the input placeholder/field, padding, and clear buttons.
+    const RESERVED_WIDTH = 85;
+    const BADGE_WIDTH = 45;
+
+    let availableWidth = containerWidth - RESERVED_WIDTH;
+    let count = 0;
+
+    const chipNodes = Array.from(measureRef.current.children) as HTMLElement[];
+
+    for (let i = 0; i < chipNodes.length; i++) {
+      const chipWidth = chipNodes[i].offsetWidth + 4; // Add 4px for mr-1 gap
+      const isLastItem = i === chipNodes.length - 1;
+
+      const requiredWidth = chipWidth + (isLastItem ? 0 : BADGE_WIDTH);
+
+      if (availableWidth >= requiredWidth) {
+        count++;
+        availableWidth -= chipWidth;
+      } else {
+        break;
+      }
+    }
+
+    setVisibleCount(Math.max(1, count));
+  }, [selectedItems]);
+
+  useLayoutEffect(() => {
+    updateVisibleCount();
+
+    if (!containerRef.current) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateVisibleCount();
+    });
+
+    resizeObserver.observe(containerRef.current);
+    return () => resizeObserver.disconnect();
+  }, [updateVisibleCount]);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useSuggestions(value);
@@ -75,8 +142,8 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
 
   const handleInputKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-  ): void => {    
-    if (e.key === "Enter") {      
+  ): void => {
+    if (e.key === "Enter") {
       triggerPizponIfNeeded(value);
       onSelect(value, null, false);
       setIsSuggestionsOpen(false);
@@ -219,18 +286,53 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
   const totalCount = suggestions.length + (value ? 1 : 0);
   const showScrollbar = totalCount > 1;
 
+  const showAll = isExpanded || selectedItems.length <= visibleCount;
+  const visibleItems = showAll
+    ? selectedItems
+    : selectedItems.slice(0, visibleCount);
+  const hiddenItems = showAll ? [] : selectedItems.slice(visibleCount);
+
   return (
     <FilterGroup label={label}>
       <Popover open={isSuggestionsOpen} onOpenChange={handlePopoverOpenChange}>
         <PopoverTrigger asChild>
           <div
+            ref={containerRef}
+            onClick={() => inputRef.current?.focus()}
             className={cn(
               styles.searchContainer,
-              "flex flex-nowrap items-center h-10 overflow-x-auto overflow-y-hidden scrollbar-none",
+              "flex items-center transition-all duration-200 cursor-text overflow-hidden relative",
+              isExpanded
+                ? "flex-wrap h-auto min-h-10 py-1 gap-y-1"
+                : "flex-nowrap h-10",
             )}
           >
+            {/* Hidden container to measure chips width accurately */}
+            <div
+              ref={measureRef}
+              className="absolute opacity-0 pointer-events-none flex whitespace-nowrap -z-10 h-0 overflow-hidden"
+              style={{ width: "2000px" }}
+              aria-hidden="true"
+            >
+              {selectedItems.map((item) => (
+                <div
+                  key={`measure-${item.id}`}
+                  className="flex items-center flex-shrink-0 p-1 bg-slate-100 rounded-full mr-1 max-w-[200px]"
+                >
+                  <CategoryBadge
+                    category={item.type || "default"}
+                    label={item.name || item.id}
+                    className="bg-transparent border-none p-0 pr-1 truncate text-xs"
+                  />
+                  <div className="p-0.5 ml-1">
+                    <X className="h-3 w-3" />
+                  </div>
+                </div>
+              ))}
+            </div>
+
             {/* Render Chips */}
-            {selectedItems.map((item) => (
+            {visibleItems.map((item) => (
               <div
                 key={item.id}
                 className="flex items-center flex-shrink-0 p-1 bg-slate-100 rounded-full mr-1 max-w-[200px]"
@@ -252,8 +354,67 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
               </div>
             ))}
 
+            {!showAll && hiddenItems.length > 0 && (
+              <TooltipProvider delayDuration={300}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsExpanded(true);
+                      }}
+                      className="flex items-center flex-shrink-0 p-1 px-2 border border-slate-200 bg-slate-50 hover:bg-slate-100 rounded-full mr-1 cursor-pointer transition-colors"
+                    >
+                      <span className="text-xs font-semibold text-slate-600">
+                        +{hiddenItems.length}
+                      </span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="top"
+                    className="max-w-[300px] flex flex-wrap gap-1 p-2"
+                  >
+                    {hiddenItems.map((item) => (
+                      <CategoryBadge
+                        key={item.id}
+                        category={item.type || "default"}
+                        label={item.name || item.id}
+                        className="bg-slate-100 border border-slate-200 p-0.5 pr-1.5 pl-1.5 truncate text-[10px]"
+                      />
+                    ))}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+
+            {isExpanded && selectedItems.length > 1 && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsExpanded(false);
+                }}
+                className="flex items-center justify-center flex-shrink-0 p-1 border border-slate-200 bg-slate-50 hover:bg-slate-100 rounded-full mr-1 cursor-pointer transition-colors w-7 h-7"
+                title="הצג פחות"
+              >
+                <ChevronUp className="h-4 w-4 text-slate-600" />
+              </button>
+            )}
+
             {/* Render Input */}
-            <div className="flex-1 min-w-[100px] flex items-center flex-shrink-0 h-full">
+            <div
+              className={cn(
+                "flex-1 min-w-[40px] flex items-center flex-shrink-0 cursor-text",
+                isExpanded ? "h-8" : "h-full",
+              )}
+              onClick={(e) => {
+                inputRef.current?.focus();
+                setIsSuggestionsOpen(true);
+              }}
+            >
               {isLoading &&
               suggestions.length === 0 &&
               !selectedItems.length ? (
@@ -264,9 +425,10 @@ export const GeneralSearch: React.FC<GeneralSearchProps> = ({
                 )
               )}
               <Input
+                ref={inputRef}
                 className={cn(
                   styles.searchInput,
-                  "h-full min-w-[50px] border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0",
+                  "w-full min-w-[20px] border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-full",
                 )}
                 placeholder={selectedItems.length > 0 ? "" : "הקלידו לחיפוש..."}
                 value={value || ""}
