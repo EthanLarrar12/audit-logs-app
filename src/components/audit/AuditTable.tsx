@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCw } from "lucide-react";
 import { Virtuoso, Components } from "react-virtuoso"; // Added imports
 import { toast } from "@/hooks/use-toast";
-import { AuditEvent } from "@/types/audit";
+import { AuditEvent, AuditFilters } from "@/types/audit";
 import { cn } from "@/lib/utils";
 import excelIcon from "@/assets/exportToExcel.svg";
 import { AuditEventRow } from "./AuditEventRow";
@@ -24,6 +24,7 @@ interface AuditTableProps {
   isFetchingNextPage: boolean;
   hasNextPage: boolean;
   fetchNextPage: () => void;
+  filters: AuditFilters;
   hasFilters: boolean;
   onResetFilters: () => void;
 
@@ -39,6 +40,7 @@ export function AuditTable({
   isFetchingNextPage,
   hasNextPage,
   fetchNextPage,
+  filters,
   hasFilters,
   onResetFilters,
 
@@ -55,6 +57,11 @@ export function AuditTable({
 
   // Lift state to survive Virtuoso unmounting
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+
+  // Reset expanded rows when filters change
+  useEffect(() => {
+    setExpandedRows(new Set());
+  }, [filters]);
 
   const handleToggleRow = (id: string) => {
     setExpandedRows((prev) => {

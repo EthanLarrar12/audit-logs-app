@@ -74,6 +74,7 @@ const Index = () => {
             isFetchingNextPage={isFetchingNextPage}
             hasNextPage={hasNextPage}
             fetchNextPage={fetchNextPage}
+            filters={filters}
             hasFilters={hasActiveFilters}
             onResetFilters={resetFilters}
             onRefresh={refetch}

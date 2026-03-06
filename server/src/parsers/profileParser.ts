@@ -3,12 +3,34 @@
  */
 
 import {
+  GraphQLAllPremadeProfilesResponse,
   GraphQLUserPremadeProfilesResponse,
   GraphQLProfileValuesResponse,
   GraphQLUserAllowedParametersResponse,
   PremadeProfile,
   ProfileParameterValue,
 } from "./profileParser.types";
+
+/**
+ * Parse the all premade profiles response
+ */
+export const parseAllPremadeProfilesResponse = (
+  response: GraphQLAllPremadeProfilesResponse,
+): PremadeProfile[] => {
+  // Handle errors
+  if (response.errors && response.errors.length > 0) {
+    throw new Error(
+      `GraphQL Errors: ${response.errors.map((e) => e.message).join(", ")}`,
+    );
+  }
+
+  // Handle missing data
+  if (!response.data || !response.data.allMiragePremadeProfiles) {
+    return [];
+  }
+
+  return response.data.allMiragePremadeProfiles.nodes;
+};
 
 /**
  * Parse the premade profiles response

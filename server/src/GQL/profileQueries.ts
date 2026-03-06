@@ -5,6 +5,17 @@
 /**
  * Query to fetch all premade profiles
  */
+export const GET_ALL_PREMADE_PROFILES_QUERY = `
+    query AllPremadeProfiles {
+        allMiragePremadeProfiles {
+            nodes {
+                id
+                name
+            }
+        }
+    }
+`;
+
 /**
  * Query to fetch all premade profiles for a specific user
  */
