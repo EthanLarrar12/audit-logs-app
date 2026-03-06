@@ -112,11 +112,16 @@ export const getAuditRoutes = (performQuery: PerformQuery) => {
     next,
   ): Promise<void> => {
     try {
+      console.log("Delete history request received");
       const { startDate, endDate } = req.body as DeleteHistoryBody;
       const deletedCount = await deleteAuditHistory(
         performQuery,
         startDate,
         endDate,
+      );
+
+      console.log(
+        `History deleted successfully. Deleted ${deletedCount} records.`,
       );
 
       res.status(StatusCodes.OK).json({
