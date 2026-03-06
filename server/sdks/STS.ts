@@ -35,7 +35,7 @@ export type Permissions = {
 }
 
 export const isPermitted = (permissions: Permissions) => {
-    
+
     if (permissions?.mandatPermission?.includes("read")) {
         return true;
     }
@@ -43,7 +43,11 @@ export const isPermitted = (permissions: Permissions) => {
     if (permissions?.profilePermission?.includes("read")) {
         return true;
     }
-    
+
+    if (permissions?.profilePermission?.includes("update")) {
+        return true;
+    }
+
     return false;
     // return true;
 }

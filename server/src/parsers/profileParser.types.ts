@@ -25,6 +25,15 @@ export interface GraphQLProfileOwnerNode {
   miragePremadeProfileByProfileId: GraphQLPremadeProfileNode;
 }
 
+export interface GraphQLAllPremadeProfilesResponse {
+  data?: {
+    allMiragePremadeProfiles?: {
+      nodes: GraphQLPremadeProfileNode[];
+    };
+  };
+  errors?: GraphQLError[];
+}
+
 export interface GraphQLUserPremadeProfilesResponse {
   data?: {
     allMiragePremadeProfileOwners?: {
